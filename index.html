@@ -2533,24 +2533,17 @@ async function downloadSheetsAsExcel(){
   const btn=document.querySelector('[aria-label="Pantalla"]');
   const orig=btn.innerHTML;btn.disabled=true;btn.innerHTML='<i data-lucide="loader-circle" style="animation:spin 1s linear infinite;"></i>';
   try{
-    const res=await apiCall('list_products',{});
-    const data=res.data||[];
-    if(!data.length){showToast('Sheets vacío','No hay datos para descargar.','warning');return;}
+    // ID del Google Sheets y el GID de la primera hoja
+    const spreadsheetId='1QT8v8iZC8vBTuTbN8oKUtcny9dUiHQ3FFFsIkKTk_y0';
+    const gid='1446613351';
 
-    // Crear CSV manualmente
-    const headers=Object.keys(data[0]||{});
-    const csv=[];
-    csv.push(headers.map(h=>`"${h}"`).join(','));
-    data.forEach(row=>{
-      csv.push(headers.map(h=>{
-        const val=row[h]||'';
-        const str=String(val).replace(/"/g,'""');
-        return `"${str}"`;
-      }).join(','));
-    });
+    // Descargar como CSV desde Google Sheets
+    const csvUrl=`https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=csv&gid=${gid}`;
 
-    const csvContent=csv.join('\n');
-    const blob=new Blob(['﻿'+csvContent],{type:'text/csv;charset=utf-8'});
+    const response=await fetch(csvUrl);
+    if(!response.ok) throw new Error('No se pudo descargar el archivo');
+
+    const blob=await response.blob();
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
     a.href=url;
@@ -2559,7 +2552,7 @@ async function downloadSheetsAsExcel(){
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast('Descarga completada',`${data.length} productos descargados en CSV.`,'success');
+    showToast('Descarga completada','Archivo descargado exitosamente.','success');
   }catch(e){
     console.error(e);
     showToast('Error de descarga','No se pudo descargar el archivo.','error');
