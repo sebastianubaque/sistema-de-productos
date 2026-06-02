@@ -2866,21 +2866,29 @@ function openInvoiceDetail(invId) {
 }
 
 function renderInvoiceDetailContent(overlay, inv) {
-  const total = inv.items.reduce((s,it) => s + (it.precioVenta * it.qty), 0);
+  const total = inv.items.reduce((s,it) => {
+    const prod = currentProducts.find(p => p.id === it.productId);
+    const pc = it.precioCompra > 0 ? it.precioCompra : (prod?.precioCompra || 0);
+    return s + pc * it.qty;
+  }, 0);
   const dateStr = inv.date ? new Date(inv.date+'T12:00:00').toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'}) : '—';
-  const itemsHTML = inv.items.length ? inv.items.map((it,idx) => `
+  const itemsHTML = inv.items.length ? inv.items.map((it,idx) => {
+    const prod = currentProducts.find(p => p.id === it.productId);
+    const pc = it.precioCompra > 0 ? it.precioCompra : (prod?.precioCompra || 0);
+    return `
     <div class="invoice-item-row">
       <div class="invoice-item-info">
         <div class="invoice-item-name">${it.marca} — ${it.descripcion}</div>
         <div class="invoice-item-sub">${[it.color,it.talla,it.estilo].filter(Boolean).join(' · ')} · ${it.qty} ud${it.qty!==1?'s':''}</div>
       </div>
       <div class="invoice-item-right">
-        <span class="invoice-item-price">$${(it.precioVenta*it.qty).toLocaleString('es-CO')}</span>
+        <span class="invoice-item-price">$${(pc*it.qty).toLocaleString('es-CO')}</span>
         <button class="btn btn-red btn-sm" style="padding:5px 8px;min-height:32px;" onclick="removeInvoiceItem('${inv.id}',${idx})">
           <i data-lucide="x" style="width:12px;height:12px;"></i>
         </button>
       </div>
-    </div>`) .join('')
+    </div>`;
+  }).join('')
   : `<div style="text-align:center;padding:24px;color:var(--text3);font-size:13px;">Sin productos — toca "Agregar" para añadir</div>`;
 
   overlay.innerHTML = `
