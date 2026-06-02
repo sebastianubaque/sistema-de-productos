@@ -1101,7 +1101,12 @@ const SUPABASE_TABLES = {
 let supabaseDb = null;
 let supabaseSyncTimer = null;
 let supabasePendingScopes = new Set();
+let supabaseSyncPaused = false;
 let supabaseErrorShown = false;
+const supabaseSnapshots = {
+  products: new Map(),
+  invoices: new Map()
+};
 
 async function apiCall(action, payload={}) {
   const body = JSON.stringify({action,...payload});
@@ -1146,12 +1151,24 @@ async function loadCollectionFromSupabase(tableName) {
   return (data || []).map(row => ({ ...(row.data || {}), id: row.data?.id || row.id }));
 }
 
-async function saveCollectionToSupabase(tableName, items) {
+function snapshotCollection(scope, items) {
+  const target = supabaseSnapshots[scope];
+  if (!target) return;
+  target.clear();
+  items.forEach(item => target.set(String(item.id), JSON.stringify(item)));
+}
+
+async function saveCollectionToSupabase(tableName, items, scope) {
   const db = getSupabaseDb();
   if (!db) return;
 
+  const snapshot = supabaseSnapshots[scope];
+  const changedItems = snapshot
+    ? items.filter(item => snapshot.get(String(item.id)) !== JSON.stringify(item))
+    : items;
+
   const now = new Date().toISOString();
-  const rows = items.map(item => ({
+  const rows = changedItems.map(item => ({
     id: String(item.id),
     data: item,
     updated_at: now
@@ -1160,26 +1177,27 @@ async function saveCollectionToSupabase(tableName, items) {
   if (rows.length) {
     const { error } = await db.from(tableName).upsert(rows, { onConflict: 'id' });
     if (error) throw error;
+    if (snapshot) {
+      changedItems.forEach(item => snapshot.set(String(item.id), JSON.stringify(item)));
+    }
   }
+}
 
-  const { data: existing, error: listError } = await db.from(tableName).select('id');
-  if (listError) throw listError;
-
-  const localIds = new Set(items.map(item => String(item.id)));
-  const staleIds = (existing || []).map(row => row.id).filter(id => !localIds.has(String(id)));
-  if (staleIds.length) {
-    const { error } = await db.from(tableName).delete().in('id', staleIds);
-    if (error) throw error;
-  }
+async function deleteFromSupabase(tableName, id, scope) {
+  const db = getSupabaseDb();
+  if (!db || !id) return;
+  const { error } = await db.from(tableName).delete().eq('id', String(id));
+  if (error) throw error;
+  if (supabaseSnapshots[scope]) supabaseSnapshots[scope].delete(String(id));
 }
 
 async function syncSupabaseData(scope='all') {
   try {
     if (scope === 'all' || scope === 'products') {
-      await saveCollectionToSupabase(SUPABASE_TABLES.products, currentProducts);
+      await saveCollectionToSupabase(SUPABASE_TABLES.products, currentProducts, 'products');
     }
     if (scope === 'all' || scope === 'invoices') {
-      await saveCollectionToSupabase(SUPABASE_TABLES.invoices, invoices);
+      await saveCollectionToSupabase(SUPABASE_TABLES.invoices, invoices, 'invoices');
     }
   } catch (error) {
     showSupabaseError(error);
@@ -1187,9 +1205,11 @@ async function syncSupabaseData(scope='all') {
 }
 
 function queueSupabaseSync(scope='all') {
+  if (supabaseSyncPaused) return;
   supabasePendingScopes.add(scope);
   clearTimeout(supabaseSyncTimer);
   supabaseSyncTimer = setTimeout(() => {
+    supabaseSyncTimer = null;
     const scopes = Array.from(supabasePendingScopes);
     supabasePendingScopes.clear();
     if (scopes.includes('all')) {
@@ -1210,32 +1230,50 @@ async function loadFromSupabase() {
       loadCollectionFromSupabase(SUPABASE_TABLES.invoices)
     ]);
 
-    const hasRemoteProducts = Array.isArray(remoteProducts) && remoteProducts.length > 0;
-    const hasRemoteInvoices = Array.isArray(remoteInvoices) && remoteInvoices.length > 0;
-
-    if (hasRemoteProducts) {
+    if (Array.isArray(remoteProducts)) {
       currentProducts = remoteProducts;
       filteredProducts = [...currentProducts];
       localStorage.setItem('inventario_productos', JSON.stringify(currentProducts));
+      snapshotCollection('products', currentProducts);
     }
 
-    if (hasRemoteInvoices) {
+    if (Array.isArray(remoteInvoices)) {
       invoices = remoteInvoices;
       localStorage.setItem('jahdiel_invoices', JSON.stringify(invoices));
+      snapshotCollection('invoices', invoices);
     }
 
-    if (!hasRemoteProducts && currentProducts.length) {
-      await saveCollectionToSupabase(SUPABASE_TABLES.products, currentProducts);
-    }
-    if (!hasRemoteInvoices && invoices.length) {
-      await saveCollectionToSupabase(SUPABASE_TABLES.invoices, invoices);
-    }
-
-    return hasRemoteProducts || hasRemoteInvoices;
+    return Array.isArray(remoteProducts) || Array.isArray(remoteInvoices);
   } catch (error) {
     showSupabaseError(error);
     return false;
   }
+}
+
+function applyDataAfterSupabaseRefresh() {
+  filteredProducts = [...currentProducts];
+  if (invoices.length) {
+    const nums = invoices.map(i => parseInt(i.number) || 0);
+    invoiceCounter = Math.max(...nums) + 1;
+  } else {
+    invoiceCounter = 1;
+  }
+  if (activeInvoiceId && !invoices.find(i => i.id === activeInvoiceId)) {
+    setActiveInvoice(null);
+  }
+  updateProductsDisplay();
+  updateCounter();
+  populateFilterOptions();
+  refreshAllInvoiceBars();
+  renderInvoices();
+  renderProductsPage();
+  updateStats();
+}
+
+async function refreshFromSupabase() {
+  if (supabasePendingScopes.size || supabaseSyncTimer) return;
+  const loaded = await loadFromSupabase();
+  if (loaded) applyDataAfterSupabaseRefresh();
 }
 
 // ══════════════════════════════════════════
@@ -2101,13 +2139,15 @@ function editProduct(productId){
 
 function deleteProduct(productId){
   const idx=currentProducts.findIndex(p=>p.id===productId); if(idx===-1) return;
-  showConfirmation('¿Eliminar producto?','Esta acción no se puede deshacer.',()=>{
+  showConfirmation('¿Eliminar producto?','Esta acción no se puede deshacer.',async ()=>{
     currentProducts.splice(idx,1);filteredProducts=[...currentProducts];
     // Quitar también de la factura activa si estaba
     invoices.forEach(inv => {
       inv.items = inv.items.filter(it => it.productId !== productId);
     });
     saveToLocalStorage();saveInvoices();
+    try { await deleteFromSupabase(SUPABASE_TABLES.products, productId, 'products'); }
+    catch (error) { showSupabaseError(error); }
     renderProductsPage();updateCounter();populateFilterOptions();refreshAllInvoiceBars();
     SFX.delete();
     showToast('Eliminado','Producto eliminado.','success');
@@ -3248,9 +3288,11 @@ function confirmPickerSelection(invId, overlay) {
 
 // ── Eliminar factura ──
 function deleteInvoice(invId) {
-  showConfirmation('¿Eliminar factura?', 'Se eliminará permanentemente.', () => {
+  showConfirmation('¿Eliminar factura?', 'Se eliminará permanentemente.', async () => {
     invoices = invoices.filter(i => i.id !== invId);
     saveInvoices();
+    try { await deleteFromSupabase(SUPABASE_TABLES.invoices, invId, 'invoices'); }
+    catch (error) { showSupabaseError(error); }
     SFX.delete();
     showToast('Factura eliminada','','success');
     renderInvoices();
@@ -3556,21 +3598,24 @@ function showOnboarding() {
 async function init(){
   try{
     if(window.elementSdk) await window.elementSdk.init(elementConfig);
+    supabaseSyncPaused = true;
     loadFromLocalStorage();
     loadInvoices();
     await loadFromSupabase();
+    supabaseSyncPaused = false;
     loadActiveInvoice();
-    filteredProducts=[...currentProducts];
-    updateProductsDisplay();
-    updateCounter();
-    populateFilterOptions();
+    applyDataAfterSupabaseRefresh();
     refreshAllInvoiceBars();
     setupSheetsButtons();
     renderAllChips();
     lucide.createIcons();
     updateStats();
+    setInterval(refreshFromSupabase, 8000);
     setTimeout(showOnboarding, 800);
-  }catch(err){console.error('Init error:',err);}
+  }catch(err){
+    supabaseSyncPaused = false;
+    console.error('Init error:',err);
+  }
 }
 
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
