@@ -2417,6 +2417,14 @@ function setupSheetsButtons(){
 // ══════════════════════════════════════════
 let activeInvoiceId = null;   // null = sin factura activa
 
+function invoiceCost(inv) {
+  return inv.items.reduce((s,it) => {
+    const prod = currentProducts.find(p => p.id === it.productId);
+    const pc = it.precioCompra > 0 ? it.precioCompra : (prod?.precioCompra || 0);
+    return s + pc * (it.qty || 0);
+  }, 0);
+}
+
 function getActiveInvoice() {
   return invoices.find(i => i.id === activeInvoiceId) || null;
 }
@@ -2450,7 +2458,7 @@ function renderHeaderBadge() {
   if (!el) return;
   const inv = getActiveInvoice();
   if (inv) {
-    const total = inv.items.reduce((s,it) => s + it.precioVenta * it.qty, 0);
+    const total = invoiceCost(inv);
     el.style.display = 'block';
     el.textContent = `📋 #${String(inv.number).padStart(4,'0')} · $${total.toLocaleString('es-CO')}`;
   } else {
@@ -2464,7 +2472,7 @@ function renderInvoiceBar(containerId) {
   if (!el) return;
   const inv = getActiveInvoice();
   if (inv) {
-    const total = inv.items.reduce((s,it) => s + it.precioVenta * it.qty, 0);
+    const total = invoiceCost(inv);
     const items = inv.items.reduce((s,it) => s + it.qty, 0);
     el.innerHTML = `
       <div class="active-invoice-bar" onclick="openInvoiceSwitcher()">
@@ -2499,7 +2507,7 @@ function renderProductsPage() {
   // Barra superior: selector de factura
   if (bar) {
     if (inv) {
-      const total = inv.items.reduce((s,it) => s + it.precioVenta * it.qty, 0);
+      const total = invoiceCost(inv);
       const uds   = inv.items.reduce((s,it) => s + it.qty, 0);
       bar.innerHTML = `
         <div class="active-invoice-bar" onclick="openInvoiceSwitcher()" style="margin-bottom:14px;">
@@ -2575,8 +2583,8 @@ function renderProductsPage() {
     }
   });
 
-  // Total de la factura
-  const total = inv.items.reduce((s,it) => s + it.precioVenta * it.qty, 0);
+  // Total de la factura (precio costo)
+  const total = invoiceCost(inv);
 
   container.innerHTML = '';
 
@@ -2699,7 +2707,7 @@ function openInvoiceSwitcher() {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay'; overlay.style.zIndex = '2000';
   const listHTML = invoices.length ? [...invoices].reverse().map(inv => {
-    const total = inv.items.reduce((s,it) => s + it.precioVenta * it.qty, 0);
+    const total = invoiceCost(inv);
     const isActive = inv.id === activeInvoiceId;
     return `
       <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:var(--radius-xs);
@@ -2770,7 +2778,7 @@ function renderInvoices() {
   empty.style.display = 'none';
   container.innerHTML = '';
   [...invoices].reverse().forEach(inv => {
-    const total = inv.items.reduce((s,it) => s + (it.precioVenta * it.qty), 0);
+    const total = invoiceCost(inv);
     const totalItems = inv.items.reduce((s,it) => s + it.qty, 0);
     const dateStr = inv.date ? new Date(inv.date+'T12:00:00').toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'}) : '—';
     const card = document.createElement('div');
@@ -3085,7 +3093,7 @@ async function sendInvoiceToSheets(invId) {
   if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
 
   try {
-    const totalFactura = inv.items.reduce((s,x) => s + (x.precioVenta||0) * (x.qty||0), 0);
+    const totalFactura = invoiceCost(inv);
     const numFactura   = `#${String(inv.number).padStart(4,'0')}`;
     const nombre       = inv.name || '';
 
