@@ -1736,11 +1736,7 @@ function updateStats(){
   const venta  = inv.items.reduce((s,it) => s + (it.precioVenta||0)*(it.qty||0), 0);
 
   // Inversión: precio compra × cantidad (desde el inventario si existe)
-  const inversion = inv.items.reduce((s,it) => {
-    const prod = currentProducts.find(p => p.id === it.productId);
-    const pc   = prod ? (prod.precioCompra||0) : 0;
-    return s + pc * (it.qty||0);
-  }, 0);
+  const inversion = inv.items.reduce((s,it) => s + invoiceItemCost(it) * (it.qty||0), 0);
 
   document.getElementById('statTotal').textContent = items;
   document.getElementById('statUnits').textContent = units.toLocaleString('es-CO');
@@ -2417,11 +2413,42 @@ function setupSheetsButtons(){
 // ══════════════════════════════════════════
 let activeInvoiceId = null;   // null = sin factura activa
 
+function normalizeText(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function findProductForInvoiceItem(it) {
+  if (!it) return null;
+  let prod = currentProducts.find(p => p.id === it.productId);
+  if (prod) return prod;
+
+  const marca = normalizeText(it.marca);
+  const descripcion = normalizeText(it.descripcion);
+  const genero = normalizeText(it.genero);
+  const color = normalizeText(it.color);
+  const talla = normalizeText(it.talla);
+  const estilo = normalizeText(it.estilo);
+
+  return currentProducts.find(p =>
+    normalizeText(p.marca) === marca &&
+    normalizeText(p.descripcion) === descripcion &&
+    normalizeText(p.genero) === genero &&
+    normalizeText(p.color) === color &&
+    normalizeText(p.talla) === talla &&
+    normalizeText(p.estilo) === estilo
+  ) || null;
+}
+
+function invoiceItemCost(it) {
+  const ownCost = Number(it?.precioCompra) || 0;
+  if (ownCost > 0) return ownCost;
+  const prod = findProductForInvoiceItem(it);
+  return Number(prod?.precioCompra) || 0;
+}
+
 function invoiceCost(inv) {
   return inv.items.reduce((s,it) => {
-    const prod = currentProducts.find(p => p.id === it.productId);
-    const pc = it.precioCompra > 0 ? it.precioCompra : (prod?.precioCompra || 0);
-    return s + pc * (it.qty || 0);
+    return s + invoiceItemCost(it) * (it.qty || 0);
   }, 0);
 }
 
@@ -2551,7 +2578,7 @@ function renderProductsPage() {
   // Enriquecer cada ítem con datos del inventario si existen,
   // pero siempre usar los datos del ítem como base (nunca descartar)
   const enriched = inv.items.map((it, idx) => {
-    const prod = currentProducts.find(p => p.id === it.productId);
+    const prod = findProductForInvoiceItem(it);
     return {
       idx,
       productId:   it.productId,
@@ -2562,7 +2589,7 @@ function renderProductsPage() {
       talla:       it.talla        || prod?.talla        || '',
       estilo:      it.estilo       || prod?.estilo       || '',
       precioVenta: it.precioVenta  ?? prod?.precioVenta  ?? 0,
-      precioCompra: prod?.precioCompra ?? 0,
+      precioCompra: invoiceItemCost(it),
       cantidad:    it.qty,
       categoria:   prod?.categoria || '',
       tipo:        prod?.tipo      || 'simple',
@@ -2762,6 +2789,18 @@ function loadInvoices() {
   try {
     const s = localStorage.getItem('jahdiel_invoices');
     if (s) invoices = JSON.parse(s);
+    let changed = false;
+    invoices.forEach(inv => {
+      inv.items = (inv.items || []).map(it => {
+        if ((Number(it?.precioCompra) || 0) > 0) return it;
+        const prod = findProductForInvoiceItem(it);
+        const precioCompra = Number(prod?.precioCompra) || 0;
+        if (!precioCompra) return it;
+        changed = true;
+        return { ...it, precioCompra };
+      });
+    });
+    if (changed) saveInvoices();
     // restaurar contador
     if (invoices.length) {
       const nums = invoices.map(i => parseInt(i.number) || 0);
@@ -2874,15 +2913,10 @@ function openInvoiceDetail(invId) {
 }
 
 function renderInvoiceDetailContent(overlay, inv) {
-  const total = inv.items.reduce((s,it) => {
-    const prod = currentProducts.find(p => p.id === it.productId);
-    const pc = it.precioCompra > 0 ? it.precioCompra : (prod?.precioCompra || 0);
-    return s + pc * it.qty;
-  }, 0);
+  const total = inv.items.reduce((s,it) => s + invoiceItemCost(it) * it.qty, 0);
   const dateStr = inv.date ? new Date(inv.date+'T12:00:00').toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'}) : '—';
   const itemsHTML = inv.items.length ? inv.items.map((it,idx) => {
-    const prod = currentProducts.find(p => p.id === it.productId);
-    const pc = it.precioCompra > 0 ? it.precioCompra : (prod?.precioCompra || 0);
+    const pc = invoiceItemCost(it);
     return `
     <div class="invoice-item-row">
       <div class="invoice-item-info">
@@ -3099,9 +3133,9 @@ async function sendInvoiceToSheets(invId) {
 
     const products = inv.items.map(it => {
       // Buscar en inventario para recuperar datos que puedan faltar
-      const prod = currentProducts.find(p => p.id === it.productId);
+      const prod = findProductForInvoiceItem(it);
       const genero      = it.genero      || prod?.genero      || '';
-      const precioCompra = it.precioCompra > 0 ? it.precioCompra : (prod?.precioCompra || 0);
+      const precioCompra = invoiceItemCost(it);
       const categoria   = generateCategory(it.descripcion || prod?.descripcion || '', genero);
       return {
         ID:            it.productId    || '',
