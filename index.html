@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
   <style>
     :root {
       --bg:        #0A0E1A;
@@ -737,6 +738,9 @@
     }
     .qty-chip:hover  { background: var(--accent); color: #fff; border-color: var(--accent); }
     .qty-chip:active { transform: scale(0.93); }
+
+    /* ── Spinner animation ── */
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -2526,6 +2530,27 @@ async function clearSheetsProducts(){
   });
 }
 
+async function downloadSheetsAsExcel(){
+  const btn=document.querySelector('[aria-label="Pantalla"]');
+  const orig=btn.innerHTML;btn.disabled=true;btn.innerHTML='<i data-lucide="loader-circle" style="animation:spin 1s linear infinite;"></i>';
+  try{
+    const res=await apiCall('list_products',{});
+    const data=res.data||[];
+    if(!data.length){showToast('Sheets vacío','No hay datos para descargar.','warning');return;}
+
+    const ws=XLSX.utils.json_to_sheet(data);
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,'Productos');
+    XLSX.writeFile(wb,`Inventario_Jahdiel_${new Date().toISOString().slice(0,10)}.xlsx`);
+    showToast('Descarga completada',`${data.length} productos descargados.`,'success');
+  }catch(e){
+    console.error(e);
+    showToast('Error de descarga','No se pudo descargar el archivo.','error');
+  }finally{
+    btn.disabled=false;btn.innerHTML=orig;lucide.createIcons({nodes:[btn]});
+  }
+}
+
 // ══════════════════════════════════════════
 // CONFIRMATION DIALOG
 // ══════════════════════════════════════════
@@ -2575,6 +2600,7 @@ function setupSheetsButtons(){
   const s=document.getElementById('syncSheetsBtn');
   const v=document.getElementById('viewSheetsBtn');
   const c=document.getElementById('clearSheetsBtn');
+  const d=document.querySelector('[aria-label="Pantalla"]');
   if(s) s.addEventListener('click', () => {
     const inv = getActiveInvoice();
     if (!inv) { showToast('Sin factura activa','Selecciona una factura primero.','warning'); return; }
@@ -2595,6 +2621,7 @@ function setupSheetsButtons(){
       clearSheetsProducts
     );
   });
+  if(d) d.addEventListener('click', downloadSheetsAsExcel);
 }
 
 // ══════════════════════════════════════════
