@@ -2606,6 +2606,27 @@ const elementConfig={
 // ══════════════════════════════════════════
 // COSTOS Y ABONOS
 // ══════════════════════════════════════════
+async function initializeDeudaIfNeeded(){
+  const db=getSupabaseDb();
+  if(!db) return;
+  try{
+    const {data,error}=await db.from('jahdiel_costos_envios').select('*').eq('concepto','DEUDA_INICIAL').limit(1);
+    if(error) throw error;
+    if(!data||data.length===0){
+      // Agregar deuda inicial
+      await db.from('jahdiel_costos_envios').insert([{
+        cantidad_productos:0,
+        costo:540500,
+        concepto:'DEUDA_INICIAL',
+        fecha:new Date().toISOString(),
+        updated_at:new Date().toISOString()
+      }]);
+    }
+  }catch(e){
+    console.warn('Error initializing deuda:',e);
+  }
+}
+
 async function loadCostosFromSupabase(){
   const db=getSupabaseDb();
   if(!db) return [];
@@ -2651,6 +2672,7 @@ async function addAbonoToSupabase(monto,concepto){
 }
 
 async function openCostosModal(){
+  await initializeDeudaIfNeeded();
   const [costos,abonos]=[await loadCostosFromSupabase(),await loadAbonossFromSupabase()];
   const totalCostos=costos.reduce((s,c)=>s+(c.costo||0),0);
   const totalAbonos=abonos.reduce((s,a)=>s+(a.monto||0),0);
@@ -2667,9 +2689,9 @@ async function openCostosModal(){
       </div>
 
       <!-- Balance card -->
-      <div style="background:linear-gradient(135deg,rgba(108,99,255,0.12),rgba(139,92,246,0.08));border:1px solid rgba(108,99,255,0.25);border-radius:var(--radius);padding:16px;margin-bottom:16px;">
-        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;">Balance Pendiente</div>
-        <div style="font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:800;color:${balance>0?'var(--red)':'var(--green)'};">$${balance.toLocaleString('es-CO')}</div>
+      <div style="background:linear-gradient(135deg,${balance>0?'rgba(255,87,87,0.12)':'rgba(16,217,160,0.12)'},${balance>0?'rgba(255,87,87,0.08)':'rgba(16,217,160,0.08)'});border:1px solid ${balance>0?'rgba(255,87,87,0.25)':'rgba(16,217,160,0.25)'};border-radius:var(--radius);padding:16px;margin-bottom:16px;">
+        <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px;">${balance>0?'Deuda':'Balance'}</div>
+        <div style="font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:800;color:${balance>0?'var(--red)':'var(--green)'};">$${Math.abs(balance).toLocaleString('es-CO')}</div>
         <div style="font-size:11px;color:var(--text3);margin-top:8px;">Costos: $${totalCostos.toLocaleString('es-CO')} | Abonos: $${totalAbonos.toLocaleString('es-CO')}</div>
       </div>
 
@@ -2709,7 +2731,7 @@ async function openCostosModal(){
       <div style="display:flex;flex-direction:column;gap:10px;">
         <div class="form-group" style="margin:0;">
           <label class="form-label">Monto del abono</label>
-          <input type="number" id="abono-monto" class="form-input" placeholder="0" inputmode="decimal">
+          <input type="text" id="abono-monto" class="form-input" placeholder="0" oninput="formatPriceInput(this)" onblur="formatPriceBlur(this)">
         </div>
         <div class="form-group" style="margin:0;">
           <label class="form-label">Concepto (opcional)</label>
@@ -2741,7 +2763,8 @@ async function openCostosModal(){
   });
 
   document.getElementById('add-abono-btn').addEventListener('click',async()=>{
-    const monto=parseFloat(document.getElementById('abono-monto').value);
+    const montoStr=document.getElementById('abono-monto').value;
+    const monto=parsePriceInput({value:montoStr});
     const concepto=document.getElementById('abono-concepto').value;
     if(!monto||monto<=0){showToast('Error','Ingresa un monto válido.','error');return;}
     const btn=document.getElementById('add-abono-btn');
