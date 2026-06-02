@@ -2696,35 +2696,35 @@ async function openCostosModal(){
       </div>
 
       <!-- Tabs -->
-      <div style="display:flex;gap:8px;margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:12px;">
-        <button id="tab-costos" class="tab-btn active" style="padding:8px 0;font-size:13px;font-weight:700;color:var(--text);border-bottom:2px solid var(--accent);cursor:pointer;flex:1;">Envíos</button>
-        <button id="tab-abonos" class="tab-btn" style="padding:8px 0;font-size:13px;font-weight:700;color:var(--text3);border-bottom:2px solid transparent;cursor:pointer;flex:1;">Abonos</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">
+        <button id="tab-costos" class="tab-btn active" style="padding:12px;font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:var(--radius-sm);cursor:pointer;box-shadow:0 4px 12px rgba(108,99,255,0.3);transition:var(--transition);">📋 Envíos</button>
+        <button id="tab-abonos" class="tab-btn" style="padding:12px;font-size:13px;font-weight:700;color:var(--text2);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition);">✓ Abonos</button>
       </div>
 
       <!-- Costos section -->
-      <div id="costos-list" style="max-height:300px;overflow-y:auto;margin-bottom:16px;">
+      <div id="costos-list" style="max-height:280px;overflow-y:auto;margin-bottom:16px;padding:8px;">
         ${costos.length?costos.map((c,i)=>`
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-xs);margin-bottom:6px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-xs);margin-bottom:8px;transition:var(--transition);" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
             <div>
               <div style="font-size:12px;font-weight:700;color:var(--text);">${new Date(c.fecha).toLocaleDateString('es-CO')}</div>
-              <div style="font-size:11px;color:var(--text3);">${c.cantidad_productos} producto(s)</div>
+              <div style="font-size:11px;color:var(--text3);">${c.cantidad_productos||0} producto(s)</div>
             </div>
-            <div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:800;color:var(--yellow);">$${c.costo.toLocaleString('es-CO')}</div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:800;color:var(--yellow);">$${c.costo.toLocaleString('es-CO')}</div>
           </div>
-        `).join(''):'<div style="text-align:center;color:var(--text3);padding:20px;">Sin envíos registrados</div>'}
+        `).join(''):'<div style="text-align:center;color:var(--text3);padding:24px;">Sin envíos registrados</div>'}
       </div>
 
       <!-- Abonos section -->
-      <div id="abonos-list" style="display:none;max-height:300px;overflow-y:auto;margin-bottom:16px;">
+      <div id="abonos-list" style="display:none;max-height:280px;overflow-y:auto;margin-bottom:16px;padding:8px;">
         ${abonos.length?abonos.map((a,i)=>`
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-xs);margin-bottom:6px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-xs);margin-bottom:8px;transition:var(--transition);" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='var(--border)'">
             <div>
               <div style="font-size:12px;font-weight:700;color:var(--text);">${new Date(a.fecha).toLocaleDateString('es-CO')}</div>
               <div style="font-size:11px;color:var(--text3);">${a.concepto||'Abono'}</div>
             </div>
-            <div style="font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:800;color:var(--green);">$${a.monto.toLocaleString('es-CO')}</div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:800;color:var(--green);">$${a.monto.toLocaleString('es-CO')}</div>
           </div>
-        `).join(''):'<div style="text-align:center;color:var(--text3);padding:20px;">Sin abonos registrados</div>'}
+        `).join(''):'<div style="text-align:center;color:var(--text3);padding:24px;">Sin abonos registrados</div>'}
       </div>
 
       <!-- Add abono form -->
@@ -2747,19 +2747,31 @@ async function openCostosModal(){
   document.getElementById('tab-costos').addEventListener('click',()=>{
     document.getElementById('costos-list').style.display='block';
     document.getElementById('abonos-list').style.display='none';
-    document.getElementById('tab-costos').style.borderBottomColor='var(--accent)';
-    document.getElementById('tab-costos').style.color='var(--text)';
-    document.getElementById('tab-abonos').style.borderBottomColor='transparent';
-    document.getElementById('tab-abonos').style.color='var(--text3)';
+    const btnCostos=document.getElementById('tab-costos');
+    const btnAbonos=document.getElementById('tab-abonos');
+    btnCostos.style.background='linear-gradient(135deg,var(--accent),var(--accent2))';
+    btnCostos.style.color='#fff';
+    btnCostos.style.borderColor='var(--accent)';
+    btnCostos.style.boxShadow='0 4px 12px rgba(108,99,255,0.3)';
+    btnAbonos.style.background='var(--surface2)';
+    btnAbonos.style.color='var(--text2)';
+    btnAbonos.style.borderColor='var(--border)';
+    btnAbonos.style.boxShadow='none';
   });
 
   document.getElementById('tab-abonos').addEventListener('click',()=>{
     document.getElementById('costos-list').style.display='none';
     document.getElementById('abonos-list').style.display='block';
-    document.getElementById('tab-costos').style.borderBottomColor='transparent';
-    document.getElementById('tab-costos').style.color='var(--text3)';
-    document.getElementById('tab-abonos').style.borderBottomColor='var(--accent)';
-    document.getElementById('tab-abonos').style.color='var(--text)';
+    const btnCostos=document.getElementById('tab-costos');
+    const btnAbonos=document.getElementById('tab-abonos');
+    btnCostos.style.background='var(--surface2)';
+    btnCostos.style.color='var(--text2)';
+    btnCostos.style.borderColor='var(--border)';
+    btnCostos.style.boxShadow='none';
+    btnAbonos.style.background='linear-gradient(135deg,var(--green),var(--green2))';
+    btnAbonos.style.color='#fff';
+    btnAbonos.style.borderColor='var(--green)';
+    btnAbonos.style.boxShadow='0 4px 12px rgba(16,217,160,0.3)';
   });
 
   document.getElementById('add-abono-btn').addEventListener('click',async()=>{
