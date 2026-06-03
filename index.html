@@ -3630,9 +3630,21 @@ async function sendInvoiceToSheets(invId) {
   const inv = invoices.find(i => i.id === invId); if (!inv) return;
   if (!inv.items.length) { showToast('Factura vacía','Agrega productos antes de enviar.','warning'); return; }
 
-  const btn = document.querySelector(`[onclick="sendInvoiceToSheets('${invId}')"]`);
-  const origHTML = btn ? btn.innerHTML : null;
-  if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
+  // Crear overlay de carga
+  const loadingOverlay = document.createElement('div');
+  loadingOverlay.className = 'modal-overlay';
+  loadingOverlay.style.zIndex = '2000';
+  loadingOverlay.innerHTML = `
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:32px 24px;text-align:center;max-width:320px;">
+      <div style="width:60px;height:60px;border-radius:50%;border:4px solid var(--border);border-top-color:var(--accent);margin:0 auto 20px;animation:spin 1s linear infinite;"></div>
+      <div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px;">Enviando factura</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.5;">
+        Procesando ${inv.items.length} producto(s)...<br>
+        <span style="font-size:11px;color:var(--text3);margin-top:8px;display:block;">Por favor espera</span>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(loadingOverlay);
 
   try {
     const totalFactura = invoiceCost(inv);
@@ -3672,13 +3684,14 @@ async function sendInvoiceToSheets(invId) {
     saveInvoices();
     renderInvoices();
     SFX.sheets();
+
+    loadingOverlay.remove();
     showToast('Factura enviada', `${numFactura} ${nombre} → Sheets`, 'success');
     const detailOverlay = document.getElementById('invoiceDetailOverlay');
     if (detailOverlay) renderInvoiceDetailContent(detailOverlay, inv);
   } catch(err) {
+    loadingOverlay.remove();
     showToast('Error de conexión', err.message || 'No se pudo enviar a Google Sheets.', 'error');
-  } finally {
-    if (btn) { btn.disabled = false; if(origHTML) btn.innerHTML = origHTML; lucide.createIcons({nodes:[btn]}); }
   }
 }
 
