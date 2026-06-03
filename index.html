@@ -2532,7 +2532,33 @@ async function clearSheetsProducts(){
   });
 }
 
-async function downloadSheetsAsExcel(){
+function showDownloadOptionsModal(){
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';overlay.style.zIndex='2000';
+  overlay.innerHTML=`
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Descargar Inventario</div>
+      <div style="color:var(--text2);font-size:14px;margin-bottom:20px;line-height:1.5;">
+        ¿Cómo quieres descargar el archivo?
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn btn-primary btn-lg" onclick="downloadSheetsExcel(true,this.closest('.modal-overlay'))">
+          <i data-lucide="download"></i> Con Cantidad
+        </button>
+        <button class="btn btn-green btn-lg" onclick="downloadSheetsExcel(false,this.closest('.modal-overlay'))">
+          <i data-lucide="download"></i> Sin Cantidad (0)
+        </button>
+        <button class="btn btn-ghost btn-lg" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  lucide.createIcons({nodes:[overlay]});
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+}
+
+async function downloadSheetsExcel(withQuantity,overlay){
   const btn=document.querySelector('[aria-label="Pantalla"]');
   const orig=btn.innerHTML;btn.disabled=true;btn.innerHTML='<i data-lucide="loader-circle" style="animation:spin 1s linear infinite;"></i>';
   try{
@@ -2550,10 +2576,16 @@ async function downloadSheetsAsExcel(){
 
     // Convertir CSV a array de arrays
     const lines=csvText.split('\n');
-    const data=lines.map(line=>{
+    const data=lines.map((line,rowIdx)=>{
       const regex=/("([^"]*)"|[^,]+)/g;
       const matches=line.match(regex);
-      return matches?matches.map(m=>m.replace(/^"|"$/g,'').trim()):[];
+      let row=matches?matches.map(m=>m.replace(/^"|"$/g,'').trim()):[];
+
+      // Si no incluye cantidad, poner 0 en la columna CANTIDAD (índice 8, que es la columna I)
+      if(!withQuantity && rowIdx>0 && row.length>8){
+        row[8]='0';
+      }
+      return row;
     }).filter(row=>row.some(cell=>cell));
 
     if(data.length===0) throw new Error('No hay datos para descargar');
@@ -2564,11 +2596,13 @@ async function downloadSheetsAsExcel(){
     XLSX.utils.book_append_sheet(wb,ws,'Productos');
 
     // Descargar como Excel
-    const fileName=`Inventario_Jahdiel_${new Date().toISOString().slice(0,10)}.xlsx`;
+    const suffix=withQuantity?'':'_SinCantidad';
+    const fileName=`Inventario_Jahdiel_${new Date().toISOString().slice(0,10)}${suffix}.xlsx`;
     XLSX.writeFile(wb,fileName);
 
     SFX.export();
     showToast('Descarga completada','Archivo descargado en Excel.','success');
+    if(overlay) overlay.remove();
   }catch(e){
     console.error(e);
     showToast('Error de descarga','No se pudo descargar el archivo.','error');
@@ -2902,7 +2936,7 @@ function setupSheetsButtons(){
       clearSheetsProducts
     );
   });
-  if(d) d.addEventListener('click', downloadSheetsAsExcel);
+  if(d) d.addEventListener('click', showDownloadOptionsModal);
   if(m) m.addEventListener('click', openCostosModal);
 }
 
