@@ -2481,12 +2481,11 @@ async function viewSheetsProducts(){
     const res=await apiCall('list_products',{});
     const data=res.data||[];
     if(!data.length){showToast('Sheets vacío','Sin datos en la hoja.','info');return;}
-    const preview=data.slice(0,50);
+    const preview=data.slice(0,100);
     const overlay=document.createElement('div');
-    overlay.className='modal-overlay';overlay.style.zIndex='1500';
+    overlay.className='modal-overlay';overlay.style.zIndex='1500';overlay.style.alignItems='stretch';
     overlay.innerHTML=`
-      <div class="modal-sheet">
-        <div class="modal-handle"></div>
+      <div class="modal-sheet" style="border-radius:0;max-height:100dvh;padding:16px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
           <div>
             <div class="modal-title" style="margin:0;">Google Sheets</div>
@@ -2494,7 +2493,7 @@ async function viewSheetsProducts(){
           </div>
           <button class="btn btn-ghost btn-sm" onclick="this.closest('.modal-overlay').remove()"><i data-lucide="x"></i></button>
         </div>
-        <div style="overflow:auto;max-height:380px;border:1px solid var(--border);border-radius:10px;">
+        <div style="overflow:auto;flex:1;border:1px solid var(--border);border-radius:10px;">
           <table class="data-table">
             <thead><tr>${['ID','Marca','Desc.','Color','Talla','Cant.'].map(h=>`<th>${h}</th>`).join('')}</tr></thead>
             <tbody>${preview.map((p,i)=>`<tr style="background:${i%2?'transparent':'rgba(255,255,255,0.02)'};">
