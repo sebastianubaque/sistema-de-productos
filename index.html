@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     :root {
       --bg:        #0A0E1A;
@@ -2545,17 +2546,29 @@ async function downloadSheetsAsExcel(){
     const response=await fetch(csvUrl);
     if(!response.ok) throw new Error('No se pudo descargar el archivo');
 
-    const blob=await response.blob();
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;
-    a.download=`Inventario_Jahdiel_${new Date().toISOString().slice(0,10)}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const csvText=await response.text();
+
+    // Convertir CSV a array de arrays
+    const lines=csvText.split('\n');
+    const data=lines.map(line=>{
+      const regex=/("([^"]*)"|[^,]+)/g;
+      const matches=line.match(regex);
+      return matches?matches.map(m=>m.replace(/^"|"$/g,'').trim()):[];
+    }).filter(row=>row.some(cell=>cell));
+
+    if(data.length===0) throw new Error('No hay datos para descargar');
+
+    // Crear workbook con XLSX
+    const ws=XLSX.utils.aoa_to_sheet(data);
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,'Productos');
+
+    // Descargar como Excel
+    const fileName=`Inventario_Jahdiel_${new Date().toISOString().slice(0,10)}.xlsx`;
+    XLSX.writeFile(wb,fileName);
+
     SFX.export();
-    showToast('Descarga completada','Archivo descargado exitosamente.','success');
+    showToast('Descarga completada','Archivo descargado en Excel.','success');
   }catch(e){
     console.error(e);
     showToast('Error de descarga','No se pudo descargar el archivo.','error');
