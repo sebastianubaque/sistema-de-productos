@@ -2536,11 +2536,11 @@ async function downloadPlantillaLlena(){
   const btn=document.querySelector('[aria-label="Pantalla"]');
   const orig=btn.innerHTML;btn.disabled=true;btn.innerHTML='<i data-lucide="loader-circle" style="animation:spin 1s linear infinite;"></i>';
   try{
-    // Descargar plantilla
+    // Descargar plantilla con todos sus estilos
     const plantillaResponse=await fetch('/PLANTILLA.xlsx');
     if(!plantillaResponse.ok) throw new Error('No se pudo descargar la plantilla');
     const plantillaArrayBuffer=await plantillaResponse.arrayBuffer();
-    const plantillaWb=XLSX.read(plantillaArrayBuffer,{type:'array'});
+    const plantillaWb=XLSX.read(plantillaArrayBuffer,{type:'array',cellFormula:true,cellStyles:true});
     const plantillaWs=plantillaWb.Sheets[plantillaWb.SheetNames[0]];
 
     // Descargar datos de Google Sheets
@@ -2567,11 +2567,11 @@ async function downloadPlantillaLlena(){
       CATEGORIA:headerRow.findIndex(h=>h.includes('CATEGORIA'))
     };
 
-    // Llenar plantilla desde fila 10
+    // Llenar plantilla desde fila 10, preservando estilos existentes
     let plantillaRow=10;
     for(let i=3;i<lines.length;i++){
       const values=lines[i].split(',').map(v=>v.replace(/^"|"$/g,'').trim());
-      if(!values[0]) continue; // Saltar filas vacías
+      if(!values[0]) continue;
 
       const nombre=values[headerIndices.NOMBRE]||'';
       const precioVenta=values[headerIndices.PRECIOVENTA]||'';
@@ -2581,25 +2581,28 @@ async function downloadPlantillaLlena(){
       const marca=values[headerIndices.MARCA]||'';
       const costo=values[headerIndices.PRECIOCOMPRA]||'';
 
-      // Mapeo exacto según especificación:
-      plantillaWs['D'+plantillaRow]={t:'s',v:nombre};           // D: Nombre
-      plantillaWs['E'+plantillaRow]={t:'s',v:precioVenta};      // E: Precio de venta
-      plantillaWs['F'+plantillaRow]={t:'s',v:cantidad};         // F: Cantidad
-      plantillaWs['G'+plantillaRow]={t:'s',v:'NO'};             // G: Siempre "NO"
-      // H: No colocar nada
-      plantillaWs['I'+plantillaRow]={t:'s',v:codigo};           // I: Código
-      plantillaWs['J'+plantillaRow]={t:'s',v:codigo};           // J: Código (repetido)
-      plantillaWs['K'+plantillaRow]={t:'s',v:categoria};        // K: Categoría
-      plantillaWs['L'+plantillaRow]={t:'s',v:marca};            // L: Marca
-      plantillaWs['M'+plantillaRow]={t:'s',v:costo};            // M: Costo
-      // N, O, P, Q, R, S: No colocar nada
-      plantillaWs['T'+plantillaRow]={t:'s',v:'NO'};             // T: Siempre "NO"
-      // U, V: No colocar nada
+      // Preservar estilos de plantilla y solo cambiar valor
+      const setCellValue=(cellRef,value)=>{
+        if(!plantillaWs[cellRef]) plantillaWs[cellRef]={};
+        plantillaWs[cellRef].v=value;
+        plantillaWs[cellRef].t='s';
+      };
+
+      setCellValue('D'+plantillaRow,nombre);
+      setCellValue('E'+plantillaRow,precioVenta);
+      setCellValue('F'+plantillaRow,cantidad);
+      setCellValue('G'+plantillaRow,'NO');
+      setCellValue('I'+plantillaRow,codigo);
+      setCellValue('J'+plantillaRow,codigo);
+      setCellValue('K'+plantillaRow,categoria);
+      setCellValue('L'+plantillaRow,marca);
+      setCellValue('M'+plantillaRow,costo);
+      setCellValue('T'+plantillaRow,'NO');
 
       plantillaRow++;
     }
 
-    // Guardar y descargar plantilla llena
+    // Guardar y descargar preservando todo el formato original
     const fileName=`Inventario_Jahdiel_${new Date().toISOString().slice(0,10)}.xlsx`;
     XLSX.writeFile(plantillaWb,fileName);
 
