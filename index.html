@@ -1508,7 +1508,7 @@ function handleEnterKey(event,fieldId){
   const val=inp.value.toUpperCase().trim();
   if(!val) return;
   const exists=Array.from(usedValues[fieldId]||[]).includes(val);
-  if(!exists){addValueToDatalist(fieldId,val);inp.classList.remove('is-new');inp.classList.add('is-existing');showQuickConfirmation(`"${val}" agregado`);}
+  if(!exists){addValueToDatalist(fieldId,val);inp.classList.remove('is-new');inp.classList.add('is-existing');SFX.addInventory();showQuickConfirmation(`"${val}" agregado`);}
   const dd=document.getElementById(fieldId+'Dropdown'); if(dd) dd.style.display='none';
 }
 document.addEventListener('click',e=>{
@@ -2135,7 +2135,9 @@ function editProduct(productId){
     currentProducts[idx]=updated;
     filteredProducts=[...currentProducts];
     saveToLocalStorage();updateProductsDisplay();populateFilterOptions();updateCounter();
+    queueSupabaseSync('products');
     overlay.remove();
+    SFX.editProduct();
     showToast('Actualizado',`${updated.marca} — ${updated.descripcion}`,'success');
   };
 }
@@ -2152,7 +2154,7 @@ function deleteProduct(productId){
     try { await deleteFromSupabase(SUPABASE_TABLES.products, productId, 'products'); }
     catch (error) { showSupabaseError(error); }
     renderProductsPage();updateCounter();populateFilterOptions();refreshAllInvoiceBars();
-    SFX.delete();
+    SFX.deleteProduct();
     showToast('Eliminado','Producto eliminado.','success');
   });
 }
@@ -2552,6 +2554,7 @@ async function downloadSheetsAsExcel(){
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    SFX.export();
     showToast('Descarga completada','Archivo descargado exitosamente.','success');
   }catch(e){
     console.error(e);
@@ -2698,13 +2701,13 @@ async function deleteAbonoFromSupabase(id){
 
 async function deleteEnvioAndRefresh(id){
   const success=await deleteEnvioFromSupabase(id);
-  if(success){showQuickConfirmation('Envío eliminado');openCostosModal();}
+  if(success){SFX.deleteEnvio();showQuickConfirmation('Envío eliminado');openCostosModal();}
   else showToast('Error','No se pudo eliminar el envío.','error');
 }
 
 async function deleteAbonoAndRefresh(id){
   const success=await deleteAbonoFromSupabase(id);
-  if(success){showQuickConfirmation('Abono eliminado');openCostosModal();}
+  if(success){SFX.deleteAbono();showQuickConfirmation('Abono eliminado');openCostosModal();}
   else showToast('Error','No se pudo eliminar el abono.','error');
 }
 
@@ -2849,7 +2852,7 @@ async function openCostosModal(){
     const btn=document.getElementById('add-abono-btn');
     const orig=btn.innerHTML;btn.disabled=true;btn.innerHTML='Guardando...';
     const success=await addAbonoToSupabase(monto,concepto);
-    if(success){showQuickConfirmation('Abono agregado');overlay.remove();openCostosModal();}
+    if(success){SFX.addAbono();showQuickConfirmation('Abono agregado');overlay.remove();openCostosModal();}
     else{showToast('Error','No se pudo agregar el abono.','error');}
     btn.disabled=false;btn.innerHTML=orig;lucide.createIcons({nodes:[btn]});
   });
@@ -3765,6 +3768,67 @@ const SFX = (() => {
       gain.gain.setValueAtTime(0.13, ac.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.6);
       osc.start(ac.currentTime); osc.stop(ac.currentTime + 0.65);
+    },
+
+    // 6. Agregar abono — ding alegre doble
+    addAbono() {
+      playNotes([
+        [659, 0.15, 0.00],   // E5
+        [784, 0.15, 0.18],   // G5
+      ], 0.16);
+    },
+
+    // 7. Eliminar abono — bip descendente
+    deleteAbono() {
+      playNotes([
+        [659, 0.12, 0.00, 'square'],
+        [440, 0.12, 0.08, 'square'],
+      ], 0.12);
+    },
+
+    // 8. Eliminar envío — bip doble descendente
+    deleteEnvio() {
+      playNotes([
+        [587, 0.10, 0.00, 'square'],
+        [392, 0.10, 0.08, 'square'],
+      ], 0.11);
+    },
+
+    // 9. Agregar marca/estilo/color/talla — tono único
+    addInventory() {
+      playNotes([[523, 0.12, 0.00]], 0.12);
+    },
+
+    // 10. Editar producto — dos tonos ascendentes
+    editProduct() {
+      playNotes([
+        [587, 0.12, 0.00],
+        [659, 0.12, 0.10],
+      ], 0.14);
+    },
+
+    // 11. Eliminar producto — tres bips descendentes
+    deleteProduct() {
+      playNotes([
+        [523, 0.08, 0.00, 'square'],
+        [392, 0.08, 0.06, 'square'],
+        [294, 0.10, 0.12, 'square'],
+      ], 0.10);
+    },
+
+    // 12. Exportar Excel — whoosh + ding
+    export() {
+      const ac = getCtx();
+      const osc  = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.connect(gain); gain.connect(ac.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(300, ac.currentTime);
+      osc.frequency.linearRampToValueAtTime(700, ac.currentTime + 0.25);
+      gain.gain.setValueAtTime(0.12, ac.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.3);
+      osc.start(ac.currentTime); osc.stop(ac.currentTime + 0.35);
+      playNotes([[1047, 0.2, 0.28]], 0.14);
     },
   };
 })();
