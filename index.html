@@ -2769,7 +2769,7 @@ async function openCostosModal(){
 
       <!-- Costos section -->
       <div id="costos-list" style="max-height:280px;overflow-y:auto;margin-bottom:16px;padding:8px;">
-        ${costos.length?costos.map((c,i)=>`
+        ${costos.filter(c=>c.cantidad_productos&&c.cantidad_productos>0).length?costos.filter(c=>c.cantidad_productos&&c.cantidad_productos>0).map((c,i)=>`
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-xs);margin-bottom:8px;transition:var(--transition);" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
             <div style="flex:1;min-width:0;">
               <div style="font-size:12px;font-weight:700;color:var(--text);">${new Date(c.fecha).toLocaleDateString('es-CO')}</div>
