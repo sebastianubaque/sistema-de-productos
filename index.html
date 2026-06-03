@@ -2532,80 +2532,76 @@ async function clearSheetsProducts(){
   });
 }
 
-function showDownloadOptionsModal(){
-  const overlay=document.createElement('div');
-  overlay.className='modal-overlay';overlay.style.zIndex='2000';
-  overlay.innerHTML=`
-    <div class="modal-sheet">
-      <div class="modal-handle"></div>
-      <div class="modal-title">Descargar Inventario</div>
-      <div style="color:var(--text2);font-size:14px;margin-bottom:20px;line-height:1.5;">
-        ¿Cómo quieres descargar el archivo?
-      </div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <button class="btn btn-primary btn-lg" onclick="downloadSheetsExcel(true,this.closest('.modal-overlay'))">
-          <i data-lucide="download"></i> Con Cantidad
-        </button>
-        <button class="btn btn-green btn-lg" onclick="downloadSheetsExcel(false,this.closest('.modal-overlay'))">
-          <i data-lucide="download"></i> Sin Cantidad (0)
-        </button>
-        <button class="btn btn-ghost btn-lg" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-  lucide.createIcons({nodes:[overlay]});
-  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
-}
-
-async function downloadSheetsExcel(withQuantity,overlay){
+async function downloadPlantillaLlena(){
   const btn=document.querySelector('[aria-label="Pantalla"]');
   const orig=btn.innerHTML;btn.disabled=true;btn.innerHTML='<i data-lucide="loader-circle" style="animation:spin 1s linear infinite;"></i>';
   try{
-    // ID del Google Sheets y el GID de la primera hoja
+    // Descargar plantilla
+    const plantillaResponse=await fetch('/PLANTILLA.xlsx');
+    if(!plantillaResponse.ok) throw new Error('No se pudo descargar la plantilla');
+    const plantillaArrayBuffer=await plantillaResponse.arrayBuffer();
+    const plantillaWb=XLSX.read(plantillaArrayBuffer,{type:'array'});
+    const plantillaWs=plantillaWb.Sheets[plantillaWb.SheetNames[0]];
+
+    // Descargar datos de Google Sheets
     const spreadsheetId='1QT8v8iZC8vBTuTbN8oKUtcny9dUiHQ3FFFsIkKTk_y0';
-    const gid='1446613351';
-
-    // Descargar como CSV desde Google Sheets
+    const gid='110166125';
     const csvUrl=`https://docs.google.com/spreadsheets/d/${spreadsheetId}/export?format=csv&gid=${gid}`;
+    const csvResponse=await fetch(csvUrl);
+    if(!csvResponse.ok) throw new Error('No se pudo descargar los datos');
 
-    const response=await fetch(csvUrl);
-    if(!response.ok) throw new Error('No se pudo descargar el archivo');
-
-    const csvText=await response.text();
-
-    // Convertir CSV a array de arrays
+    const csvText=await csvResponse.text();
     const lines=csvText.split('\n');
-    const data=lines.map((line,rowIdx)=>{
-      const regex=/("([^"]*)"|[^,]+)/g;
-      const matches=line.match(regex);
-      let row=matches?matches.map(m=>m.replace(/^"|"$/g,'').trim()):[];
 
-      // Si no incluye cantidad, poner 0 en la columna CANTIDAD (índice 8, que es la columna I)
-      if(!withQuantity && rowIdx>0 && row.length>8){
-        row[8]='0';
+    // Buscar fila de encabezados (fila 3, índice 2)
+    const headerRow=lines[2]?lines[2].split(','):[]; // Fila 3 (índice 2)
+    const headerIndices={
+      CODIGO:headerRow.indexOf('CODIGO'),
+      MARCA:headerRow.indexOf('MARCA'),
+      NOMBRE:headerRow.indexOf('NOMBRE'),
+      CANTIDAD:headerRow.indexOf('CANTIDAD'),
+      PRECIOCOMPRA:headerRow.indexOf('PRECIO COMPRA'),
+      PRECIOVENTA:headerRow.indexOf('PRECIO VENTA'),
+      CATEGORIA:headerRow.indexOf('CATEGORIA')
+    };
+
+    // Llenar plantilla desde fila 4 (índice 3)
+    let plantillaRow=4; // Fila 4 en la plantilla
+    for(let i=3;i<lines.length;i++){
+      const line=lines[i].trim();
+      if(!line) continue;
+
+      const values=line.split(',').map(v=>v.replace(/^"|"$/g,'').trim());
+
+      // Mapear columnas de Google Sheets a plantilla
+      const rowData={
+        A:values[headerIndices.CODIGO]||'',
+        B:values[headerIndices.MARCA]||'',
+        C:values[headerIndices.NOMBRE]||'',
+        D:values[headerIndices.CANTIDAD]||'',
+        E:values[headerIndices.PRECIOCOMPRA]||'',
+        F:values[headerIndices.PRECIOVENTA]||'',
+        G:'NO', // Siempre NO
+        T:'NO'  // Siempre NO
+      };
+
+      // Llenar celdas en la plantilla
+      for(const [col,val] of Object.entries(rowData)){
+        const cellRef=col+plantillaRow;
+        plantillaWs[cellRef]={t:'s',v:String(val)};
       }
-      return row;
-    }).filter(row=>row.some(cell=>cell));
+      plantillaRow++;
+    }
 
-    if(data.length===0) throw new Error('No hay datos para descargar');
-
-    // Crear workbook con XLSX
-    const ws=XLSX.utils.aoa_to_sheet(data);
-    const wb=XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb,ws,'Productos');
-
-    // Descargar como Excel
-    const suffix=withQuantity?'':'_SinCantidad';
-    const fileName=`Inventario_Jahdiel_${new Date().toISOString().slice(0,10)}${suffix}.xlsx`;
-    XLSX.writeFile(wb,fileName);
+    // Guardar y descargar plantilla llena
+    const fileName=`Inventario_Jahdiel_${new Date().toISOString().slice(0,10)}.xlsx`;
+    XLSX.writeFile(plantillaWb,fileName);
 
     SFX.export();
-    showToast('Descarga completada','Archivo descargado en Excel.','success');
-    if(overlay) overlay.remove();
+    showToast('Descarga completada','Plantilla descargada y llena.','success');
   }catch(e){
     console.error(e);
-    showToast('Error de descarga','No se pudo descargar el archivo.','error');
+    showToast('Error de descarga','No se pudo descargar la plantilla.','error');
   }finally{
     btn.disabled=false;btn.innerHTML=orig;lucide.createIcons({nodes:[btn]});
   }
@@ -2936,7 +2932,7 @@ function setupSheetsButtons(){
       clearSheetsProducts
     );
   });
-  if(d) d.addEventListener('click', showDownloadOptionsModal);
+  if(d) d.addEventListener('click', downloadPlantillaLlena);
   if(m) m.addEventListener('click', openCostosModal);
 }
 
