@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
   <style>
     :root {
       --bg:        #0A0E1A;
@@ -2532,16 +2532,44 @@ async function clearSheetsProducts(){
   });
 }
 
-async function downloadPlantillaLlena(){
+function showDownloadOptionsModal(){
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';overlay.style.zIndex='2000';
+  overlay.innerHTML=`
+    <div class="modal-sheet">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Descargar Inventario</div>
+      <div style="color:var(--text2);font-size:14px;margin-bottom:20px;line-height:1.5;">
+        ¿Cómo quieres descargar el archivo?
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn btn-primary btn-lg" onclick="downloadPlantillaLlena(true,this.closest('.modal-overlay'))">
+          <i data-lucide="download"></i> Con Cantidad
+        </button>
+        <button class="btn btn-green btn-lg" onclick="downloadPlantillaLlena(false,this.closest('.modal-overlay'))">
+          <i data-lucide="download"></i> Sin Cantidad (0)
+        </button>
+        <button class="btn btn-ghost btn-lg" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  lucide.createIcons({nodes:[overlay]});
+  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+}
+
+async function downloadPlantillaLlena(withQuantity=true,overlay=null){
   const btn=document.querySelector('[aria-label="Pantalla"]');
   const orig=btn.innerHTML;btn.disabled=true;btn.innerHTML='<i data-lucide="loader-circle" style="animation:spin 1s linear infinite;"></i>';
   try{
-    // Descargar plantilla con todos sus estilos
+    // Cargar plantilla con ExcelJS (preserva todos los estilos)
     const plantillaResponse=await fetch('/PLANTILLA.xlsx');
     if(!plantillaResponse.ok) throw new Error('No se pudo descargar la plantilla');
-    const plantillaArrayBuffer=await plantillaResponse.arrayBuffer();
-    const plantillaWb=XLSX.read(plantillaArrayBuffer,{type:'array',cellFormula:true,cellStyles:true});
-    const plantillaWs=plantillaWb.Sheets[plantillaWb.SheetNames[0]];
+
+    const workbook=new ExcelJS.Workbook();
+    await workbook.xlsx.load(await plantillaResponse.arrayBuffer());
+    const worksheet=workbook.getWorksheet('Plantilla Cargue Tiendana');
+    if(!worksheet) throw new Error('No se encontró la hoja "Plantilla Cargue Tiendana"');
 
     // Descargar datos de Google Sheets
     const spreadsheetId='1QT8v8iZC8vBTuTbN8oKUtcny9dUiHQ3FFFsIkKTk_y0';
@@ -2551,63 +2579,68 @@ async function downloadPlantillaLlena(){
     if(!csvResponse.ok) throw new Error('No se pudo descargar los datos');
 
     const csvText=await csvResponse.text();
-    const lines=csvText.split('\n').filter(l=>l.trim());
+    const lines=csvText.split('\n');
 
-    // Buscar fila de encabezados (fila 3, índice 2)
     if(lines.length<3) throw new Error('No hay datos suficientes');
 
-    const headerRow=lines[2].split(',').map(v=>v.replace(/^"|"$/g,'').trim());
+    // Headers en línea 1 (índice 1)
+    const headerRow=lines[1].split(',').map(v=>v.replace(/^"|"$/g,'').trim());
     const headerIndices={
-      CODIGO:headerRow.findIndex(h=>h.includes('CODIGO')),
-      MARCA:headerRow.findIndex(h=>h.includes('MARCA')),
-      NOMBRE:headerRow.findIndex(h=>h.includes('NOMBRE')),
-      CANTIDAD:headerRow.findIndex(h=>h.includes('CANTIDAD')),
-      PRECIOCOMPRA:headerRow.findIndex(h=>h.includes('PRECIO COMPRA')),
-      PRECIOVENTA:headerRow.findIndex(h=>h.includes('PRECIO VENTA')),
-      CATEGORIA:headerRow.findIndex(h=>h.includes('CATEGORIA'))
+      CODIGO:0,
+      MARCA:1,
+      NOMBRE:2,
+      CANTIDAD:3,
+      PRECIOCOMPRA:4,
+      PRECIOVENTA:5,
+      CATEGORIA:6
     };
 
-    // Llenar plantilla desde fila 10, preservando estilos existentes
-    let plantillaRow=10;
-    for(let i=3;i<lines.length;i++){
+    // Limpiar datos de filas 10 a 6000 (conservando formato)
+    const FIRST_PRODUCT_ROW=10;
+    const LAST_TEMPLATE_ROW=6000;
+    for(let rowNumber=FIRST_PRODUCT_ROW;rowNumber<=LAST_TEMPLATE_ROW;rowNumber++){
+      const row=worksheet.getRow(rowNumber);
+      for(let columnNumber=4;columnNumber<=22;columnNumber++){
+        row.getCell(columnNumber).value=null;
+      }
+    }
+
+    // Llenar con datos de Google Sheets (comienzan en línea 2)
+    let plantillaRow=FIRST_PRODUCT_ROW;
+    for(let i=2;i<lines.length;i++){
+      if(!lines[i].trim()) continue;
       const values=lines[i].split(',').map(v=>v.replace(/^"|"$/g,'').trim());
       if(!values[0]) continue;
 
-      const nombre=values[headerIndices.NOMBRE]||'';
-      const precioVenta=values[headerIndices.PRECIOVENTA]||'';
-      const cantidad=values[headerIndices.CANTIDAD]||'';
-      const codigo=values[headerIndices.CODIGO]||'';
-      const categoria=values[headerIndices.CATEGORIA]||'';
-      const marca=values[headerIndices.MARCA]||'';
-      const costo=values[headerIndices.PRECIOCOMPRA]||'';
-
-      // Preservar estilos de plantilla y solo cambiar valor
-      const setCellValue=(cellRef,value)=>{
-        if(!plantillaWs[cellRef]) plantillaWs[cellRef]={};
-        plantillaWs[cellRef].v=value;
-        plantillaWs[cellRef].t='s';
-      };
-
-      setCellValue('D'+plantillaRow,nombre);
-      setCellValue('E'+plantillaRow,precioVenta);
-      setCellValue('F'+plantillaRow,cantidad);
-      setCellValue('G'+plantillaRow,'NO');
-      setCellValue('I'+plantillaRow,codigo);
-      setCellValue('J'+plantillaRow,codigo);
-      setCellValue('K'+plantillaRow,categoria);
-      setCellValue('L'+plantillaRow,marca);
-      setCellValue('M'+plantillaRow,costo);
-      setCellValue('T'+plantillaRow,'NO');
+      const row=worksheet.getRow(plantillaRow);
+      row.getCell('D').value=values[headerIndices.NOMBRE]||'';
+      row.getCell('E').value=Math.round(parseFloat(values[headerIndices.PRECIOVENTA])||0);
+      row.getCell('F').value=withQuantity?Math.round(parseFloat(values[headerIndices.CANTIDAD])||0):0;
+      row.getCell('G').value='NO';
+      row.getCell('I').value=values[headerIndices.CODIGO]||'';
+      row.getCell('J').value=values[headerIndices.CODIGO]||'';
+      row.getCell('K').value=values[headerIndices.CATEGORIA]||'';
+      row.getCell('L').value=values[headerIndices.MARCA]||'';
+      row.getCell('M').value=Math.round(parseFloat(values[headerIndices.PRECIOCOMPRA])||0);
+      row.getCell('T').value='NO';
+      row.commit();
 
       plantillaRow++;
     }
 
-    // Guardar y descargar preservando todo el formato original
-    const fileName=`Inventario_Jahdiel_${new Date().toISOString().slice(0,10)}.xlsx`;
-    XLSX.writeFile(plantillaWb,fileName);
+    // Generar y descargar archivo
+    const buffer=await workbook.xlsx.writeBuffer();
+    const blob=new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const link=document.createElement('a');
+    link.href=URL.createObjectURL(blob);
+    const suffix=withQuantity?'':'_SinCantidad';
+    link.download=`Inventario_Jahdiel_${new Date().toISOString().slice(0,10)}${suffix}.xlsx`;
+    link.click();
+    URL.revokeObjectURL(link.href);
 
     SFX.export();
     showToast('Descarga completada','Plantilla descargada y llena.','success');
+    if(overlay) overlay.remove();
   }catch(e){
     console.error(e);
     showToast('Error de descarga',e.message||'No se pudo descargar la plantilla.','error');
@@ -2941,7 +2974,7 @@ function setupSheetsButtons(){
       clearSheetsProducts
     );
   });
-  if(d) d.addEventListener('click', downloadPlantillaLlena);
+  if(d) d.addEventListener('click', showDownloadOptionsModal);
   if(m) m.addEventListener('click', openCostosModal);
 }
 
