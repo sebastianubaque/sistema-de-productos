@@ -2551,45 +2551,38 @@ async function downloadPlantillaLlena(){
     if(!csvResponse.ok) throw new Error('No se pudo descargar los datos');
 
     const csvText=await csvResponse.text();
-    const lines=csvText.split('\n');
+    const lines=csvText.split('\n').filter(l=>l.trim());
 
     // Buscar fila de encabezados (fila 3, índice 2)
-    const headerRow=lines[2]?lines[2].split(','):[]; // Fila 3 (índice 2)
+    if(lines.length<3) throw new Error('No hay datos suficientes');
+
+    const headerRow=lines[2].split(',').map(v=>v.replace(/^"|"$/g,'').trim());
     const headerIndices={
-      CODIGO:headerRow.indexOf('CODIGO'),
-      MARCA:headerRow.indexOf('MARCA'),
-      NOMBRE:headerRow.indexOf('NOMBRE'),
-      CANTIDAD:headerRow.indexOf('CANTIDAD'),
-      PRECIOCOMPRA:headerRow.indexOf('PRECIO COMPRA'),
-      PRECIOVENTA:headerRow.indexOf('PRECIO VENTA'),
-      CATEGORIA:headerRow.indexOf('CATEGORIA')
+      CODIGO:headerRow.findIndex(h=>h.includes('CODIGO')),
+      MARCA:headerRow.findIndex(h=>h.includes('MARCA')),
+      NOMBRE:headerRow.findIndex(h=>h.includes('NOMBRE')),
+      CANTIDAD:headerRow.findIndex(h=>h.includes('CANTIDAD')),
+      PRECIOCOMPRA:headerRow.findIndex(h=>h.includes('PRECIO COMPRA')),
+      PRECIOVENTA:headerRow.findIndex(h=>h.includes('PRECIO VENTA')),
+      CATEGORIA:headerRow.findIndex(h=>h.includes('CATEGORIA'))
     };
 
     // Llenar plantilla desde fila 4 (índice 3)
-    let plantillaRow=4; // Fila 4 en la plantilla
+    let plantillaRow=4;
     for(let i=3;i<lines.length;i++){
-      const line=lines[i].trim();
-      if(!line) continue;
-
-      const values=line.split(',').map(v=>v.replace(/^"|"$/g,'').trim());
+      const values=lines[i].split(',').map(v=>v.replace(/^"|"$/g,'').trim());
+      if(!values[0]) continue; // Saltar filas vacías
 
       // Mapear columnas de Google Sheets a plantilla
-      const rowData={
-        A:values[headerIndices.CODIGO]||'',
-        B:values[headerIndices.MARCA]||'',
-        C:values[headerIndices.NOMBRE]||'',
-        D:values[headerIndices.CANTIDAD]||'',
-        E:values[headerIndices.PRECIOCOMPRA]||'',
-        F:values[headerIndices.PRECIOVENTA]||'',
-        G:'NO', // Siempre NO
-        T:'NO'  // Siempre NO
-      };
+      plantillaWs['A'+plantillaRow]={t:'s',v:values[headerIndices.CODIGO]||''};
+      plantillaWs['B'+plantillaRow]={t:'s',v:values[headerIndices.MARCA]||''};
+      plantillaWs['C'+plantillaRow]={t:'s',v:values[headerIndices.NOMBRE]||''};
+      plantillaWs['D'+plantillaRow]={t:'s',v:values[headerIndices.CANTIDAD]||''};
+      plantillaWs['E'+plantillaRow]={t:'s',v:values[headerIndices.PRECIOCOMPRA]||''};
+      plantillaWs['F'+plantillaRow]={t:'s',v:values[headerIndices.PRECIOVENTA]||''};
+      plantillaWs['G'+plantillaRow]={t:'s',v:'NO'};
+      plantillaWs['T'+plantillaRow]={t:'s',v:'NO'};
 
-      // Llenar celdas en la plantilla
-      for(const [col,val] of Object.entries(rowData)){
-        const cellRef=col+plantillaRow;
-        plantillaWs[cellRef]={t:'s',v:String(val)};
-      }
       plantillaRow++;
     }
 
@@ -2601,7 +2594,7 @@ async function downloadPlantillaLlena(){
     showToast('Descarga completada','Plantilla descargada y llena.','success');
   }catch(e){
     console.error(e);
-    showToast('Error de descarga','No se pudo descargar la plantilla.','error');
+    showToast('Error de descarga',e.message||'No se pudo descargar la plantilla.','error');
   }finally{
     btn.disabled=false;btn.innerHTML=orig;lucide.createIcons({nodes:[btn]});
   }
