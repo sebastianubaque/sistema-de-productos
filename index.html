@@ -2567,21 +2567,34 @@ async function downloadPlantillaLlena(){
       CATEGORIA:headerRow.findIndex(h=>h.includes('CATEGORIA'))
     };
 
-    // Llenar plantilla desde fila 4 (índice 3)
-    let plantillaRow=4;
+    // Llenar plantilla desde fila 10
+    let plantillaRow=10;
     for(let i=3;i<lines.length;i++){
       const values=lines[i].split(',').map(v=>v.replace(/^"|"$/g,'').trim());
       if(!values[0]) continue; // Saltar filas vacías
 
-      // Mapear columnas de Google Sheets a plantilla
-      plantillaWs['A'+plantillaRow]={t:'s',v:values[headerIndices.CODIGO]||''};
-      plantillaWs['B'+plantillaRow]={t:'s',v:values[headerIndices.MARCA]||''};
-      plantillaWs['C'+plantillaRow]={t:'s',v:values[headerIndices.NOMBRE]||''};
-      plantillaWs['D'+plantillaRow]={t:'s',v:values[headerIndices.CANTIDAD]||''};
-      plantillaWs['E'+plantillaRow]={t:'s',v:values[headerIndices.PRECIOCOMPRA]||''};
-      plantillaWs['F'+plantillaRow]={t:'s',v:values[headerIndices.PRECIOVENTA]||''};
-      plantillaWs['G'+plantillaRow]={t:'s',v:'NO'};
-      plantillaWs['T'+plantillaRow]={t:'s',v:'NO'};
+      const nombre=values[headerIndices.NOMBRE]||'';
+      const precioVenta=values[headerIndices.PRECIOVENTA]||'';
+      const cantidad=values[headerIndices.CANTIDAD]||'';
+      const codigo=values[headerIndices.CODIGO]||'';
+      const categoria=values[headerIndices.CATEGORIA]||'';
+      const marca=values[headerIndices.MARCA]||'';
+      const costo=values[headerIndices.PRECIOCOMPRA]||'';
+
+      // Mapeo exacto según especificación:
+      plantillaWs['D'+plantillaRow]={t:'s',v:nombre};           // D: Nombre
+      plantillaWs['E'+plantillaRow]={t:'s',v:precioVenta};      // E: Precio de venta
+      plantillaWs['F'+plantillaRow]={t:'s',v:cantidad};         // F: Cantidad
+      plantillaWs['G'+plantillaRow]={t:'s',v:'NO'};             // G: Siempre "NO"
+      // H: No colocar nada
+      plantillaWs['I'+plantillaRow]={t:'s',v:codigo};           // I: Código
+      plantillaWs['J'+plantillaRow]={t:'s',v:codigo};           // J: Código (repetido)
+      plantillaWs['K'+plantillaRow]={t:'s',v:categoria};        // K: Categoría
+      plantillaWs['L'+plantillaRow]={t:'s',v:marca};            // L: Marca
+      plantillaWs['M'+plantillaRow]={t:'s',v:costo};            // M: Costo
+      // N, O, P, Q, R, S: No colocar nada
+      plantillaWs['T'+plantillaRow]={t:'s',v:'NO'};             // T: Siempre "NO"
+      // U, V: No colocar nada
 
       plantillaRow++;
     }
