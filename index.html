@@ -959,7 +959,7 @@
                       placeholder="Ej: NIKE, ADIDAS..."
                       autocomplete="off"
                       oninput="checkNewValue('marca',this.value);this.value=this.value.toUpperCase();"
-                      onblur="handleFieldBlur('marca');acOnBlur('marca')"
+                      onblur="handleFieldBlur('marca')"
                       onkeydown="handleEnterKey(event,'marca')">
                     <button type="button" class="add-new-btn" id="addBtn-marca" onclick="confirmAddNew('marca')" style="display:none;">
                       <i data-lucide="plus-circle"></i>
@@ -1009,7 +1009,7 @@
                       placeholder="DAMA, HOMBRE..."
                       autocomplete="off"
                       oninput="checkNewValue('genero',this.value);this.value=this.value.toUpperCase();"
-                      onblur="handleFieldBlur('genero');acOnBlur('genero')"
+                      onblur="handleFieldBlur('genero')"
                       onkeydown="handleEnterKey(event,'genero')">
                     <button type="button" class="add-new-btn" id="addBtn-genero" onclick="confirmAddNew('genero')" style="display:none;">
                       <i data-lucide="plus-circle"></i>
@@ -1552,11 +1552,10 @@ function acResetAll() {
 }
 
 function initMultiFieldAccordions() {
-  MULTI_SELECT_FIELDS.forEach(name => {
+  AC_FIELDS.forEach(name => {
     const block = document.getElementById('ac-' + name);
     if (!block) return;
     block.addEventListener('focusout', () => {
-      // Pequeño delay para que el foco llegue al nuevo elemento
       setTimeout(() => {
         if (block.contains(document.activeElement)) return;
         const val = acGetValue(name);
@@ -1770,15 +1769,21 @@ function renderChips(fieldId) {
     del.style.cssText='margin-left:3px;font-size:13px;line-height:1;opacity:0.7;';
     del.onclick=(e)=>{
       e.stopPropagation();
-      uvRemove(fieldId, v);
-      // Si estaba seleccionado en multi, quitarlo del input
-      if(isMulti && selected.includes(v)) chipToggleMulti(fieldId, v);
-      else {
-        const inp=document.getElementById(fieldId);
-        if(inp&&inp.value.toUpperCase().trim()===v) inp.classList.remove('is-existing');
-      }
-      renderChips(fieldId);
-      SFX.delete();
+      showConfirmation(
+        `¿Eliminar "${v}"?`,
+        'Se quitará de los accesos rápidos. Puedes volver a escribirlo para agregarlo.',
+        () => {
+          uvRemove(fieldId, v);
+          if(isMulti && selected.includes(v)) chipToggleMulti(fieldId, v);
+          else {
+            const inp=document.getElementById(fieldId);
+            if(inp&&inp.value.toUpperCase().trim()===v) inp.classList.remove('is-existing');
+          }
+          renderChips(fieldId);
+          SFX.delete();
+        },
+        'Eliminar', 'Cancelar', false
+      );
     };
     chip.appendChild(del);
 
@@ -1792,7 +1797,6 @@ function renderChips(fieldId) {
         const btn=document.getElementById('addBtn-'+fieldId); if(btn) btn.style.display='none';
         c.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
         chip.classList.add('active'); setTimeout(()=>chip.classList.remove('active'),700);
-        acOnBlur(fieldId);
       }
     };
     c.appendChild(chip);
@@ -2195,16 +2199,23 @@ function varRenderChips(vid, fieldType) {
     del.style.cssText = 'margin-left:3px;font-size:13px;line-height:1;opacity:0.7;';
     del.onmousedown = (e) => {
       e.preventDefault(); e.stopPropagation();
-      uvRemove(fieldType, v);
-      if(inp && isMulti) {
-        const sel = inp.value.toUpperCase().split('/').map(s=>s.trim()).filter(s=>s && s!==v);
-        inp.value = sel.join('/');
-      } else if(inp && inp.value.toUpperCase().trim()===v) {
-        inp.classList.remove('is-existing');
-      }
-      renderChips(fieldType);
-      varRenderChips(vid, fieldType);
-      SFX.delete();
+      showConfirmation(
+        `¿Eliminar "${v}"?`,
+        'Se quitará de los accesos rápidos. Puedes volver a escribirlo para agregarlo.',
+        () => {
+          uvRemove(fieldType, v);
+          if(inp && isMulti) {
+            const sel = inp.value.toUpperCase().split('/').map(s=>s.trim()).filter(s=>s && s!==v);
+            inp.value = sel.join('/');
+          } else if(inp && inp.value.toUpperCase().trim()===v) {
+            inp.classList.remove('is-existing');
+          }
+          renderChips(fieldType);
+          varRenderChips(vid, fieldType);
+          SFX.delete();
+        },
+        'Eliminar', 'Cancelar', false
+      );
     };
     chip.appendChild(del);
 
@@ -3245,15 +3256,15 @@ async function downloadPlantillaLlena(withQuantity=true,overlay=null){
 // ══════════════════════════════════════════
 function showConfirmation(title, message, onConfirm, okText='Confirmar', cancelText='Cancelar', isGreen=false){
   const overlay=document.createElement('div');
-  overlay.className='modal-overlay';overlay.style.zIndex='2000';
+  overlay.className='modal-overlay';overlay.style.cssText='z-index:2000;align-items:center;padding:20px;';
   const iconColor  = isGreen ? 'var(--green)'  : 'var(--red)';
   const iconBg     = isGreen ? 'rgba(16,217,160,0.12)' : 'rgba(255,87,87,0.15)';
   const iconBorder = isGreen ? 'rgba(16,217,160,0.3)'  : 'rgba(255,87,87,0.3)';
   const icon       = isGreen ? 'send'           : 'alert-triangle';
   const okClass    = isGreen ? 'btn-green'      : 'btn-red';
   overlay.innerHTML=`
-    <div class="confirm-sheet">
-      <div class="modal-handle"></div>
+    <div class="confirm-sheet" style="border-radius:var(--radius);max-width:360px;width:100%;">
+      <div style="height:8px;"></div>
       <div style="width:52px;height:52px;border-radius:16px;background:${iconBg};border:1px solid ${iconBorder};display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
         <i data-lucide="${icon}" style="width:24px;height:24px;color:${iconColor};"></i>
       </div>
