@@ -742,6 +742,21 @@
     /* ── Spinner animation ── */
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
+    /* ── Add-new button (+ verde junto al input) ── */
+    .input-wrap { position: relative; display: flex; align-items: center; gap: 8px; }
+    .add-new-btn {
+      flex-shrink: 0;
+      width: 40px; height: 48px;
+      border: none; background: transparent;
+      color: var(--green); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: var(--radius-sm);
+      transition: transform 0.15s, color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .add-new-btn i { width: 26px; height: 26px; }
+    .add-new-btn:active { transform: scale(0.88); color: var(--green2); }
+
     /* ── Accordion form fields ── */
     .ac-field {
       border: 1px solid var(--border);
@@ -937,11 +952,12 @@
                     <input type="text" id="marca" name="marca" required class="form-input"
                       placeholder="Ej: NIKE, ADIDAS..."
                       autocomplete="off"
-                      onfocus="showDropdown('marca')"
-                      oninput="filterDropdown('marca',this.value);this.value=this.value.toUpperCase();"
+                      oninput="checkNewValue('marca',this.value);this.value=this.value.toUpperCase();"
                       onblur="handleFieldBlur('marca');acOnBlur('marca')"
                       onkeydown="handleEnterKey(event,'marca')">
-                    <div id="marcaDropdown" class="custom-dropdown" style="display:none;"></div>
+                    <button type="button" class="add-new-btn" id="addBtn-marca" onclick="confirmAddNew('marca')" style="display:none;">
+                      <i data-lucide="plus-circle"></i>
+                    </button>
                   </div>
                   <div class="chips-row" id="chips-marca"></div>
                 </div>
@@ -986,11 +1002,12 @@
                     <input type="text" id="genero" name="genero" class="form-input"
                       placeholder="DAMA, HOMBRE..."
                       autocomplete="off"
-                      onfocus="showDropdown('genero')"
-                      oninput="filterDropdown('genero',this.value);this.value=this.value.toUpperCase();"
+                      oninput="checkNewValue('genero',this.value);this.value=this.value.toUpperCase();"
                       onblur="handleFieldBlur('genero');acOnBlur('genero')"
                       onkeydown="handleEnterKey(event,'genero')">
-                    <div id="generoDropdown" class="custom-dropdown" style="display:none;"></div>
+                    <button type="button" class="add-new-btn" id="addBtn-genero" onclick="confirmAddNew('genero')" style="display:none;">
+                      <i data-lucide="plus-circle"></i>
+                    </button>
                   </div>
                   <div class="chips-row" id="chips-genero"></div>
                 </div>
@@ -1050,11 +1067,12 @@
                         <input type="text" id="estilo" name="estilo" class="form-input"
                           placeholder="CASUAL, FORMAL..."
                           autocomplete="off"
-                          onfocus="showDropdown('estilo')"
-                          oninput="filterDropdown('estilo',this.value);this.value=this.value.toUpperCase();"
+                          oninput="checkNewValue('estilo',this.value);this.value=this.value.toUpperCase();"
                           onblur="handleFieldBlur('estilo');acOnBlur('estilo')"
                           onkeydown="handleEnterKey(event,'estilo')">
-                        <div id="estiloDropdown" class="custom-dropdown" style="display:none;"></div>
+                        <button type="button" class="add-new-btn" id="addBtn-estilo" onclick="confirmAddNew('estilo')" style="display:none;">
+                          <i data-lucide="plus-circle"></i>
+                        </button>
                       </div>
                       <div class="chips-row" id="chips-estilo"></div>
                     </div>
@@ -1078,11 +1096,12 @@
                         <input type="text" id="color" name="color" class="form-input"
                           placeholder="AZUL, NEGRO..."
                           autocomplete="off"
-                          onfocus="showDropdown('color')"
-                          oninput="filterDropdown('color',this.value);this.value=this.value.toUpperCase();"
+                          oninput="checkNewValue('color',this.value);this.value=this.value.toUpperCase();"
                           onblur="handleFieldBlur('color');acOnBlur('color')"
                           onkeydown="handleEnterKey(event,'color')">
-                        <div id="colorDropdown" class="custom-dropdown" style="display:none;"></div>
+                        <button type="button" class="add-new-btn" id="addBtn-color" onclick="confirmAddNew('color')" style="display:none;">
+                          <i data-lucide="plus-circle"></i>
+                        </button>
                       </div>
                       <div class="chips-row" id="chips-color"></div>
                     </div>
@@ -1106,11 +1125,12 @@
                         <input type="text" id="talla" name="talla" class="form-input"
                           placeholder="S, M, L, XL..."
                           autocomplete="off"
-                          onfocus="showDropdown('talla')"
-                          oninput="filterDropdown('talla',this.value);this.value=this.value.toUpperCase();"
+                          oninput="checkNewValue('talla',this.value);this.value=this.value.toUpperCase();"
                           onblur="handleFieldBlur('talla');acOnBlur('talla')"
                           onkeydown="handleEnterKey(event,'talla')">
-                        <div id="tallaDropdown" class="custom-dropdown" style="display:none;"></div>
+                        <button type="button" class="add-new-btn" id="addBtn-talla" onclick="confirmAddNew('talla')" style="display:none;">
+                          <i data-lucide="plus-circle"></i>
+                        </button>
                       </div>
                       <div class="chips-row" id="chips-talla"></div>
                     </div>
@@ -1521,6 +1541,10 @@ function acResetAll() {
     if (el) el.classList.remove('ac-collapsed');
     const sumEl = document.getElementById('acv-' + name);
     if (sumEl) sumEl.textContent = '';
+    const btn = document.getElementById('addBtn-' + name);
+    if (btn) btn.style.display = 'none';
+    const inp = document.getElementById(name);
+    if (inp) inp.classList.remove('is-new','is-existing');
   });
 }
 
@@ -1692,14 +1716,12 @@ function chipToggleMulti(fieldId, v) {
   if(!inp) return;
   let selected = getMultiSelected(fieldId);
   const idx = selected.indexOf(v);
-  if(idx >= 0) {
-    selected.splice(idx, 1);
-  } else {
-    selected.push(v);
-  }
+  if(idx >= 0) { selected.splice(idx, 1); } else { selected.push(v); }
   inp.value = selected.join('/');
   inp.classList.remove('is-new');
   inp.classList.toggle('is-existing', selected.length > 0);
+  const btn = document.getElementById('addBtn-' + fieldId);
+  if(btn) btn.style.display = 'none';
   renderChips(fieldId);
 }
 
@@ -1747,7 +1769,7 @@ function renderChips(fieldId) {
       } else {
         const inp=document.getElementById(fieldId);
         if(inp){inp.value=v;inp.classList.remove('is-new');inp.classList.add('is-existing');}
-        const dd=document.getElementById(fieldId+'Dropdown'); if(dd) dd.style.display='none';
+        const btn=document.getElementById('addBtn-'+fieldId); if(btn) btn.style.display='none';
         c.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
         chip.classList.add('active'); setTimeout(()=>chip.classList.remove('active'),700);
       }
@@ -1783,96 +1805,109 @@ function loadUsedValuesFromProducts(){
 }
 
 // ══════════════════════════════════════════
-// DROPDOWN
+// FIELD VALUE HELPERS
 // ══════════════════════════════════════════
 function addValueToDatalist(fieldId,value){
   if(!value||uvHas(fieldId,value)) return;
   uvAdd(fieldId,value); renderChips(fieldId);
 }
+// Mantenidas para el modal de variaciones
 function showDropdown(fieldId){
   const dd=document.getElementById(fieldId+'Dropdown'); if(!dd) return;
-  document.querySelectorAll('.custom-dropdown').forEach(d=>{if(d.id!==fieldId+'Dropdown')d.style.display='none';});
   const vals=usedValues[fieldId]||[];
   dd.innerHTML=vals.length
     ?vals.map(v=>`<div class="dropdown-item" onclick="selectDropdownValue('${fieldId}','${v}')">${v}</div>`).join('')
-    :'<div class="dropdown-empty">Escribe y pasa al siguiente campo</div>';
+    :'<div class="dropdown-empty">Sin opciones</div>';
   dd.style.display='block';
 }
 function filterDropdown(fieldId,searchText){
   const dd=document.getElementById(fieldId+'Dropdown');
-  const inp=document.getElementById(fieldId);
-  if(!dd||!inp) return;
+  if(!dd) return;
   const up=searchText.toUpperCase().trim();
   const vals=usedValues[fieldId]||[];
-  if(MULTI_SELECT_FIELDS.includes(fieldId)){
-    // Para multi, filtrar por el último segmento escrito tras el último /
-    const lastPart=up.split('/').pop().trim();
-    inp.classList.remove('is-new','is-existing');
-    const fil=lastPart?vals.filter(v=>v.includes(lastPart)):vals;
-    dd.innerHTML=fil.length
-      ?fil.map(v=>`<div class="dropdown-item" onclick="selectDropdownValue('${fieldId}','${v}')">${v}</div>`).join('')
-      :'<div class="dropdown-empty">Nuevo — se guardará al continuar</div>';
-    dd.style.display='block';
-    return;
-  }
-  if(up){inp.classList.toggle('is-new',!vals.includes(up));inp.classList.toggle('is-existing',vals.includes(up));}
-  else{inp.classList.remove('is-new','is-existing');}
   const fil=up?vals.filter(v=>v.includes(up)):vals;
   dd.innerHTML=fil.length
     ?fil.map(v=>`<div class="dropdown-item" onclick="selectDropdownValue('${fieldId}','${v}')">${v}</div>`).join('')
-    :'<div class="dropdown-empty">Nuevo — se guardará al continuar</div>';
+    :'<div class="dropdown-empty">Sin coincidencias</div>';
   dd.style.display='block';
 }
 function selectDropdownValue(fieldId,value){
   const inp=document.getElementById(fieldId);
   const dd=document.getElementById(fieldId+'Dropdown');
-  if(inp){
-    if(MULTI_SELECT_FIELDS.includes(fieldId)){
-      chipToggleMulti(fieldId, value);
-    } else {
-      inp.value=value;inp.classList.remove('is-new');inp.classList.add('is-existing');
-    }
-  }
+  if(inp){inp.value=value;inp.classList.remove('is-new');inp.classList.add('is-existing');}
   if(dd) dd.style.display='none';
 }
-function commitFieldValue(fieldId){
-  const inp=document.getElementById(fieldId);
-  if(!inp) return;
-  const raw=inp.value.toUpperCase().trim();
-  if(!raw) return;
-  // Para campos multi-select, guardar cada parte separada por /
+
+function isValueNew(fieldId, raw) {
+  if(!raw) return false;
   const parts = MULTI_SELECT_FIELDS.includes(fieldId)
     ? raw.split('/').map(s=>s.trim()).filter(Boolean)
     : [raw];
-  let addedAny=false;
-  parts.forEach(val=>{
-    if(!val) return;
-    if(!uvHas(fieldId,val)){
-      if(deletedValues[fieldId]){
-        deletedValues[fieldId]=deletedValues[fieldId].filter(v=>v!==val);
-        saveDeletedValues();
-      }
-      addValueToDatalist(fieldId,val);
-      addedAny=true;
-    }
-  });
-  if(addedAny){
-    inp.classList.remove('is-new');
-    inp.classList.add('is-existing');
-    SFX.addInventory();
-    showQuickConfirmation(parts.length>1?`${parts.length} valores agregados`:`"${parts[0]}" agregado`);
+  return parts.some(p => p && !uvHas(fieldId, p));
+}
+
+function checkNewValue(fieldId, rawValue) {
+  const inp = document.getElementById(fieldId);
+  const btn = document.getElementById('addBtn-' + fieldId);
+  if(!inp) return;
+  const up = rawValue.toUpperCase().trim();
+  const hasNew = isValueNew(fieldId, up);
+  inp.classList.toggle('is-new', hasNew && !!up);
+  inp.classList.toggle('is-existing', !hasNew && !!up);
+  if(btn) {
+    btn.style.display = hasNew && up ? 'flex' : 'none';
+    if(hasNew && up) lucide.createIcons({nodes:[btn]});
   }
-  const dd=document.getElementById(fieldId+'Dropdown'); if(dd) dd.style.display='none';
-  if(MULTI_SELECT_FIELDS.includes(fieldId)) renderChips(fieldId);
+}
+
+function confirmAddNew(fieldId) {
+  const inp = document.getElementById(fieldId);
+  const btn = document.getElementById('addBtn-' + fieldId);
+  if(!inp) return;
+  const raw = inp.value.toUpperCase().trim();
+  const parts = MULTI_SELECT_FIELDS.includes(fieldId)
+    ? raw.split('/').map(s=>s.trim()).filter(Boolean)
+    : [raw];
+  let addedAny = false;
+  parts.forEach(val => {
+    if(!val || uvHas(fieldId, val)) return;
+    if(deletedValues[fieldId]) {
+      deletedValues[fieldId] = deletedValues[fieldId].filter(v=>v!==val);
+      saveDeletedValues();
+    }
+    addValueToDatalist(fieldId, val);
+    addedAny = true;
+  });
+  if(addedAny) {
+    inp.classList.remove('is-new'); inp.classList.add('is-existing');
+    if(btn) btn.style.display = 'none';
+    SFX.addInventory();
+    showQuickConfirmation(parts.length>1 ? `${parts.length} valores agregados` : `"${parts[0]}" agregado`);
+    if(MULTI_SELECT_FIELDS.includes(fieldId)) renderChips(fieldId);
+  }
+}
+
+function commitFieldValue(fieldId){
+  // En blur solo auto-guarda si el + ya está visible (valor nuevo confirmado manualmente)
+  // Para campos sin botón + (solo blur-auto), sigue funcionando igual
+  const btn = document.getElementById('addBtn-' + fieldId);
+  if(btn) {
+    // Tiene botón +: el usuario debe presionarlo. Solo ocultar dropdown.
+    return;
+  }
+  // Campo sin botón (descripcion, etc) — no hace nada extra
 }
 function handleEnterKey(event,fieldId){
   if(event.key!=='Enter') return;
   event.preventDefault();
-  commitFieldValue(fieldId);
+  confirmAddNew(fieldId);
 }
 function handleFieldBlur(fieldId){
-  // Delay so dropdown item clicks register before blur fires
-  setTimeout(()=>{ commitFieldValue(fieldId); },200);
+  setTimeout(()=>{
+    const btn = document.getElementById('addBtn-' + fieldId);
+    // Si el foco fue al botón +, no ocultar
+    if(btn && document.activeElement === btn) return;
+  }, 150);
 }
 document.addEventListener('click',e=>{
   if(!e.target.closest('.input-wrap')&&!e.target.closest('.custom-dropdown')){
