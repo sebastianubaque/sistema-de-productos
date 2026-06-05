@@ -1814,13 +1814,21 @@ function loadFromLocalStorage(){
     if(s){currentProducts=JSON.parse(s);filteredProducts=[...currentProducts];updateProductsDisplay();updateCounter();populateFilterOptions();}
   }catch{currentProducts=[];filteredProducts=[];}
 }
+function uvAddSmart(fieldId, value) {
+  if(!value) return;
+  if(MULTI_SELECT_FIELDS.includes(fieldId)) {
+    value.split('/').map(s=>s.trim()).filter(Boolean).forEach(part => uvAdd(fieldId, part));
+  } else {
+    uvAdd(fieldId, value);
+  }
+}
 function loadUsedValuesFromProducts(){
   currentProducts.forEach(p=>{
-    if(p.marca)  uvAdd('marca',  p.marca);
-    if(p.genero) uvAdd('genero', p.genero);
-    if(p.estilo) uvAdd('estilo', p.estilo);
-    if(p.color)  uvAdd('color',  p.color);
-    if(p.talla)  uvAdd('talla',  p.talla);
+    if(p.marca)  uvAddSmart('marca',  p.marca);
+    if(p.genero) uvAddSmart('genero', p.genero);
+    if(p.estilo) uvAddSmart('estilo', p.estilo);
+    if(p.color)  uvAddSmart('color',  p.color);
+    if(p.talla)  uvAddSmart('talla',  p.talla);
   });
   renderAllChips();
 }
@@ -1829,8 +1837,9 @@ function loadUsedValuesFromProducts(){
 // FIELD VALUE HELPERS
 // ══════════════════════════════════════════
 function addValueToDatalist(fieldId,value){
-  if(!value||uvHas(fieldId,value)) return;
-  uvAdd(fieldId,value); renderChips(fieldId);
+  if(!value) return;
+  uvAddSmart(fieldId, value);
+  renderChips(fieldId);
 }
 // Mantenidas para el modal de variaciones
 function showDropdown(fieldId){
@@ -2063,29 +2072,44 @@ function openVariationsModal(isReopen){
       <div class="form-stack" style="gap:10px;">
         <div class="form-group">
           <label class="form-label">Estilo</label>
-          <input type="text" id="varEstilo-${v.id}" class="form-input" value="${v.estilo||''}" placeholder="Estilo..."
-            autocomplete="off"
-            onfocus="varShowChips('${v.id}','estilo')"
-            onblur="varHideChips('${v.id}','estilo')"
-            oninput="varCheckNew('${v.id}','estilo',this.value);this.value=this.value.toUpperCase()">
+          <div class="input-wrap">
+            <input type="text" id="varEstilo-${v.id}" class="form-input" value="${v.estilo||''}" placeholder="Estilo..."
+              autocomplete="off"
+              onfocus="varShowChips('${v.id}','estilo')"
+              onblur="varHideChips('${v.id}','estilo')"
+              oninput="varCheckNew('${v.id}','estilo',this.value);this.value=this.value.toUpperCase()">
+            <button type="button" class="add-new-btn" id="varAddBtn-${v.id}-estilo" onclick="varConfirmAdd('${v.id}','estilo')" style="display:none;">
+              <i data-lucide="plus-circle"></i>
+            </button>
+          </div>
           <div id="varChips-${v.id}-estilo" class="chips-row var-chips-full" style="display:none;"></div>
         </div>
         <div class="form-grid-2">
           <div class="form-group">
             <label class="form-label">Color <span style="color:var(--red)">*</span></label>
-            <input type="text" id="varColor-${v.id}" class="form-input" value="${v.color||''}" placeholder="Color..."
-              autocomplete="off"
-              onfocus="varShowChips('${v.id}','color')"
-              onblur="varHideChips('${v.id}','color')"
-              oninput="varCheckNew('${v.id}','color',this.value);this.value=this.value.toUpperCase()">
+            <div class="input-wrap">
+              <input type="text" id="varColor-${v.id}" class="form-input" value="${v.color||''}" placeholder="Color..."
+                autocomplete="off"
+                onfocus="varShowChips('${v.id}','color')"
+                onblur="varHideChips('${v.id}','color')"
+                oninput="varCheckNew('${v.id}','color',this.value);this.value=this.value.toUpperCase()">
+              <button type="button" class="add-new-btn" id="varAddBtn-${v.id}-color" onclick="varConfirmAdd('${v.id}','color')" style="display:none;">
+                <i data-lucide="plus-circle"></i>
+              </button>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">Talla <span style="color:var(--red)">*</span></label>
-            <input type="text" id="varTalla-${v.id}" class="form-input" value="${v.talla||''}" placeholder="Talla..."
-              autocomplete="off"
-              onfocus="varShowChips('${v.id}','talla')"
-              onblur="varHideChips('${v.id}','talla')"
-              oninput="varCheckNew('${v.id}','talla',this.value);this.value=this.value.toUpperCase()">
+            <div class="input-wrap">
+              <input type="text" id="varTalla-${v.id}" class="form-input" value="${v.talla||''}" placeholder="Talla..."
+                autocomplete="off"
+                onfocus="varShowChips('${v.id}','talla')"
+                onblur="varHideChips('${v.id}','talla')"
+                oninput="varCheckNew('${v.id}','talla',this.value);this.value=this.value.toUpperCase()">
+              <button type="button" class="add-new-btn" id="varAddBtn-${v.id}-talla" onclick="varConfirmAdd('${v.id}','talla')" style="display:none;">
+                <i data-lucide="plus-circle"></i>
+              </button>
+            </div>
           </div>
         </div>
         <!-- chips ancho completo para color y talla -->
@@ -2140,17 +2164,23 @@ function openVariationsModal(isReopen){
   lucide.createIcons({nodes:[modal]});
 }
 // ── Chips en modal de variaciones ──
+function varInputId(vid, fieldType) {
+  return `var${fieldType.charAt(0).toUpperCase()+fieldType.slice(1)}-${vid}`;
+}
+
 function varRenderChips(vid, fieldType) {
   const container = document.getElementById(`varChips-${vid}-${fieldType}`);
   if(!container) return;
   const isMulti = MULTI_SELECT_FIELDS.includes(fieldType);
-  const inp = document.getElementById(`var${fieldType.charAt(0).toUpperCase()+fieldType.slice(1)}-${vid}`);
+  const inp = document.getElementById(varInputId(vid, fieldType));
   const selected = isMulti && inp ? inp.value.toUpperCase().split('/').map(s=>s.trim()).filter(Boolean) : [];
   const vals = usedValues[fieldType] || [];
   container.innerHTML = '';
+
   vals.forEach(v => {
     const chip = document.createElement('button');
     chip.type = 'button'; chip.className = 'chip';
+    if(isMulti) chip.tabIndex = 0;
     if(isMulti && selected.includes(v)) chip.classList.add('active');
     if(fieldType==='color' && COLOR_HEX[v]) {
       const dot = document.createElement('span');
@@ -2158,8 +2188,29 @@ function varRenderChips(vid, fieldType) {
       chip.appendChild(dot);
     }
     chip.appendChild(Object.assign(document.createElement('span'), {textContent: v}));
+
+    // × para borrar del historial
+    const del = document.createElement('span');
+    del.textContent = '×';
+    del.style.cssText = 'margin-left:3px;font-size:13px;line-height:1;opacity:0.7;';
+    del.onmousedown = (e) => {
+      e.preventDefault(); e.stopPropagation();
+      uvRemove(fieldType, v);
+      if(inp && isMulti) {
+        const sel = inp.value.toUpperCase().split('/').map(s=>s.trim()).filter(s=>s && s!==v);
+        inp.value = sel.join('/');
+      } else if(inp && inp.value.toUpperCase().trim()===v) {
+        inp.classList.remove('is-existing');
+      }
+      renderChips(fieldType);
+      varRenderChips(vid, fieldType);
+      SFX.delete();
+    };
+    chip.appendChild(del);
+
     chip.onmousedown = (e) => {
-      e.preventDefault(); // evitar blur antes del click
+      if(e.target === del) return;
+      e.preventDefault();
       if(!inp) return;
       if(isMulti) {
         let sel = inp.value.toUpperCase().split('/').map(s=>s.trim()).filter(Boolean);
@@ -2175,6 +2226,7 @@ function varRenderChips(vid, fieldType) {
     };
     container.appendChild(chip);
   });
+
 }
 
 function varShowChips(vid, fieldType) {
@@ -2185,27 +2237,62 @@ function varShowChips(vid, fieldType) {
 
 function varHideChips(vid, fieldType) {
   setTimeout(() => {
+    // No ocultar si el foco fue al botón + o a los chips
+    const btn = document.getElementById(`varAddBtn-${vid}-${fieldType}`);
+    if(btn && document.activeElement === btn) return;
     const c = document.getElementById(`varChips-${vid}-${fieldType}`);
+    if(c && c.contains(document.activeElement)) return;
     if(c) c.style.display = 'none';
-    varCommitNew(vid, fieldType);
   }, 200);
 }
 
 function varCheckNew(vid, fieldType, rawValue) {
-  const inp = document.getElementById(`var${fieldType.charAt(0).toUpperCase()+fieldType.slice(1)}-${vid}`);
+  const inp = document.getElementById(varInputId(vid, fieldType));
+  const btn = document.getElementById(`varAddBtn-${vid}-${fieldType}`);
   if(!inp) return;
   const up = rawValue.toUpperCase().trim();
-  if(!up) { inp.classList.remove('is-new','is-existing'); return; }
+  if(!up) { inp.classList.remove('is-new','is-existing'); if(btn) btn.style.display='none'; return; }
   const parts = MULTI_SELECT_FIELDS.includes(fieldType)
     ? up.split('/').map(s=>s.trim()).filter(Boolean) : [up];
   const hasNew = parts.some(p => p && !uvHas(fieldType, p));
   inp.classList.toggle('is-new', hasNew);
   inp.classList.toggle('is-existing', !hasNew);
+  if(btn) {
+    btn.style.display = hasNew ? 'flex' : 'none';
+    if(hasNew) lucide.createIcons({nodes:[btn]});
+  }
   varRenderChips(vid, fieldType);
 }
 
+function varConfirmAdd(vid, fieldType) {
+  const inp = document.getElementById(varInputId(vid, fieldType));
+  const btn = document.getElementById(`varAddBtn-${vid}-${fieldType}`);
+  if(!inp) return;
+  const raw = inp.value.toUpperCase().trim();
+  const parts = MULTI_SELECT_FIELDS.includes(fieldType)
+    ? raw.split('/').map(s=>s.trim()).filter(Boolean) : (raw ? [raw] : []);
+  let addedAny = false;
+  parts.forEach(val => {
+    if(!val || uvHas(fieldType, val)) return;
+    if(deletedValues[fieldType]) {
+      deletedValues[fieldType]=deletedValues[fieldType].filter(x=>x!==val);
+      saveDeletedValues();
+    }
+    uvAdd(fieldType, val);
+    addedAny = true;
+  });
+  if(addedAny) {
+    inp.classList.remove('is-new'); inp.classList.add('is-existing');
+    if(btn) btn.style.display = 'none';
+    renderChips(fieldType);
+    varRenderChips(vid, fieldType);
+    SFX.addInventory();
+    showQuickConfirmation(parts.length>1?`${parts.length} valores agregados`:`"${parts[0]}" agregado`);
+  }
+}
+
 function varCommitNew(vid, fieldType) {
-  const inp = document.getElementById(`var${fieldType.charAt(0).toUpperCase()+fieldType.slice(1)}-${vid}`);
+  const inp = document.getElementById(varInputId(vid, fieldType));
   if(!inp) return;
   const raw = inp.value.toUpperCase().trim();
   if(!raw) return;
