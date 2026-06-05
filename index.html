@@ -1778,6 +1778,7 @@ function renderChips(fieldId) {
         const btn=document.getElementById('addBtn-'+fieldId); if(btn) btn.style.display='none';
         c.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
         chip.classList.add('active'); setTimeout(()=>chip.classList.remove('active'),700);
+        acOnBlur(fieldId);
       }
     };
     c.appendChild(chip);
