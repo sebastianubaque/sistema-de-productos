@@ -1074,7 +1074,6 @@
                           placeholder="CASUAL, FORMAL..."
                           autocomplete="off"
                           oninput="checkNewValue('estilo',this.value);this.value=this.value.toUpperCase();"
-                          onblur="handleFieldBlur('estilo');acOnBlur('estilo')"
                           onkeydown="handleEnterKey(event,'estilo')">
                         <button type="button" class="add-new-btn" id="addBtn-estilo" onclick="confirmAddNew('estilo')" style="display:none;">
                           <i data-lucide="plus-circle"></i>
@@ -1103,7 +1102,6 @@
                           placeholder="AZUL, NEGRO..."
                           autocomplete="off"
                           oninput="checkNewValue('color',this.value);this.value=this.value.toUpperCase();"
-                          onblur="handleFieldBlur('color');acOnBlur('color')"
                           onkeydown="handleEnterKey(event,'color')">
                         <button type="button" class="add-new-btn" id="addBtn-color" onclick="confirmAddNew('color')" style="display:none;">
                           <i data-lucide="plus-circle"></i>
@@ -1132,7 +1130,6 @@
                           placeholder="S, M, L, XL..."
                           autocomplete="off"
                           oninput="checkNewValue('talla',this.value);this.value=this.value.toUpperCase();"
-                          onblur="handleFieldBlur('talla');acOnBlur('talla')"
                           onkeydown="handleEnterKey(event,'talla')">
                         <button type="button" class="add-new-btn" id="addBtn-talla" onclick="confirmAddNew('talla')" style="display:none;">
                           <i data-lucide="plus-circle"></i>
@@ -1554,6 +1551,22 @@ function acResetAll() {
   });
 }
 
+function initMultiFieldAccordions() {
+  MULTI_SELECT_FIELDS.forEach(name => {
+    const block = document.getElementById('ac-' + name);
+    if (!block) return;
+    block.addEventListener('focusout', () => {
+      // Pequeño delay para que el foco llegue al nuevo elemento
+      setTimeout(() => {
+        if (block.contains(document.activeElement)) return;
+        const val = acGetValue(name);
+        acUpdateSummary(name);
+        if (val) acCollapse(name);
+      }, 250);
+    });
+  });
+}
+
 // ══════════════════════════════════════════
 // QUANTITY STEPPER
 // ══════════════════════════════════════════
@@ -1741,6 +1754,7 @@ function renderChips(fieldId) {
   vals.forEach(v=>{
     const chip=document.createElement('button');
     chip.type='button'; chip.className='chip';
+    if(isMulti) chip.tabIndex=0; // necesario para focusout del bloque en móvil
     if(isMulti && selected.includes(v)) chip.classList.add('active');
     if(fieldId==='color'&&COLOR_HEX[v]){
       const dot=document.createElement('span');
@@ -4577,6 +4591,7 @@ async function init(){
     refreshAllInvoiceBars();
     setupSheetsButtons();
     renderAllChips();
+    initMultiFieldAccordions();
     lucide.createIcons();
     updateStats();
     setInterval(refreshFromSupabase, 8000);
