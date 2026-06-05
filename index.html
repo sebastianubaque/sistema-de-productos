@@ -1679,14 +1679,41 @@ const COLOR_HEX = {
 // ══════════════════════════════════════════
 // CHIPS
 // ══════════════════════════════════════════
+const MULTI_SELECT_FIELDS = ['color','estilo','talla'];
+
+function getMultiSelected(fieldId) {
+  const inp = document.getElementById(fieldId);
+  if(!inp || !inp.value.trim()) return [];
+  return inp.value.toUpperCase().split('/').map(s=>s.trim()).filter(Boolean);
+}
+
+function chipToggleMulti(fieldId, v) {
+  const inp = document.getElementById(fieldId);
+  if(!inp) return;
+  let selected = getMultiSelected(fieldId);
+  const idx = selected.indexOf(v);
+  if(idx >= 0) {
+    selected.splice(idx, 1);
+  } else {
+    selected.push(v);
+  }
+  inp.value = selected.join('/');
+  inp.classList.remove('is-new');
+  inp.classList.toggle('is-existing', selected.length > 0);
+  renderChips(fieldId);
+}
+
 function renderChips(fieldId) {
   const c = document.getElementById('chips-'+fieldId);
   if(!c) return;
   const vals = usedValues[fieldId] || [];
+  const isMulti = MULTI_SELECT_FIELDS.includes(fieldId);
+  const selected = isMulti ? getMultiSelected(fieldId) : [];
   c.innerHTML='';
   vals.forEach(v=>{
     const chip=document.createElement('button');
     chip.type='button'; chip.className='chip';
+    if(isMulti && selected.includes(v)) chip.classList.add('active');
     if(fieldId==='color'&&COLOR_HEX[v]){
       const dot=document.createElement('span');
       dot.className='chip-dot'; dot.style.background=COLOR_HEX[v];
@@ -1695,16 +1722,19 @@ function renderChips(fieldId) {
     const tx=document.createElement('span'); tx.textContent=v;
     chip.appendChild(tx);
 
-    // Botón X para borrar
+    // Botón X para borrar del historial
     const del=document.createElement('span');
     del.textContent='×';
     del.style.cssText='margin-left:3px;font-size:13px;line-height:1;opacity:0.7;';
     del.onclick=(e)=>{
       e.stopPropagation();
       uvRemove(fieldId, v);
-      // Si el input tiene este valor, limpiar estado
-      const inp=document.getElementById(fieldId);
-      if(inp&&inp.value.toUpperCase().trim()===v){inp.classList.remove('is-existing');}
+      // Si estaba seleccionado en multi, quitarlo del input
+      if(isMulti && selected.includes(v)) chipToggleMulti(fieldId, v);
+      else {
+        const inp=document.getElementById(fieldId);
+        if(inp&&inp.value.toUpperCase().trim()===v) inp.classList.remove('is-existing');
+      }
       renderChips(fieldId);
       SFX.delete();
     };
@@ -1712,11 +1742,15 @@ function renderChips(fieldId) {
 
     chip.onclick=(e)=>{
       if(e.target===del) return;
-      const inp=document.getElementById(fieldId);
-      if(inp){inp.value=v;inp.classList.remove('is-new');inp.classList.add('is-existing');}
-      const dd=document.getElementById(fieldId+'Dropdown'); if(dd) dd.style.display='none';
-      c.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
-      chip.classList.add('active'); setTimeout(()=>chip.classList.remove('active'),700);
+      if(isMulti){
+        chipToggleMulti(fieldId, v);
+      } else {
+        const inp=document.getElementById(fieldId);
+        if(inp){inp.value=v;inp.classList.remove('is-new');inp.classList.add('is-existing');}
+        const dd=document.getElementById(fieldId+'Dropdown'); if(dd) dd.style.display='none';
+        c.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
+        chip.classList.add('active'); setTimeout(()=>chip.classList.remove('active'),700);
+      }
     };
     c.appendChild(chip);
   });
@@ -1770,6 +1804,17 @@ function filterDropdown(fieldId,searchText){
   if(!dd||!inp) return;
   const up=searchText.toUpperCase().trim();
   const vals=usedValues[fieldId]||[];
+  if(MULTI_SELECT_FIELDS.includes(fieldId)){
+    // Para multi, filtrar por el último segmento escrito tras el último /
+    const lastPart=up.split('/').pop().trim();
+    inp.classList.remove('is-new','is-existing');
+    const fil=lastPart?vals.filter(v=>v.includes(lastPart)):vals;
+    dd.innerHTML=fil.length
+      ?fil.map(v=>`<div class="dropdown-item" onclick="selectDropdownValue('${fieldId}','${v}')">${v}</div>`).join('')
+      :'<div class="dropdown-empty">Nuevo — se guardará al continuar</div>';
+    dd.style.display='block';
+    return;
+  }
   if(up){inp.classList.toggle('is-new',!vals.includes(up));inp.classList.toggle('is-existing',vals.includes(up));}
   else{inp.classList.remove('is-new','is-existing');}
   const fil=up?vals.filter(v=>v.includes(up)):vals;
@@ -1781,28 +1826,44 @@ function filterDropdown(fieldId,searchText){
 function selectDropdownValue(fieldId,value){
   const inp=document.getElementById(fieldId);
   const dd=document.getElementById(fieldId+'Dropdown');
-  if(inp){inp.value=value;inp.classList.remove('is-new');inp.classList.add('is-existing');}
+  if(inp){
+    if(MULTI_SELECT_FIELDS.includes(fieldId)){
+      chipToggleMulti(fieldId, value);
+    } else {
+      inp.value=value;inp.classList.remove('is-new');inp.classList.add('is-existing');
+    }
+  }
   if(dd) dd.style.display='none';
 }
 function commitFieldValue(fieldId){
   const inp=document.getElementById(fieldId);
   if(!inp) return;
-  const val=inp.value.toUpperCase().trim();
-  if(!val) return;
-  const exists=uvHas(fieldId,val);
-  if(!exists){
-    // Si estaba borrado antes y el usuario lo escribe de nuevo, rehabilitarlo
-    if(deletedValues[fieldId]){
-      deletedValues[fieldId]=deletedValues[fieldId].filter(v=>v!==val);
-      saveDeletedValues();
+  const raw=inp.value.toUpperCase().trim();
+  if(!raw) return;
+  // Para campos multi-select, guardar cada parte separada por /
+  const parts = MULTI_SELECT_FIELDS.includes(fieldId)
+    ? raw.split('/').map(s=>s.trim()).filter(Boolean)
+    : [raw];
+  let addedAny=false;
+  parts.forEach(val=>{
+    if(!val) return;
+    if(!uvHas(fieldId,val)){
+      if(deletedValues[fieldId]){
+        deletedValues[fieldId]=deletedValues[fieldId].filter(v=>v!==val);
+        saveDeletedValues();
+      }
+      addValueToDatalist(fieldId,val);
+      addedAny=true;
     }
-    addValueToDatalist(fieldId,val);
+  });
+  if(addedAny){
     inp.classList.remove('is-new');
     inp.classList.add('is-existing');
     SFX.addInventory();
-    showQuickConfirmation(`"${val}" agregado`);
+    showQuickConfirmation(parts.length>1?`${parts.length} valores agregados`:`"${parts[0]}" agregado`);
   }
   const dd=document.getElementById(fieldId+'Dropdown'); if(dd) dd.style.display='none';
+  if(MULTI_SELECT_FIELDS.includes(fieldId)) renderChips(fieldId);
 }
 function handleEnterKey(event,fieldId){
   if(event.key!=='Enter') return;
