@@ -2042,31 +2042,31 @@ function openVariationsModal(isReopen){
       <div class="form-stack" style="gap:10px;">
         <div class="form-group">
           <label class="form-label">Estilo</label>
-          <div class="input-wrap">
-            <input type="text" id="varEstilo-${v.id}" class="form-input" value="${v.estilo||''}" placeholder="Estilo..."
-              onfocus="showVariationDropdown('varEstilo-${v.id}','estilo')"
-              oninput="filterVariationDropdown('varEstilo-${v.id}','estilo',this.value);this.value=this.value.toUpperCase()">
-            <div id="varEstilo-${v.id}-dropdown" class="custom-dropdown" style="display:none;"></div>
-          </div>
+          <input type="text" id="varEstilo-${v.id}" class="form-input" value="${v.estilo||''}" placeholder="Estilo..."
+            autocomplete="off"
+            onfocus="varShowChips('${v.id}','estilo')"
+            onblur="varHideChips('${v.id}','estilo')"
+            oninput="varCheckNew('${v.id}','estilo',this.value);this.value=this.value.toUpperCase()">
+          <div id="varChips-${v.id}-estilo" class="chips-row" style="display:none;margin-top:8px;"></div>
         </div>
         <div class="form-grid-2">
           <div class="form-group">
             <label class="form-label">Color <span style="color:var(--red)">*</span></label>
-            <div class="input-wrap">
-              <input type="text" id="varColor-${v.id}" class="form-input" value="${v.color||''}" placeholder="Color..."
-                onfocus="showVariationDropdown('varColor-${v.id}','color')"
-                oninput="filterVariationDropdown('varColor-${v.id}','color',this.value);this.value=this.value.toUpperCase()">
-              <div id="varColor-${v.id}-dropdown" class="custom-dropdown" style="display:none;"></div>
-            </div>
+            <input type="text" id="varColor-${v.id}" class="form-input" value="${v.color||''}" placeholder="Color..."
+              autocomplete="off"
+              onfocus="varShowChips('${v.id}','color')"
+              onblur="varHideChips('${v.id}','color')"
+              oninput="varCheckNew('${v.id}','color',this.value);this.value=this.value.toUpperCase()">
+            <div id="varChips-${v.id}-color" class="chips-row" style="display:none;margin-top:8px;"></div>
           </div>
           <div class="form-group">
             <label class="form-label">Talla <span style="color:var(--red)">*</span></label>
-            <div class="input-wrap">
-              <input type="text" id="varTalla-${v.id}" class="form-input" value="${v.talla||''}" placeholder="Talla..."
-                onfocus="showVariationDropdown('varTalla-${v.id}','talla')"
-                oninput="filterVariationDropdown('varTalla-${v.id}','talla',this.value);this.value=this.value.toUpperCase()">
-              <div id="varTalla-${v.id}-dropdown" class="custom-dropdown" style="display:none;"></div>
-            </div>
+            <input type="text" id="varTalla-${v.id}" class="form-input" value="${v.talla||''}" placeholder="Talla..."
+              autocomplete="off"
+              onfocus="varShowChips('${v.id}','talla')"
+              onblur="varHideChips('${v.id}','talla')"
+              oninput="varCheckNew('${v.id}','talla',this.value);this.value=this.value.toUpperCase()">
+            <div id="varChips-${v.id}-talla" class="chips-row" style="display:none;margin-top:8px;"></div>
           </div>
         </div>
         <div class="form-group">
@@ -2117,6 +2117,91 @@ function openVariationsModal(isReopen){
   `;
   lucide.createIcons({nodes:[modal]});
 }
+// ── Chips en modal de variaciones ──
+function varRenderChips(vid, fieldType) {
+  const container = document.getElementById(`varChips-${vid}-${fieldType}`);
+  if(!container) return;
+  const isMulti = MULTI_SELECT_FIELDS.includes(fieldType);
+  const inp = document.getElementById(`var${fieldType.charAt(0).toUpperCase()+fieldType.slice(1)}-${vid}`);
+  const selected = isMulti && inp ? inp.value.toUpperCase().split('/').map(s=>s.trim()).filter(Boolean) : [];
+  const vals = usedValues[fieldType] || [];
+  container.innerHTML = '';
+  vals.forEach(v => {
+    const chip = document.createElement('button');
+    chip.type = 'button'; chip.className = 'chip';
+    if(isMulti && selected.includes(v)) chip.classList.add('active');
+    if(fieldType==='color' && COLOR_HEX[v]) {
+      const dot = document.createElement('span');
+      dot.className = 'chip-dot'; dot.style.background = COLOR_HEX[v];
+      chip.appendChild(dot);
+    }
+    chip.appendChild(Object.assign(document.createElement('span'), {textContent: v}));
+    chip.onmousedown = (e) => {
+      e.preventDefault(); // evitar blur antes del click
+      if(!inp) return;
+      if(isMulti) {
+        let sel = inp.value.toUpperCase().split('/').map(s=>s.trim()).filter(Boolean);
+        const idx = sel.indexOf(v);
+        if(idx >= 0) sel.splice(idx,1); else sel.push(v);
+        inp.value = sel.join('/');
+        inp.classList.toggle('is-existing', sel.length > 0);
+      } else {
+        inp.value = v;
+        inp.classList.remove('is-new'); inp.classList.add('is-existing');
+      }
+      varRenderChips(vid, fieldType);
+    };
+    container.appendChild(chip);
+  });
+}
+
+function varShowChips(vid, fieldType) {
+  varRenderChips(vid, fieldType);
+  const c = document.getElementById(`varChips-${vid}-${fieldType}`);
+  if(c) c.style.display = 'flex';
+}
+
+function varHideChips(vid, fieldType) {
+  setTimeout(() => {
+    const c = document.getElementById(`varChips-${vid}-${fieldType}`);
+    if(c) c.style.display = 'none';
+    varCommitNew(vid, fieldType);
+  }, 200);
+}
+
+function varCheckNew(vid, fieldType, rawValue) {
+  const inp = document.getElementById(`var${fieldType.charAt(0).toUpperCase()+fieldType.slice(1)}-${vid}`);
+  if(!inp) return;
+  const up = rawValue.toUpperCase().trim();
+  if(!up) { inp.classList.remove('is-new','is-existing'); return; }
+  const parts = MULTI_SELECT_FIELDS.includes(fieldType)
+    ? up.split('/').map(s=>s.trim()).filter(Boolean) : [up];
+  const hasNew = parts.some(p => p && !uvHas(fieldType, p));
+  inp.classList.toggle('is-new', hasNew);
+  inp.classList.toggle('is-existing', !hasNew);
+  varRenderChips(vid, fieldType);
+}
+
+function varCommitNew(vid, fieldType) {
+  const inp = document.getElementById(`var${fieldType.charAt(0).toUpperCase()+fieldType.slice(1)}-${vid}`);
+  if(!inp) return;
+  const raw = inp.value.toUpperCase().trim();
+  if(!raw) return;
+  const parts = MULTI_SELECT_FIELDS.includes(fieldType)
+    ? raw.split('/').map(s=>s.trim()).filter(Boolean) : [raw];
+  parts.forEach(val => {
+    if(val && !uvHas(fieldType, val)) {
+      if(deletedValues[fieldType]) {
+        deletedValues[fieldType] = deletedValues[fieldType].filter(v=>v!==val);
+        saveDeletedValues();
+      }
+      uvAdd(fieldType, val);
+      renderChips(fieldType); // actualiza formulario principal también
+    }
+  });
+  inp.classList.remove('is-new'); inp.classList.add('is-existing');
+}
+
 function syncVarModalFromDOM(){
   document.querySelectorAll('[data-var-id]').forEach(row=>{
     const vid=row.dataset.varId;
