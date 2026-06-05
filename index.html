@@ -513,6 +513,12 @@
     .data-table tr:last-child td { border-bottom: none; }
     .data-table tr:hover td { background: var(--surface2); color: var(--text); }
 
+    /* ── Var chips full width ── */
+    .var-chips-full {
+      width: 100%; flex-wrap: wrap; gap: 6px;
+      padding: 6px 0 2px;
+    }
+
     /* ── Variation collapse ── */
     .var-list-toggle {
       display: flex; align-items: center; justify-content: space-between;
@@ -2047,7 +2053,6 @@ function openVariationsModal(isReopen){
             onfocus="varShowChips('${v.id}','estilo')"
             onblur="varHideChips('${v.id}','estilo')"
             oninput="varCheckNew('${v.id}','estilo',this.value);this.value=this.value.toUpperCase()">
-          <div id="varChips-${v.id}-estilo" class="chips-row" style="display:none;margin-top:8px;"></div>
         </div>
         <div class="form-grid-2">
           <div class="form-group">
@@ -2057,7 +2062,6 @@ function openVariationsModal(isReopen){
               onfocus="varShowChips('${v.id}','color')"
               onblur="varHideChips('${v.id}','color')"
               oninput="varCheckNew('${v.id}','color',this.value);this.value=this.value.toUpperCase()">
-            <div id="varChips-${v.id}-color" class="chips-row" style="display:none;margin-top:8px;"></div>
           </div>
           <div class="form-group">
             <label class="form-label">Talla <span style="color:var(--red)">*</span></label>
@@ -2066,9 +2070,12 @@ function openVariationsModal(isReopen){
               onfocus="varShowChips('${v.id}','talla')"
               onblur="varHideChips('${v.id}','talla')"
               oninput="varCheckNew('${v.id}','talla',this.value);this.value=this.value.toUpperCase()">
-            <div id="varChips-${v.id}-talla" class="chips-row" style="display:none;margin-top:8px;"></div>
           </div>
         </div>
+        <!-- chips ancho completo, comparte color y talla -->
+        <div id="varChips-${v.id}-color" class="chips-row var-chips-full" style="display:none;"></div>
+        <div id="varChips-${v.id}-talla" class="chips-row var-chips-full" style="display:none;"></div>
+        <div id="varChips-${v.id}-estilo" class="chips-row var-chips-full" style="display:none;"></div>
         <div class="form-group">
           <label class="form-label">Cantidad <span style="color:var(--red)">*</span></label>
           <div class="qty-stepper">
