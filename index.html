@@ -4817,7 +4817,6 @@ async function init(){
     lucide.createIcons();
     updateStats();
     setInterval(refreshFromSupabase, 8000);
-    setTimeout(showOnboarding, 800);
   }catch(err){
     supabaseSyncPaused = false;
     console.error('Init error:',err);
