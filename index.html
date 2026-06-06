@@ -323,7 +323,18 @@
       padding: 14px 16px 12px;
       display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
     }
-    .product-card-body { padding: 0 16px 14px; }
+    .product-card-body {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1), padding 0.2s;
+      padding: 0 16px;
+    }
+    .product-card-body.open { max-height: 4000px; padding: 0 16px 14px; }
+    .card-chevron {
+      width: 28px; height: 28px; display:flex; align-items:center; justify-content:center;
+      color: var(--text3); flex-shrink:0; transition: transform 0.3s;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .card-chevron.open { transform: rotate(180deg); }
     .product-badge {
       display: inline-flex; align-items: center; gap: 4px;
       padding: 3px 9px; border-radius: 999px;
@@ -350,17 +361,30 @@
     .attr-val.yellow { color: var(--yellow); }
 
     .var-row {
-      background: rgba(255,181,71,0.05); border: 1px solid rgba(255,181,71,0.15);
-      border-radius: var(--radius-xs); padding: 10px 12px;
+      background: rgba(255,181,71,0.04); border: 1px solid rgba(255,181,71,0.12);
+      border-radius: var(--radius-xs); padding: 8px 10px;
       display: flex; align-items: center; justify-content: space-between; gap: 8px;
-      flex-wrap: wrap; margin-bottom: 6px;
     }
-    .var-row-attrs { display: flex; gap: 14px; flex-wrap: wrap; }
+    .var-row-attrs { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; flex: 1; min-width: 0; }
     .var-attr { display: flex; flex-direction: column; gap: 1px; }
     .var-attr-k { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text3); }
-    .var-attr-v { font-size: 13px; font-weight: 700; color: var(--yellow); }
+    .var-attr-v { font-size: 12px; font-weight: 700; color: var(--yellow); }
 
-    .card-actions { display: flex; gap: 6px; flex-shrink: 0; }
+    .card-actions { display: flex; gap: 4px; flex-shrink: 0; }
+    .btn-icon {
+      width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--border);
+      background: transparent; color: var(--text3); display: flex; align-items: center;
+      justify-content: center; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s;
+      -webkit-tap-highlight-color: transparent; flex-shrink: 0;
+    }
+    .btn-icon i { width: 13px; height: 13px; }
+    .btn-icon:hover { background: var(--surface2); color: var(--text); border-color: var(--border2); }
+    .btn-icon.danger:hover { background: rgba(255,71,87,0.15); color: var(--red); border-color: rgba(255,71,87,0.3); }
+    .card-body-actions {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 0 4px; border-top: 1px solid var(--border); margin-top: 6px;
+      justify-content: flex-end;
+    }
 
     /* ── Variation modal items ── */
     .var-item-box {
@@ -882,6 +906,11 @@
         <div class="stat-label">Total venta</div>
         <div class="stat-value" id="statGain" style="font-size:16px;">—</div>
         <div class="stat-sub">precio venta</div>
+      </div>
+      <div class="stat-card red" style="grid-column:1/-1;">
+        <div class="stat-label">Costo Ticket</div>
+        <div class="stat-value" id="statTicket" style="font-size:16px;">—</div>
+        <div class="stat-sub">uds. × $250 aprox.</div>
       </div>
     </div>
 
@@ -2534,10 +2563,15 @@ function updateStats(){
   // Inversión: precio compra × cantidad (desde el inventario si existe)
   const inversion = inv.items.reduce((s,it) => s + invoiceItemCost(it) * (it.qty||0), 0);
 
-  document.getElementById('statTotal').textContent = items;
-  document.getElementById('statUnits').textContent = units.toLocaleString('es-CO');
-  document.getElementById('statInv').textContent   = '$'+formatShort(inversion);
-  document.getElementById('statGain').textContent  = '$'+formatShort(venta);
+  const costoTicket = units * 250;
+
+  const fmtCOP = n => n.toLocaleString('es-CO', {style:'currency', currency:'COP', minimumFractionDigits:0, maximumFractionDigits:0});
+
+  document.getElementById('statTotal').textContent  = items;
+  document.getElementById('statUnits').textContent  = units.toLocaleString('es-CO');
+  document.getElementById('statInv').textContent    = fmtCOP(inversion);
+  document.getElementById('statGain').textContent   = fmtCOP(venta);
+  document.getElementById('statTicket').textContent = fmtCOP(costoTicket);
 }
 function formatShort(n){
   if(n>=1000000) return (n/1000000).toFixed(1)+'M';
@@ -2586,20 +2620,18 @@ function updateProductsDisplay(){
       const p=group.product;
       const gan=(p.precioVenta||0)-(p.precioCompra||0);
       const fecha=p.fechaCreacion?new Date(p.fechaCreacion).toLocaleDateString('es-ES'):'';
+      const sid = `sc-${p.id}`;
       el.className='product-card';
       el.innerHTML=`
-        <div class="product-card-header">
+        <div class="product-card-header" style="cursor:pointer;" onclick="toggleCardBody('${sid}')">
           <div style="flex:1;min-width:0;">
             <span class="product-badge badge-simple">Simple</span>
             <div class="product-name">${p.marca||'Sin marca'} — ${p.descripcion||'Sin desc.'}</div>
-            <div class="product-meta">${p.categoria||'SIN CATEGORÍA'} · ${fecha}</div>
+            <div class="product-meta">${p.categoria||'SIN CATEGORÍA'} · ${fecha} · ${p.cantidad||0} uds.</div>
           </div>
-          <div class="card-actions">
-            <button class="btn btn-ghost btn-sm" onclick="editProduct('${p.id}')"><i data-lucide="edit-2"></i></button>
-            <button class="btn btn-red btn-sm" onclick="deleteProduct('${p.id}')"><i data-lucide="trash-2"></i></button>
-          </div>
+          <i data-lucide="chevron-down" class="card-chevron" id="chev-${sid}"></i>
         </div>
-        <div class="product-card-body">
+        <div class="product-card-body" id="${sid}">
           <div class="product-attrs">
             ${p.genero?`<div class="attr-pill"><span class="attr-key">Género</span><span class="attr-val">${p.genero}</span></div>`:''}
             ${p.color?`<div class="attr-pill"><span class="attr-key">Color</span><span class="attr-val">${p.color}</span></div>`:''}
@@ -2608,6 +2640,10 @@ function updateProductsDisplay(){
             <div class="attr-pill"><span class="attr-key">P.Compra</span><span class="attr-val">$${(p.precioCompra||0).toLocaleString('es-CO')}</span></div>
             <div class="attr-pill"><span class="attr-key">P.Venta</span><span class="attr-val green">$${(p.precioVenta||0).toLocaleString('es-CO')}</span></div>
             <div class="attr-pill"><span class="attr-key">Ganancia</span><span class="attr-val yellow">$${gan.toLocaleString('es-CO')}</span></div>
+          </div>
+          <div class="card-body-actions">
+            <button class="btn-icon" title="Editar" onclick="event.stopPropagation();editProduct('${p.id}')"><i data-lucide="edit-2"></i></button>
+            <button class="btn-icon danger" title="Eliminar" onclick="event.stopPropagation();deleteProduct('${p.id}')"><i data-lucide="trash-2"></i></button>
           </div>
         </div>`;
     } else {
@@ -2625,39 +2661,35 @@ function updateProductsDisplay(){
             <div class="var-attr"><span class="var-attr-k">Cant.</span><span class="var-attr-v">${v.cantidad||0}</span></div>
           </div>
           <div class="card-actions">
-            <button class="btn btn-ghost btn-sm" onclick="editProduct('${v.id}')"><i data-lucide="edit-2"></i></button>
-            <button class="btn btn-red btn-sm" onclick="deleteProduct('${v.id}')"><i data-lucide="trash-2"></i></button>
+            <button class="btn-icon" onclick="editProduct('${v.id}')"><i data-lucide="edit-2"></i></button>
+            <button class="btn-icon danger" onclick="deleteProduct('${v.id}')"><i data-lucide="trash-2"></i></button>
           </div>
         </div>`).join('');
+      const vcid = `vc-${bp.id}`;
       el.className='product-card';
       el.innerHTML=`
-        <div class="product-card-header">
+        <div class="product-card-header" style="cursor:pointer;" onclick="toggleCardBody('${vcid}')">
           <div style="flex:1;min-width:0;">
             <span class="product-badge badge-variation">Con variaciones</span>
             <div class="product-name">${bp.marca||'Sin marca'} — ${bp.descripcion||'Sin desc.'}</div>
-            <div class="product-meta">${bp.categoria||''} · ${bp.genero||'N/A'} · ${fecha}</div>
+            <div class="product-meta">${bp.categoria||''} · ${bp.genero||'N/A'} · ${vars.length} var. · ${total} uds.</div>
           </div>
-          <button class="btn btn-accent btn-sm" onclick="addQuickVariation('${bp.marca}','${bp.descripcion}','${bp.genero}',${bp.precioCompra||0},${bp.precioVenta||0})">
-            <i data-lucide="plus"></i> Agregar
-          </button>
+          <i data-lucide="chevron-down" class="card-chevron" id="chev-${vcid}"></i>
         </div>
-        <div class="product-card-body">
-          <div class="product-attrs" style="margin-bottom:0;">
+        <div class="product-card-body" id="${vcid}">
+          <div class="product-attrs" style="margin-bottom:8px;">
             <div class="attr-pill"><span class="attr-key">Variaciones</span><span class="attr-val">${vars.length}</span></div>
             <div class="attr-pill"><span class="attr-key">Total uds.</span><span class="attr-val">${total}</span></div>
             <div class="attr-pill"><span class="attr-key">P.Compra</span><span class="attr-val">$${(bp.precioCompra||0).toLocaleString('es-CO')}</span></div>
             <div class="attr-pill"><span class="attr-key">P.Venta</span><span class="attr-val green">$${(bp.precioVenta||0).toLocaleString('es-CO')}</span></div>
             <div class="attr-pill"><span class="attr-key">Gan/u</span><span class="attr-val yellow">$${gan.toLocaleString('es-CO')}</span></div>
           </div>
-          <div class="var-list-toggle" onclick="toggleVarList('${gid}')">
-            <span class="var-list-toggle-label">
-              <i data-lucide="layers" style="width:12px;height:12px;"></i>
-              Ver ${vars.length} variación${vars.length!==1?'es':''}
-            </span>
-            <i data-lucide="chevron-down" class="var-list-chevron" id="chev-${gid}"></i>
-          </div>
-          <div class="var-list-body" id="${gid}">
+          <div style="display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--border);padding-top:8px;">
             ${varsHTML}
+          </div>
+          <div class="card-body-actions">
+            <button class="btn-icon" title="Editar grupo" onclick="event.stopPropagation();editSharedFields('${bp.marca}','${bp.descripcion}','${bp.genero}')"><i data-lucide="edit-2"></i></button>
+            <button class="btn-icon" title="Agregar variación" onclick="event.stopPropagation();addQuickVariation('${bp.marca}','${bp.descripcion}','${bp.genero}',${bp.precioCompra||0},${bp.precioVenta||0})" style="color:var(--accent);border-color:rgba(108,99,255,0.3);"><i data-lucide="plus"></i></button>
           </div>
         </div>`;
     }
@@ -2743,6 +2775,91 @@ function editProduct(productId){
     SFX.editProduct();
     showToast('Actualizado',`${updated.marca} — ${updated.descripcion}`,'success');
   };
+}
+
+// Editar campos compartidos de todas las variaciones de un grupo
+function editSharedFields(marcaOrig, descripcionOrig, generoOrig) {
+  const groupVars = currentProducts.filter(p =>
+    p.marca === marcaOrig && p.descripcion === descripcionOrig && p.genero === generoOrig
+  );
+  if (!groupVars.length) return;
+  const bp = groupVars[0];
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.style.cssText = 'z-index:1500;align-items:center;padding:20px;';
+  overlay.innerHTML = `
+    <div class="modal-sheet" style="max-width:420px;width:100%;">
+      <div class="modal-handle"></div>
+      <div class="modal-title">Editar grupo · ${groupVars.length} variación${groupVars.length!==1?'es':''}</div>
+      <p style="font-size:12px;color:var(--text2);margin:-4px 0 16px;">Los cambios se aplicarán a todas las variaciones del grupo.</p>
+      <form id="sharedEditForm" class="form-stack" style="gap:12px;">
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Marca</label>
+            <input type="text" id="sharedMarca" value="${bp.marca||''}" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Descripción</label>
+            <input type="text" id="sharedDesc" value="${bp.descripcion||''}" class="form-input">
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">P.Compra</label>
+            <input type="text" inputmode="decimal" id="sharedCompra" value="${(bp.precioCompra||0).toLocaleString('es-CO')}" class="form-input" oninput="formatPriceInput(this);calcSharedPriceInfo()" onblur="formatPriceBlur(this);calcSharedPriceInfo()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">P.Venta</label>
+            <input type="text" inputmode="decimal" id="sharedVenta" value="${(bp.precioVenta||0).toLocaleString('es-CO')}" class="form-input" oninput="formatPriceInput(this);calcSharedPriceInfo()" onblur="formatPriceBlur(this);calcSharedPriceInfo()">
+          </div>
+        </div>
+        <div id="sharedPriceInfo" style="font-size:12px;color:var(--text2);min-height:18px;"></div>
+        <div class="form-grid-2" style="gap:8px;margin-top:4px;">
+          <button type="submit" class="btn btn-primary btn-lg">Guardar todo</button>
+          <button type="button" id="cancelSharedEdit" class="btn btn-ghost btn-lg">Cancelar</button>
+        </div>
+      </form>
+    </div>`;
+  document.body.appendChild(overlay);
+  document.getElementById('cancelSharedEdit').onclick = () => overlay.remove();
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  calcSharedPriceInfo();
+
+  document.getElementById('sharedEditForm').onsubmit = (e) => {
+    e.preventDefault();
+    const newMarca   = document.getElementById('sharedMarca').value.toUpperCase().trim();
+    const newDesc    = document.getElementById('sharedDesc').value.toUpperCase().trim();
+    const newCompra  = parsePriceInput(document.getElementById('sharedCompra'));
+    const newVenta   = parsePriceInput(document.getElementById('sharedVenta'));
+    groupVars.forEach(p => {
+      const idx = currentProducts.findIndex(x => x.id === p.id);
+      if (idx === -1) return;
+      currentProducts[idx] = { ...currentProducts[idx],
+        marca: newMarca, descripcion: newDesc,
+        precioCompra: newCompra, precioVenta: newVenta,
+        categoria: generateCategory(newDesc, currentProducts[idx].genero)
+      };
+    });
+    filteredProducts = [...currentProducts];
+    saveToLocalStorage(); updateProductsDisplay(); populateFilterOptions(); updateCounter();
+    queueSupabaseSync('products');
+    overlay.remove();
+    SFX.editProduct();
+    showToast('Grupo actualizado', `${newMarca} — ${newDesc} · ${groupVars.length} variaciones`, 'success');
+  };
+}
+
+function calcSharedPriceInfo() {
+  const compra = parsePriceInput(document.getElementById('sharedCompra'));
+  const venta  = parsePriceInput(document.getElementById('sharedVenta'));
+  const info   = document.getElementById('sharedPriceInfo');
+  if (!info) return;
+  if (compra && venta) {
+    const gan = venta - compra;
+    const pct = compra ? ((gan / compra) * 100).toFixed(0) : 0;
+    info.innerHTML = `Ganancia/u: <strong style="color:${gan>=0?'var(--green)':'var(--red)'}">$${gan.toLocaleString('es-CO')}</strong> <span style="color:var(--text3)">(${pct}%)</span>`;
+  } else { info.textContent = ''; }
 }
 
 function deleteProduct(productId){
@@ -2833,6 +2950,14 @@ function applyFilters(){
 function toggleVarList(gid){
   const body   = document.getElementById(gid);
   const chevron= document.getElementById('chev-'+gid);
+  if(!body) return;
+  const open = body.classList.toggle('open');
+  if(chevron) chevron.classList.toggle('open', open);
+}
+
+function toggleCardBody(cid){
+  const body    = document.getElementById(cid);
+  const chevron = document.getElementById('chev-'+cid);
   if(!body) return;
   const open = body.classList.toggle('open');
   if(chevron) chevron.classList.toggle('open', open);
@@ -3662,7 +3787,7 @@ function renderHeaderBadge() {
   if (inv) {
     const total = invoiceCost(inv);
     el.style.display = 'block';
-    el.textContent = `📋 #${String(inv.number).padStart(4,'0')} · $${total.toLocaleString('es-CO')}`;
+    el.textContent = `#${String(inv.number).padStart(4,'0')}`;
   } else {
     el.style.display = 'none';
   }
@@ -3807,19 +3932,17 @@ function renderProductsPage() {
       const it = group.item;
       const gan = (it.precioVenta||0) - (it.precioCompra||0);
       const fecha = it.fechaCreacion ? new Date(it.fechaCreacion).toLocaleDateString('es-ES') : '';
+      const isid = `is-${it.productId}`;
       el.innerHTML = `
-        <div class="product-card-header">
+        <div class="product-card-header" style="cursor:pointer;" onclick="toggleCardBody('${isid}')">
           <div style="flex:1;min-width:0;">
             <span class="product-badge badge-simple">Simple</span>
             <div class="product-name">${it.marca||'Sin marca'} — ${it.descripcion||'Sin desc.'}</div>
-            <div class="product-meta">${it.categoria||''} · ${fecha}</div>
+            <div class="product-meta">${it.categoria||''} · ${fecha} · ${it.cantidad} ud${it.cantidad!==1?'s':''}</div>
           </div>
-          <div class="card-actions">
-            <button class="btn btn-ghost btn-sm" onclick="editProduct('${it.productId}')"><i data-lucide="edit-2"></i></button>
-            <button class="btn btn-red btn-sm" onclick="deleteProduct('${it.productId}')"><i data-lucide="trash-2"></i></button>
-          </div>
+          <i data-lucide="chevron-down" class="card-chevron" id="chev-${isid}"></i>
         </div>
-        <div class="product-card-body">
+        <div class="product-card-body" id="${isid}">
           <div class="product-attrs">
             ${it.genero ? `<div class="attr-pill"><span class="attr-key">Género</span><span class="attr-val">${it.genero}</span></div>`:''}
             ${it.color  ? `<div class="attr-pill"><span class="attr-key">Color</span><span class="attr-val">${it.color}</span></div>`:''}
@@ -3831,6 +3954,10 @@ function renderProductsPage() {
               <span class="attr-key">En factura</span>
               <span class="attr-val" style="color:var(--accent);">${it.cantidad} ud${it.cantidad!==1?'s':''}</span>
             </div>
+          </div>
+          <div class="card-body-actions">
+            <button class="btn-icon" title="Editar" onclick="event.stopPropagation();editProduct('${it.productId}')"><i data-lucide="edit-2"></i></button>
+            <button class="btn-icon danger" title="Eliminar" onclick="event.stopPropagation();deleteProduct('${it.productId}')"><i data-lucide="trash-2"></i></button>
           </div>
         </div>`;
 
@@ -3851,39 +3978,36 @@ function renderProductsPage() {
             <div class="var-attr"><span class="var-attr-k">Factura</span><span class="var-attr-v" style="color:var(--accent);">${it.cantidad} ud${it.cantidad!==1?'s':''}</span></div>
           </div>
           <div class="card-actions">
-            <button class="btn btn-ghost btn-sm" onclick="editProduct('${it.productId}')"><i data-lucide="edit-2"></i></button>
-            <button class="btn btn-red btn-sm" onclick="deleteProduct('${it.productId}')"><i data-lucide="trash-2"></i></button>
+            <button class="btn-icon" onclick="editProduct('${it.productId}')"><i data-lucide="edit-2"></i></button>
+            <button class="btn-icon danger" onclick="deleteProduct('${it.productId}')"><i data-lucide="trash-2"></i></button>
           </div>
         </div>`
       ).join('');
 
+      const ivcid = `ivc-${base.productId}`;
       el.innerHTML = `
-        <div class="product-card-header">
+        <div class="product-card-header" style="cursor:pointer;" onclick="toggleCardBody('${ivcid}')">
           <div style="flex:1;min-width:0;">
             <span class="product-badge badge-variation">Con variaciones</span>
             <div class="product-name">${base.marca||'Sin marca'} — ${base.descripcion||'Sin desc.'}</div>
-            <div class="product-meta">${base.categoria||''} · ${base.genero||'N/A'} · ${fecha}</div>
+            <div class="product-meta">${base.categoria||''} · ${base.genero||'N/A'} · ${its.length} var. · ${totalUds} uds.</div>
           </div>
-          <button class="btn btn-accent btn-sm" onclick="addQuickVariation('${base.marca}','${base.descripcion}','${base.genero}',${base.precioCompra||0},${base.precioVenta||0})">
-            <i data-lucide="plus"></i> Agregar
-          </button>
+          <i data-lucide="chevron-down" class="card-chevron" id="chev-${ivcid}"></i>
         </div>
-        <div class="product-card-body">
-          <div class="product-attrs" style="margin-bottom:0;">
+        <div class="product-card-body" id="${ivcid}">
+          <div class="product-attrs" style="margin-bottom:8px;">
             <div class="attr-pill"><span class="attr-key">Variaciones</span><span class="attr-val">${its.length}</span></div>
             <div class="attr-pill"><span class="attr-key">En factura</span><span class="attr-val" style="color:var(--accent);">${totalUds} uds</span></div>
             <div class="attr-pill"><span class="attr-key">P.Compra</span><span class="attr-val">$${(base.precioCompra||0).toLocaleString('es-CO')}</span></div>
             <div class="attr-pill"><span class="attr-key">P.Venta</span><span class="attr-val green">$${(base.precioVenta||0).toLocaleString('es-CO')}</span></div>
             <div class="attr-pill"><span class="attr-key">Gan/u</span><span class="attr-val yellow">$${gan.toLocaleString('es-CO')}</span></div>
           </div>
-          <div class="var-list-toggle" onclick="toggleVarList('${gid}')">
-            <span class="var-list-toggle-label">
-              <i data-lucide="layers" style="width:12px;height:12px;"></i>
-              Ver ${its.length} variación${its.length!==1?'es':''}
-            </span>
-            <i data-lucide="chevron-down" class="var-list-chevron" id="chev-${gid}"></i>
+          <div style="display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--border);padding-top:8px;">
+            ${varsHTML}
           </div>
-          <div class="var-list-body" id="${gid}">${varsHTML}</div>
+          <div class="card-body-actions">
+            <button class="btn-icon" title="Agregar variación" onclick="event.stopPropagation();addQuickVariation('${base.marca}','${base.descripcion}','${base.genero}',${base.precioCompra||0},${base.precioVenta||0})" style="color:var(--accent);border-color:rgba(108,99,255,0.3);"><i data-lucide="plus"></i></button>
+          </div>
         </div>`;
     }
 
@@ -4093,55 +4217,55 @@ function renderInvoiceDetailContent(overlay, inv) {
   const dateStr = inv.date ? new Date(inv.date+'T12:00:00').toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'}) : '—';
   const itemsHTML = inv.items.length ? inv.items.map((it,idx) => {
     const pc = invoiceItemCost(it);
+    const attrs = [it.color,it.talla,it.estilo].filter(Boolean).join(' · ');
     return `
     <div class="invoice-item-row">
-      <div class="invoice-item-info">
+      <div class="invoice-item-info" style="flex:1;min-width:0;">
         <div class="invoice-item-name">${it.marca} — ${it.descripcion}</div>
-        <div class="invoice-item-sub">${[it.color,it.talla,it.estilo].filter(Boolean).join(' · ')} · ${it.qty} ud${it.qty!==1?'s':''}</div>
+        <div class="invoice-item-sub">${attrs ? attrs+' · ' : ''}${it.qty} ud${it.qty!==1?'s':''}</div>
       </div>
-      <div class="invoice-item-right">
+      <div class="invoice-item-right" style="gap:8px;">
         <span class="invoice-item-price">$${(pc*it.qty).toLocaleString('es-CO')}</span>
-        <button class="btn btn-red btn-sm" style="padding:5px 8px;min-height:32px;" onclick="removeInvoiceItem('${inv.id}',${idx})">
-          <i data-lucide="x" style="width:12px;height:12px;"></i>
-        </button>
+        <button class="btn-icon danger" onclick="removeInvoiceItem('${inv.id}',${idx})"><i data-lucide="x"></i></button>
       </div>
     </div>`;
   }).join('')
-  : `<div style="text-align:center;padding:24px;color:var(--text3);font-size:13px;">Sin productos — toca "Agregar" para añadir</div>`;
+  : `<div style="text-align:center;padding:32px 24px;color:var(--text3);font-size:13px;">Sin productos en esta factura</div>`;
 
   overlay.innerHTML = `
-    <div class="modal-sheet" style="max-height:92dvh;">
-      <div class="modal-handle"></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-        <div>
-          <div class="invoice-number" style="font-size:12px;">Factura #${String(inv.number).padStart(4,'0')}</div>
-          <div style="font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;">${inv.name||'Sin nombre'}</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:2px;">${dateStr}</div>
+    <div class="modal-sheet" style="max-height:92dvh;display:flex;flex-direction:column;padding:0;overflow:hidden;">
+
+      <!-- Cabecera fija -->
+      <div style="padding:16px 16px 0;flex-shrink:0;">
+        <div class="modal-handle"></div>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+          <div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);">Factura #${String(inv.number).padStart(4,'0')}</div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;line-height:1.2;margin-top:2px;">${inv.name||'Sin nombre'}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:3px;">${dateStr} · <span style="color:${inv.status==='sent'?'var(--green)':'var(--yellow)'};">${inv.status==='sent'?'Enviada':'Pendiente'}</span></div>
+          </div>
+          <button class="btn-icon" onclick="this.closest('.modal-overlay').remove()"><i data-lucide="x"></i></button>
         </div>
-        <button class="btn btn-ghost btn-sm" onclick="this.closest('.modal-overlay').remove()"><i data-lucide="x"></i></button>
+        <hr style="border:none;border-top:1px solid var(--border);margin:0 0 10px;">
       </div>
 
-      <hr style="border:none;border-top:1px solid var(--border);margin:12px 0;">
+      <!-- Lista scrollable -->
+      <div id="invoiceItemsList" style="overflow-y:auto;flex:1;padding:0 16px;-webkit-overflow-scrolling:touch;">
+        ${itemsHTML}
+      </div>
 
-      <!-- Items -->
-      <div id="invoiceItemsList">${itemsHTML}</div>
-
-      <!-- Total -->
-      ${inv.items.length ? `
-      <div class="invoice-total-row">
-        <span class="invoice-total-label">Total</span>
-        <span class="invoice-total-value">$${total.toLocaleString('es-CO')}</span>
-      </div>` : ''}
-
-      <!-- Acciones -->
-      <div class="form-stack" style="gap:8px;margin-top:14px;">
+      <!-- Footer fijo -->
+      <div style="flex-shrink:0;padding:10px 16px 16px;border-top:1px solid var(--border);">
+        ${inv.items.length ? `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);">${inv.items.length} ítem${inv.items.length!==1?'s':''} · ${inv.items.reduce((s,it)=>s+(it.qty||0),0)} uds.</span>
+          <span style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--green);">$${total.toLocaleString('es-CO')}</span>
+        </div>` : ''}
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
           <button class="btn btn-green" onclick="confirmSendInvoice('${inv.id}')">
             <i data-lucide="upload-cloud"></i> Enviar a Sheets
           </button>
-          <button class="btn btn-ghost" onclick="this.closest('.modal-overlay').remove()">
-            Cerrar
-          </button>
+          <button class="btn btn-ghost" onclick="this.closest('.modal-overlay').remove()">Cerrar</button>
         </div>
       </div>
     </div>`;
