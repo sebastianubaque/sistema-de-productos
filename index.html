@@ -3829,6 +3829,11 @@ function renderProductsPage() {
   const bar = document.getElementById('productsInvoiceBar');
   const empty = document.getElementById('emptyState');
   const container = document.getElementById('productsContainer');
+
+  // Preservar tarjetas abiertas antes de re-renderizar
+  const openCards = new Set(
+    [...document.querySelectorAll('.product-card-body.open')].map(el => el.id)
+  );
   const inv = getActiveInvoice();
 
   // Barra superior: selector de factura
@@ -4015,6 +4020,14 @@ function renderProductsPage() {
   });
 
   lucide.createIcons({ nodes: [container] });
+
+  // Restaurar tarjetas que estaban abiertas antes del re-render
+  openCards.forEach(cid => {
+    const body    = document.getElementById(cid);
+    const chevron = document.getElementById('chev-' + cid);
+    if (body)    body.classList.add('open');
+    if (chevron) chevron.classList.add('open');
+  });
 }
 
 function removeProductFromInvoice(invId, idx) {
