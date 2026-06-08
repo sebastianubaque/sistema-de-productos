@@ -604,6 +604,40 @@
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .aib-chevron { width: 14px; height: 14px; color: var(--text3); flex-shrink: 0; }
 
+    /* ── Facturas agrupadas por día ── */
+    .invoice-day-group { margin-bottom: 10px; }
+    .invoice-day-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 14px; border-radius: var(--radius-xs);
+      background: var(--surface2); border: 1px solid var(--border);
+      cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+      transition: border-color 0.15s;
+      margin-bottom: 6px;
+    }
+    .invoice-day-header:active { border-color: var(--accent); }
+    .invoice-day-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 12px; font-weight: 700; color: var(--text2);
+      text-transform: uppercase; letter-spacing: 0.07em;
+    }
+    .invoice-day-meta {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .invoice-day-count {
+      font-size: 11px; color: var(--text3); font-weight: 500;
+    }
+    .invoice-day-total {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px; font-weight: 800; color: var(--green);
+    }
+    .invoice-day-chevron {
+      width: 14px; height: 14px; color: var(--text3);
+      transition: transform 0.2s; flex-shrink: 0; margin-left: 6px;
+    }
+    .invoice-day-chevron.collapsed { transform: rotate(-90deg); }
+    .invoice-day-body { overflow: hidden; }
+    .invoice-day-body.collapsed { display: none; }
+
     /* ── Facturas ── */
     .invoice-card {
       background: var(--surface); border: 1px solid var(--border);
@@ -4122,44 +4156,88 @@ function loadInvoices() {
   } catch { invoices = []; }
 }
 
-// ── Render lista ──
+// ── Render lista agrupada por día ──
+const _invoiceDayCollapsed = {};
+
+function toggleInvoiceDayGroup(dateKey) {
+  _invoiceDayCollapsed[dateKey] = !_invoiceDayCollapsed[dateKey];
+  const body = document.getElementById('inv-day-body-' + dateKey);
+  const chevron = document.getElementById('inv-day-chevron-' + dateKey);
+  if (body) body.classList.toggle('collapsed', !!_invoiceDayCollapsed[dateKey]);
+  if (chevron) chevron.classList.toggle('collapsed', !!_invoiceDayCollapsed[dateKey]);
+}
+
 function renderInvoices() {
   const empty = document.getElementById('invoiceEmpty');
   const container = document.getElementById('invoicesContainer');
   if (!invoices.length) { empty.style.display='block'; container.innerHTML=''; return; }
   empty.style.display = 'none';
   container.innerHTML = '';
+
+  // Agrupar por fecha (más reciente primero)
+  const groups = {};
   [...invoices].reverse().forEach(inv => {
-    const total = invoiceCost(inv);
-    const totalItems = inv.items.reduce((s,it) => s + it.qty, 0);
-    const dateStr = inv.date ? new Date(inv.date+'T12:00:00').toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'}) : '—';
-    const card = document.createElement('div');
-    card.className = 'invoice-card';
-    card.innerHTML = `
-      <div class="invoice-card-header">
-        <div style="flex:1;min-width:0;">
-          <div class="invoice-number">Factura #${String(inv.number).padStart(4,'0')}</div>
-          <div class="invoice-name">${inv.name || 'Sin nombre'}</div>
-          <div class="invoice-date"><i data-lucide="calendar" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px;"></i>${dateStr} · ${totalItems} ud${totalItems!==1?'s':''}</div>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-          <span class="invoice-badge ${inv.status==='sent'?'sent':'pending'}">${inv.status==='sent'?'Enviada':'Pendiente'}</span>
-          <span style="font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:800;color:var(--green);">$${total.toLocaleString('es-CO')}</span>
+    const key = inv.date || 'sin-fecha';
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(inv);
+  });
+
+  Object.entries(groups).forEach(([dateKey, dayInvoices]) => {
+    const dayTotal = dayInvoices.reduce((s, inv) => s + invoiceCost(inv), 0);
+    const dayCount = dayInvoices.length;
+    const labelStr = dateKey === 'sin-fecha' ? 'Sin fecha'
+      : new Date(dateKey + 'T12:00:00').toLocaleDateString('es-ES', {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
+    const isCollapsed = !!_invoiceDayCollapsed[dateKey];
+
+    const group = document.createElement('div');
+    group.className = 'invoice-day-group';
+    group.innerHTML = `
+      <div class="invoice-day-header" onclick="toggleInvoiceDayGroup('${dateKey}')">
+        <span class="invoice-day-label">${labelStr}</span>
+        <div class="invoice-day-meta">
+          <span class="invoice-day-count">${dayCount} factura${dayCount !== 1 ? 's' : ''}</span>
+          <span class="invoice-day-total">$${dayTotal.toLocaleString('es-CO')}</span>
+          <i data-lucide="chevron-down" class="invoice-day-chevron${isCollapsed ? ' collapsed' : ''}" id="inv-day-chevron-${dateKey}"></i>
         </div>
       </div>
-      <div class="invoice-actions">
-        <button class="btn btn-ghost btn-sm" onclick="openInvoiceDetail('${inv.id}')">
-          <i data-lucide="eye"></i> Ver detalle
-        </button>
-        <button class="btn btn-green btn-sm" onclick="confirmSendInvoice('${inv.id}')" ${inv.status==='sent'?'style="opacity:.5;"':''}>
-          <i data-lucide="upload-cloud"></i> ${inv.status==='sent'?'Re-enviar':'Enviar'}
-        </button>
-        <button class="btn btn-red btn-sm" onclick="deleteInvoice('${inv.id}')">
-          <i data-lucide="trash-2"></i>
-        </button>
-      </div>`;
-    container.appendChild(card);
+      <div class="invoice-day-body${isCollapsed ? ' collapsed' : ''}" id="inv-day-body-${dateKey}"></div>`;
+
+    const body = group.querySelector('.invoice-day-body');
+    dayInvoices.forEach(inv => {
+      const total = invoiceCost(inv);
+      const totalItems = inv.items.reduce((s,it) => s + it.qty, 0);
+      const dateStr = inv.date ? new Date(inv.date+'T12:00:00').toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+      const card = document.createElement('div');
+      card.className = 'invoice-card';
+      card.innerHTML = `
+        <div class="invoice-card-header">
+          <div style="flex:1;min-width:0;">
+            <div class="invoice-number">Factura #${String(inv.number).padStart(4,'0')}</div>
+            <div class="invoice-name">${inv.name || 'Sin nombre'}</div>
+            <div class="invoice-date"><i data-lucide="calendar" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px;"></i>${dateStr} · ${totalItems} ud${totalItems!==1?'s':''}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+            <span class="invoice-badge ${inv.status==='sent'?'sent':'pending'}">${inv.status==='sent'?'Enviada':'Pendiente'}</span>
+            <span style="font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:800;color:var(--green);">$${total.toLocaleString('es-CO')}</span>
+          </div>
+        </div>
+        <div class="invoice-actions">
+          <button class="btn btn-ghost btn-sm" onclick="openInvoiceDetail('${inv.id}')">
+            <i data-lucide="eye"></i> Ver detalle
+          </button>
+          <button class="btn btn-green btn-sm" onclick="confirmSendInvoice('${inv.id}')" ${inv.status==='sent'?'style="opacity:.5;"':''}>
+            <i data-lucide="upload-cloud"></i> ${inv.status==='sent'?'Re-enviar':'Enviar'}
+          </button>
+          <button class="btn btn-red btn-sm" onclick="deleteInvoice('${inv.id}')">
+            <i data-lucide="trash-2"></i>
+          </button>
+        </div>`;
+      body.appendChild(card);
+    });
+
+    container.appendChild(group);
   });
+
   lucide.createIcons({ nodes: [container] });
 }
 
