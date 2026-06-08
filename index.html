@@ -688,6 +688,31 @@
     .invoice-total-label { font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; }
     .invoice-total-value { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 800; color: var(--accent); }
     .invoice-actions { display: flex; gap: 6px; padding: 0 16px 14px; flex-wrap: wrap; }
+    .btn-qty-toggle {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 6px 10px; border-radius: var(--radius-xs); border: none;
+      cursor: pointer; font-size: 11px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      transition: background 0.18s, color 0.18s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-qty-toggle.con {
+      background: rgba(16,217,160,0.15); color: var(--green);
+      border: 1px solid rgba(16,217,160,0.35);
+    }
+    .btn-qty-toggle.sin {
+      background: rgba(255,181,71,0.15); color: var(--yellow);
+      border: 1px solid rgba(255,181,71,0.35);
+    }
+    .btn-qty-toggle i { width: 13px; height: 13px; }
+    .btn-qty-label {
+      display: inline-block;
+      animation: qty-fadein 0.18s ease;
+    }
+    @keyframes qty-fadein {
+      from { opacity: 0; transform: scale(0.8); }
+      to   { opacity: 1; transform: scale(1); }
+    }
     .fab-invoice {
       position: fixed; bottom: 84px; right: 20px; z-index: 150;
       width: 52px; height: 52px; border-radius: 50%;
@@ -951,9 +976,6 @@
     <p class="section-label" style="margin-top:22px;">Sincronización</p>
     <div class="card">
       <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
-        <button class="btn btn-green btn-lg" id="syncSheetsBtn">
-          <i data-lucide="upload-cloud"></i> Enviar a Google Sheets
-        </button>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
           <button class="btn btn-blue" id="viewSheetsBtn">
             <i data-lucide="table-2"></i> Ver Sheets
@@ -3294,29 +3316,7 @@ async function clearSheetsProducts(){
 }
 
 function showDownloadOptionsModal(){
-  const overlay=document.createElement('div');
-  overlay.className='modal-overlay';overlay.style.zIndex='2000';
-  overlay.innerHTML=`
-    <div class="modal-sheet">
-      <div class="modal-handle"></div>
-      <div class="modal-title">Descargar Inventario</div>
-      <div style="color:var(--text2);font-size:14px;margin-bottom:20px;line-height:1.5;">
-        ¿Cómo quieres descargar el archivo?
-      </div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <button class="btn btn-primary btn-lg" onclick="downloadPlantillaLlena(true,this.closest('.modal-overlay'))">
-          <i data-lucide="download"></i> Con Cantidad
-        </button>
-        <button class="btn btn-green btn-lg" onclick="downloadPlantillaLlena(false,this.closest('.modal-overlay'))">
-          <i data-lucide="download"></i> Sin Cantidad (0)
-        </button>
-        <button class="btn btn-ghost btn-lg" onclick="this.closest('.modal-overlay').remove()">Cancelar</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(overlay);
-  lucide.createIcons({nodes:[overlay]});
-  overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove();});
+  downloadPlantillaLlena();
 }
 
 async function downloadPlantillaLlena(withQuantity=true,overlay=null){
@@ -3353,7 +3353,8 @@ async function downloadPlantillaLlena(withQuantity=true,overlay=null){
       CANTIDAD:3,
       PRECIOCOMPRA:4,
       PRECIOVENTA:5,
-      CATEGORIA:6
+      CATEGORIA:6,
+      PRODUCTO:14
     };
 
     // Limpiar datos de filas 10 a 6000 (conservando formato)
@@ -3376,7 +3377,8 @@ async function downloadPlantillaLlena(withQuantity=true,overlay=null){
       const row=worksheet.getRow(plantillaRow);
       row.getCell('D').value=values[headerIndices.NOMBRE]||'';
       row.getCell('E').value=Math.round(parseFloat(values[headerIndices.PRECIOVENTA])||0);
-      row.getCell('F').value=withQuantity?Math.round(parseFloat(values[headerIndices.CANTIDAD])||0):0;
+      const conCantidad=(values[headerIndices.PRODUCTO]||'').trim().toUpperCase()==='SI';
+      row.getCell('F').value=conCantidad?Math.round(parseFloat(values[headerIndices.CANTIDAD])||0):0;
       row.getCell('G').value='NO';
       row.getCell('I').value=values[headerIndices.CODIGO]||'';
       row.getCell('J').value=values[headerIndices.CODIGO]||'';
@@ -3394,8 +3396,7 @@ async function downloadPlantillaLlena(withQuantity=true,overlay=null){
     const blob=new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
     const link=document.createElement('a');
     link.href=URL.createObjectURL(blob);
-    const suffix=withQuantity?'':'_SinCantidad';
-    link.download=`Inventario_Jahdiel_${new Date().toISOString().slice(0,10)}${suffix}.xlsx`;
+    link.download=`Inventario_Jahdiel_${new Date().toISOString().slice(0,10)}.xlsx`;
     link.click();
     URL.revokeObjectURL(link.href);
 
@@ -4156,10 +4157,29 @@ function loadInvoices() {
   } catch { invoices = []; }
 }
 
+// ── Toggle cantidad en factura ──
+function toggleInvoiceQty(invId) {
+  const inv = invoices.find(i => i.id === invId);
+  if (!inv) return;
+  inv.withQty = inv.withQty === false ? true : false;
+  saveInvoices();
+  const btn = document.getElementById('btn-qty-' + invId);
+  if (!btn) return;
+  const isCon = inv.withQty !== false;
+  btn.className = 'btn-qty-toggle ' + (isCon ? 'con' : 'sin');
+  btn.querySelector('.btn-qty-label').textContent = isCon ? 'con' : 'sin';
+  btn.querySelector('.btn-qty-label').style.animation = 'none';
+  requestAnimationFrame(() => {
+    btn.querySelector('.btn-qty-label').style.animation = '';
+  });
+}
+
 // ── Render lista agrupada por día ──
 const _invoiceDayCollapsed = {};
+const _invoiceDayTouched = {};
 
 function toggleInvoiceDayGroup(dateKey) {
+  _invoiceDayTouched[dateKey] = true;
   _invoiceDayCollapsed[dateKey] = !_invoiceDayCollapsed[dateKey];
   const body = document.getElementById('inv-day-body-' + dateKey);
   const chevron = document.getElementById('inv-day-chevron-' + dateKey);
@@ -4174,19 +4194,30 @@ function renderInvoices() {
   empty.style.display = 'none';
   container.innerHTML = '';
 
-  // Agrupar por fecha (más reciente primero)
+  // Agrupar por fecha
   const groups = {};
-  [...invoices].reverse().forEach(inv => {
+  [...invoices].forEach(inv => {
     const key = inv.date || 'sin-fecha';
     if (!groups[key]) groups[key] = [];
     groups[key].push(inv);
   });
 
-  Object.entries(groups).forEach(([dateKey, dayInvoices]) => {
+  // Ordenar días: más reciente primero (sin-fecha al final)
+  const sortedKeys = Object.keys(groups).sort((a, b) => {
+    if (a === 'sin-fecha') return 1;
+    if (b === 'sin-fecha') return -1;
+    return b.localeCompare(a);
+  });
+
+  sortedKeys.forEach(dateKey => {
+    const dayInvoices = groups[dateKey];
     const dayTotal = dayInvoices.reduce((s, inv) => s + invoiceCost(inv), 0);
     const dayCount = dayInvoices.length;
     const labelStr = dateKey === 'sin-fecha' ? 'Sin fecha'
       : new Date(dateKey + 'T12:00:00').toLocaleDateString('es-ES', {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
+    const today = new Date().toISOString().split('T')[0];
+    const isToday = dateKey === today;
+    if (!_invoiceDayTouched[dateKey]) _invoiceDayCollapsed[dateKey] = !isToday;
     const isCollapsed = !!_invoiceDayCollapsed[dateKey];
 
     const group = document.createElement('div');
@@ -4227,6 +4258,10 @@ function renderInvoices() {
           </button>
           <button class="btn btn-green btn-sm" onclick="confirmSendInvoice('${inv.id}')" ${inv.status==='sent'?'style="opacity:.5;"':''}>
             <i data-lucide="upload-cloud"></i> ${inv.status==='sent'?'Re-enviar':'Enviar'}
+          </button>
+          <button class="btn btn-qty-toggle ${inv.withQty !== false ? 'con' : 'sin'}" onclick="toggleInvoiceQty('${inv.id}')" id="btn-qty-${inv.id}">
+            <i data-lucide="package" class="btn-qty-icon"></i>
+            <span class="btn-qty-label">${inv.withQty !== false ? 'con' : 'sin'}</span>
           </button>
           <button class="btn btn-red btn-sm" onclick="deleteInvoice('${inv.id}')">
             <i data-lucide="trash-2"></i>
@@ -4500,9 +4535,11 @@ function deleteInvoice(invId) {
 // ── Confirmación antes de enviar ──
 function confirmSendInvoice(invId) {
   const inv = invoices.find(i => i.id === invId); if (!inv) return;
+  const conQty = inv.withQty !== false;
+  const qtyLabel = conQty ? '✅ Con cantidad' : '⚠️ Sin cantidad (0)';
   showConfirmation(
     '¿Lista para enviar?',
-    `Factura #${String(inv.number).padStart(4,'0')}${inv.name?' · '+inv.name:''} — ${inv.items.length} producto(s)`,
+    `Factura #${String(inv.number).padStart(4,'0')}${inv.name?' · '+inv.name:''} — ${inv.items.length} producto(s)\n${qtyLabel}`,
     () => sendInvoiceToSheets(invId),
     '¡Segurísima, enviar!',
     'Cancelar',
@@ -4563,7 +4600,7 @@ async function sendInvoiceToSheets(invId) {
       const precioCompra = invoiceItemCost(it);
       const categoria   = generateCategory(it.descripcion || prod?.descripcion || '', genero);
       return {
-        ID:            it.productId    || '',
+        PRODUCTO:      inv.withQty !== false ? 'SI' : 'NO',
         TIPO:          'FACTURA',
         MARCA:         it.marca        || prod?.marca        || '',
         DESCRIPCION:   it.descripcion  || prod?.descripcion  || '',
@@ -4581,11 +4618,11 @@ async function sendInvoiceToSheets(invId) {
 
     await apiCall('create_products', { products });
 
-    // Registrar el costo del envío (suma de cantidades de todos los productos)
-    const totalProductos = inv.items.reduce((sum, item) => sum + (item.qty || 0), 0);
-    await recordEnvioToSupabase(totalProductos);
-
     inv.status = 'sent';
+
+    // Registrar el costo del envío (no bloquea el estado si falla)
+    const totalProductos = inv.items.reduce((sum, item) => sum + (item.qty || 0), 0);
+    recordEnvioToSupabase(totalProductos).catch(e => console.warn('Error registrando envío:', e));
     saveInvoices();
     renderInvoices();
     SFX.sheets();
