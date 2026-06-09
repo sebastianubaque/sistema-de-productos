@@ -946,12 +946,7 @@
 
     <p class="section-label" id="statLabel">Resumen · factura</p>
     <div class="stats-grid" id="statsGrid">
-      <div class="stat-card accent">
-        <div class="stat-label">Ítems</div>
-        <div class="stat-value" id="statTotal">—</div>
-        <div class="stat-sub">en la factura</div>
-      </div>
-      <div class="stat-card green">
+      <div class="stat-card green" style="grid-column:1/-1;">
         <div class="stat-label">Unidades</div>
         <div class="stat-value" id="statUnits">—</div>
         <div class="stat-sub">total uds.</div>
@@ -973,7 +968,9 @@
       </div>
     </div>
 
-    <p class="section-label" style="margin-top:22px;">Sincronización</p>
+    <p id="motivationalQuote" style="text-align:center;font-size:14px;font-weight:700;font-style:italic;margin:18px 0 6px;line-height:1.5;color:#fff;text-shadow:0 0 12px rgba(108,99,255,0.9), 0 0 24px rgba(108,99,255,0.5), 0 0 40px rgba(108,99,255,0.3);"></p>
+
+    <p class="section-label" style="margin-top:16px;">Sincronización</p>
     <div class="card">
       <div class="card-body" style="display:flex;flex-direction:column;gap:10px;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
@@ -2603,7 +2600,6 @@ function updateStats(){
 
   if (!inv) {
     if(label) label.textContent = 'Sin factura activa';
-    document.getElementById('statTotal').textContent = '—';
     document.getElementById('statUnits').textContent = '—';
     document.getElementById('statInv').textContent   = '—';
     document.getElementById('statGain').textContent  = '—';
@@ -2623,7 +2619,6 @@ function updateStats(){
 
   const fmtCOP = n => n.toLocaleString('es-CO', {style:'currency', currency:'COP', minimumFractionDigits:0, maximumFractionDigits:0});
 
-  document.getElementById('statTotal').textContent  = items;
   document.getElementById('statUnits').textContent  = units.toLocaleString('es-CO');
   document.getElementById('statInv').textContent    = fmtCOP(inversion);
   document.getElementById('statGain').textContent   = fmtCOP(venta);
@@ -3619,8 +3614,8 @@ async function openCostosModal(){
         ${costos.filter(c=>c.cantidad_productos&&c.cantidad_productos>0).length?costos.filter(c=>c.cantidad_productos&&c.cantidad_productos>0).map((c,i)=>`
           <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-xs);margin-bottom:8px;transition:var(--transition);" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
             <div style="flex:1;min-width:0;">
-              <div style="font-size:12px;font-weight:700;color:var(--text);">${new Date(c.fecha).toLocaleDateString('es-CO')}</div>
-              <div style="font-size:11px;color:var(--text3);">${c.cantidad_productos||0} producto(s)</div>
+              <div style="font-size:12px;font-weight:700;color:var(--text);">${c.numero_factura||''} ${c.nombre_factura||''}</div>
+              <div style="font-size:11px;color:var(--text3);">${new Date(c.fecha).toLocaleDateString('es-CO')} · ${c.cantidad_productos||0} producto(s)</div>
             </div>
             <div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:800;color:var(--yellow);margin-right:10px;">$${c.costo.toLocaleString('es-CO')}</div>
             <button class="btn-delete-item" onclick="deleteEnvioAndRefresh('${c.id}')" style="background:rgba(255,87,87,0.15);border:1px solid rgba(255,87,87,0.3);color:var(--red);width:28px;height:28px;border-radius:6px;padding:0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:var(--transition);flex-shrink:0;" onmouseover="this.style.background='rgba(255,87,87,0.3)'" onmouseout="this.style.background='rgba(255,87,87,0.15)'">×</button>
@@ -4548,7 +4543,7 @@ function confirmSendInvoice(invId) {
 }
 
 // ── Enviar factura a Sheets ──
-async function recordEnvioToSupabase(cantidadProductos) {
+async function recordEnvioToSupabase(cantidadProductos, nombreFactura='', numeroFactura='') {
   const db = getSupabaseDb();
   if (!db) return;
   try {
@@ -4557,7 +4552,9 @@ async function recordEnvioToSupabase(cantidadProductos) {
       cantidad_productos: cantidadProductos,
       costo: costo,
       fecha: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
+      nombre_factura: nombreFactura,
+      numero_factura: numeroFactura
     }]);
     if (error) throw error;
   } catch(e) {
@@ -4622,7 +4619,7 @@ async function sendInvoiceToSheets(invId) {
 
     // Registrar el costo del envío (no bloquea el estado si falla)
     const totalProductos = inv.items.reduce((sum, item) => sum + (item.qty || 0), 0);
-    recordEnvioToSupabase(totalProductos).catch(e => console.warn('Error registrando envío:', e));
+    recordEnvioToSupabase(totalProductos, inv.name || '', numFactura).catch(e => console.warn('Error registrando envío:', e));
     saveInvoices();
     renderInvoices();
     SFX.sheets();
@@ -4950,6 +4947,80 @@ async function init(){
     console.error('Init error:',err);
   }
 }
+
+const QUOTES = [
+  "¡Qué milagro verte por aquí! ¿Te perdiste o qué?",
+  "Huy, ¿fíjate que SÍ existe? Pensé que te había tragado el sofá.",
+  "¡Porfin! El sistema pensaba que eras un fantasma.",
+  "Eso, eso... muévete que no te pago pa' calentar silla.",
+  "¿Dormido otra vez? Aquí el dinero no se hace solo, mi amor.",
+  "No veo movimiento. ¿Sigues vivo o necesito llamar a alguien?",
+  "Ajá, y ¿cuántas facturas llevas hoy? ¿Cero? Claro.",
+  "Cada segundo que pierdes, la competencia te come. Muévete YA.",
+  "Oye, ¿eso que veo es trabajo? No lo puedo creer con mis propios ojos.",
+  "¿Cuándo fue la última vez que registraste algo? Exacto. No recuerdas.",
+  "El inventario no se gestiona solo, genio. Dale.",
+  "¿Sabes qué tiene tu competencia que tú no? Disciplina. Piénsalo.",
+  "Despierta, campeón. El mercado no espera a los dormidos.",
+  "Qué lindo que hayas aparecido. ¿Vas a trabajar o solo a mirar?",
+  "Oye, se me olvidó preguntarte: ¿viniste a trabajar o de visita?",
+  "No te estoy pagando para que me calientes la pantalla.",
+  "Eso, eso... otros 10 segundos sin producir nada. Récord personal.",
+  "Si el esfuerzo fuera opcional, tú serías el campeón mundial.",
+  "¿Ves ese número de ventas? Sí, ese. Da vergüenza. Arréglalo.",
+  "Mira, no te voy a gritar... pero MUÉVETE POR FAVOR.",
+  "¿Café en mano y sin trabajar? Qué vida tan dura la tuya.",
+  "El que madruga, vende. Y tú llevas horas 'madruGANDO' sin nada.",
+  "¿Sabes qué es eso que suena? El dinero yéndose. Apúrate.",
+  "No sé para qué instalé este sistema si no lo vas a usar.",
+  "Hoy tampoco vas a batir tu récord de productividad, ¿verdad?",
+  "Oye, ¿el inventario se actualiza solo ahora? Qué avance tecnológico.",
+  "Mira cómo te quedas ahí... impresionante. De verdad.",
+  "¿Cuándo fue que dijiste 'voy a trabajar duro'? Ah, sí. Nunca.",
+  "No te pido que seas el empleado del mes. Solo que HAGAS ALGO.",
+  "¿Eso es una factura nueva o es el mismo número de siempre? Sospechoso.",
+  "Si la pereza fuera un deporte, ya tendrías medalla de oro.",
+  "Jefe malo aquí. Jefe malo observando. Jefe malo esperando.",
+  "¿Ese producto está registrado o lo estás 'pensando' todavía?",
+  "Dale, dale... que los clientes no se esperan eternamente.",
+  "Oye, ¿y ese análisis que ibas a hacer? ¿Lo soñaste o qué?",
+  "No sé si felicitarte por abrir la app o llorar porque tardaste tanto.",
+  "Cada factura sin registrar es plata que se evapor. ¡Registra!",
+  "¿Sabes qué no descansa nunca? Tu competencia. Buenas noches.",
+  "Aquí el que no trabaja... tampoco come. Eso es todo.",
+  "¿Cuántos productos vendiste hoy? No, en serio, cuéntame. Me da risa.",
+  "Si pusieras tanta energía en vender como en no hacer nada... uff.",
+  "Bonito el inventario ese tan quietecito, ¿verdad? Cámbialo.",
+  "¿Revisaste las facturas del día? No. Lo sabía. Como siempre.",
+  "Oye, ¿sigues ahí? Parpadea dos veces si necesitas ayuda.",
+  "El negocio no va a crecer solo, mi vida. Toca trabajar.",
+  "Qué bueno que abriste la app. Ahora sí úsala, ¿no?",
+  "Hoy es un buen día para no decepcionar. Inténtalo.",
+  "¿Listo para trabajar? No importa, hazlo igual.",
+  "No te estoy pidiendo milagros. Solo que hagas tu trabajo. ¿Tanto es?",
+  "Recuerda: sin ventas no hay sueldo. Sin sueldo no hay café. Sin café... terror."
+];
+let _quoteIdx = Math.floor(Math.random() * QUOTES.length);
+function _rotateQuote(){
+  const el = document.getElementById('motivationalQuote');
+  if(!el) return;
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(-6px)';
+  setTimeout(() => {
+    _quoteIdx = (_quoteIdx + 1) % QUOTES.length;
+    el.textContent = '"' + QUOTES[_quoteIdx] + '"';
+    el.style.opacity = '1';
+    el.style.transform = 'translateY(0)';
+  }, 400);
+}
+(function initQuotes(){
+  const el = document.getElementById('motivationalQuote');
+  if(el){
+    el.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+    el.textContent = '"' + QUOTES[_quoteIdx] + '"';
+  }
+  setInterval(_rotateQuote, 10000);
+})();
 
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
 else init();
