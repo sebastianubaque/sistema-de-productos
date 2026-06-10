@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -968,7 +968,7 @@
       </div>
     </div>
 
-    <p id="motivationalQuote" style="text-align:center;font-size:14px;font-weight:700;font-style:italic;margin:18px 0 6px;line-height:1.5;color:#fff;text-shadow:0 0 12px rgba(108,99,255,0.9), 0 0 24px rgba(108,99,255,0.5), 0 0 40px rgba(108,99,255,0.3);"></p>
+    <p style="text-align:center;font-size:11px;font-style:italic;margin:14px 0 4px;color:var(--text3);">con mucho cariño 🤍</p>
 
     <p class="section-label" style="margin-top:16px;">Sincronización</p>
     <div class="card">
@@ -4947,82 +4947,6 @@ async function init(){
     console.error('Init error:',err);
   }
 }
-
-const QUOTES = [
-  // 💕 Cariñosas motivadoras
-  "Sé que puede con todo esto y más. ¡Ese negocio lo lleva en la sangre! 💪",
-  "Cada factura que registra es un paso más cerca de sus metas. ¡Eso es!",
-  "Eres más fuerte que cualquier mal día de ventas. ¡Adelante, campeona!",
-  "No hay mujer más poderosa que la que construye su propio negocio. ¡Esa eres tú!",
-  "Hoy puede ser un gran día de ventas. Solo tienes que empezar. ¡Vamos!",
-  "El esfuerzo de hoy es el orgullo de mañana. Lo estás haciendo increíble. 🌟",
-  "Cada producto registrado es un ladrillo de tu futuro. ¡Sigue construyendo!",
-  "Hay una empresaria increíble detrás de esta pantalla. Solo necesita creerlo. ✨",
-  "Tus ventas no se miden en suerte, se miden en dedicación. Y tú tienes de sobra.",
-  "Que este negocio crezca tanto como tu determinación. ¡Y esa sí es enorme!",
-  "Cada pequeño esfuerzo suma. Hoy estás un paso más cerca de donde quieres llegar. 🚀",
-  "Eres capaz de cosas grandes. Este negocio es la prueba. ¡Sigue adelante!",
-  "Tu trabajo de hoy es el dinero de mañana. No pares, reina. 👑",
-  "Las grandes empresarias empezaron exactamente donde estás tú. ¡No te rindas!",
-  "Cada venta cuenta, cada ticket cuenta, tú cuentas. ¡Dale con todo!",
-  "Estás construyendo algo tuyo, algo real. Eso vale muchísimo. ¡Orgullosa de ti!",
-  "Un día a la vez, una factura a la vez. Así se hace grande un negocio. 💛",
-  "Lo que haces hoy define lo que tendrás mañana. Eres imparable. 🔥",
-  "Eres inteligente, trabajadora y capaz. Este negocio lo demuestra. ¡Confía en ti!",
-  "Cada día que abres esta app es un día que decides crecer. ¡Eso se admira!",
-  // 😏 Tóxicas con cariño mezclado
-  "La quiero mucho, pero ese inventario necesita amor también. ¡Dele cariño, reina!",
-  "Eres hermosa, inteligente y... ¿por qué no has registrado nada aún? 🤔",
-  "Ay, te adoro. Pero esas facturas sin registrar me duelen el alma, chica.",
-  "Reina, puedes con el mundo. ¿Y con una facturita no puedes? Vamos. 💅",
-  "Te digo esto con todo el amor: ¡REGISTRA ESO YA, POR FAVOR!",
-  "Sé que eres la mejor. Ahora demuéstraselo a esos números. ¡Dale!",
-  "Te apoyo con todo. Pero ese inventario tan quietecito me preocupa, mi reina.",
-  "Vales oro. Tus ventas también deberían valer oro. ¡A trabajar, preciosa!",
-  "Sin ventas no hay sueldo, sin sueldo no hay uñas. ¡A facturar! 💅",
-  "Esos tickets no se van a vender solos, mi vida. ¡Dale que tú puedes!",
-  "¿Cuántos tickets llevas hoy? Sea cual sea el número, ¡vamos por más!",
-  "Cada ticket registrado es plata en tu bolsillo. ¡No dejes escapar ni uno!",
-  "Ticket por ticket se hace el negocio. ¡Y tú lo estás haciendo, campeona!",
-  "Los números están ahí esperándote. ¡Tú solo tienes que registrarlos, linda!",
-  "Ese inventario se ve bien... pero podría verse mejor con más ventas. ¡Tú puedes!",
-  "¡Porfin aparece la estrella del negocio! El sistema te extrañaba, de verdad.",
-  "Qué milagro tan bonito verte trabajar, reina. ¡Así me gusta!",
-  "¿Dormida estabas? No importa, ya despertaste y eso es lo que cuenta. ¡Dale!",
-  "Mira esos números... podrían ser mejores, ¿verdad? Tú sabes qué hacer. 😘",
-  "No te pido milagros, solo que seas la empresaria que ya eres. ¡Vamos!",
-  "¿Café en mano? Perfecto. Ahora sí, ¡a registrar con energía, campeona!",
-  "El negocio no va a crecer solo, mi vida. Pero contigo al frente, ¡sí puede!",
-  "Llevas rato mirando la pantalla... ¿ya vas a empezar? ¡Eso es, así se hace!",
-  "Sé que tienes mil cosas en la cabeza, pero este negocio te necesita. ¡Tú puedes!",
-  "Cada vez que registras algo, te acercas más a tus metas. ¡Sigue así, crack!",
-  "¿Lista para conquistar el día? Claro que sí. ¡Ese es tu estilo, reina! 👑",
-  "No hay obstáculo que una mujer con determinación no pueda superar. ¡Adelante!",
-  "Tu esfuerzo se ve, se siente y se va a ver en los resultados. ¡Confía!",
-  "Hoy es un buen día para ser la empresaria increíble que eres. ¡Empieza ya!",
-  "Recuerda por qué empezaste. Ese sueño sigue vivo. ¡Ve por él, campeona! 🌟"
-];
-let _quoteIdx = Math.floor(Math.random() * QUOTES.length);
-function _rotateQuote(){
-  const el = document.getElementById('motivationalQuote');
-  if(!el) return;
-  el.style.opacity = '0';
-  el.style.transform = 'translateY(-6px)';
-  setTimeout(() => {
-    _quoteIdx = (_quoteIdx + 1) % QUOTES.length;
-    el.textContent = '"' + QUOTES[_quoteIdx] + '"';
-    el.style.opacity = '1';
-    el.style.transform = 'translateY(0)';
-  }, 400);
-}
-(function initQuotes(){
-  const el = document.getElementById('motivationalQuote');
-  if(el){
-    el.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-    el.textContent = '"' + QUOTES[_quoteIdx] + '"';
-  }
-  setInterval(_rotateQuote, 15000);
-})();
 
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
 else init();
