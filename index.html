@@ -3295,19 +3295,15 @@ async function viewSheetsProducts(){
 }
 
 async function clearSheetsProducts(){
-  showConfirmation('¿Borrar Google Sheets?','Se eliminarán TODOS los productos de la hoja. Tus datos locales no se ven afectados.',async()=>{
-    const btn=document.getElementById('clearSheetsBtn');
-    const orig=btn.innerHTML;btn.disabled=true;btn.textContent='Borrando...';
-    try{
-      const res=await apiCall('list_products',{});
-      const data=res.data||[];
-      if(!data.length){showToast('Ya vacío','La hoja ya está vacía.','info');return;}
-      for(const p of data){if(!p.ID) continue;try{await apiCall('delete_product',{id:p.ID});}catch(e){console.warn(e);}}
-      SFX.clearSheets();
-      showToast('Limpieza completa',`${data.length} productos eliminados de Sheets.`,'success');
-    }catch{showToast('Error','No se pudo borrar Sheets.','error');}
-    finally{btn.disabled=false;btn.innerHTML=orig;lucide.createIcons({nodes:[btn]});}
-  });
+  const btn=document.getElementById('clearSheetsBtn');
+  const orig=btn.innerHTML;btn.disabled=true;btn.textContent='Borrando...';
+  try{
+    const res=await apiCall('clear_products',{});
+    if(!res.ok) throw new Error(res.error||'Error al borrar');
+    SFX.clearSheets();
+    showToast('Limpieza completa','Todos los productos fueron eliminados de Sheets.','success');
+  }catch{showToast('Error','No se pudo borrar Sheets.','error');}
+  finally{btn.disabled=false;btn.innerHTML=orig;lucide.createIcons({nodes:[btn]});}
 }
 
 function showDownloadOptionsModal(){
