@@ -687,10 +687,11 @@
     }
     .invoice-total-label { font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; }
     .invoice-total-value { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 800; color: var(--accent); }
-    .invoice-actions { display: flex; gap: 6px; padding: 0 16px 14px; flex-wrap: wrap; }
+    .invoice-actions { display: flex; gap: 6px; padding: 0 16px 14px; align-items: stretch; }
+    .invoice-actions > * { flex: 1; display: flex; align-items: center; justify-content: center; min-width: 0; height: 36px; padding: 0 6px; box-sizing: border-box; }
     .btn-qty-toggle {
-      display: inline-flex; align-items: center; gap: 4px;
-      padding: 6px 10px; border-radius: var(--radius-xs); border: none;
+      display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+      padding: 0; border-radius: var(--radius-xs); border: none;
       cursor: pointer; font-size: 11px; font-weight: 800;
       text-transform: uppercase; letter-spacing: 0.06em;
       transition: background 0.18s, color 0.18s;
@@ -705,6 +706,21 @@
       border: 1px solid rgba(255,181,71,0.35);
     }
     .btn-qty-toggle i { width: 13px; height: 13px; }
+    .btn-shoe-toggle {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 0; border-radius: var(--radius-xs); border: none;
+      cursor: pointer; transition: background 0.18s, color 0.18s, border-color 0.18s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-shoe-toggle.shoe-off {
+      background: rgba(239,68,68,0.15); color: #ef4444;
+      border: 1px solid rgba(239,68,68,0.35);
+    }
+    .btn-shoe-toggle.shoe-on {
+      background: rgba(16,217,160,0.15); color: var(--green);
+      border: 1px solid rgba(16,217,160,0.35);
+    }
+    .btn-shoe-toggle i { width: 13px; height: 13px; }
     .btn-qty-label {
       display: inline-block;
       animation: qty-fadein 0.18s ease;
@@ -4148,6 +4164,17 @@ function loadInvoices() {
   } catch { invoices = []; }
 }
 
+// ── Toggle entrega de zapatos ──
+function toggleShoeStatus(invId) {
+  const inv = invoices.find(i => i.id === invId);
+  if (!inv) return;
+  inv.shoeDelivered = !inv.shoeDelivered;
+  saveInvoices();
+  const btn = document.getElementById('btn-shoe-' + invId);
+  if (!btn) return;
+  btn.className = 'btn-shoe-toggle ' + (inv.shoeDelivered ? 'shoe-on' : 'shoe-off');
+}
+
 // ── Toggle cantidad en factura ──
 function toggleInvoiceQty(invId) {
   const inv = invoices.find(i => i.id === invId);
@@ -4253,6 +4280,9 @@ function renderInvoices() {
           <button class="btn btn-qty-toggle ${inv.withQty !== false ? 'con' : 'sin'}" onclick="toggleInvoiceQty('${inv.id}')" id="btn-qty-${inv.id}">
             <i data-lucide="package" class="btn-qty-icon"></i>
             <span class="btn-qty-label">${inv.withQty !== false ? 'con' : 'sin'}</span>
+          </button>
+          <button class="btn-shoe-toggle ${inv.shoeDelivered ? 'shoe-on' : 'shoe-off'}" onclick="toggleShoeStatus('${inv.id}')" id="btn-shoe-${inv.id}">
+            <i data-lucide="footprints"></i>
           </button>
           <button class="btn btn-red btn-sm" onclick="deleteInvoice('${inv.id}')">
             <i data-lucide="trash-2"></i>
@@ -4594,7 +4624,7 @@ async function sendInvoiceToSheets(invId) {
       const categoria   = generateCategory(it.descripcion || prod?.descripcion || '', genero);
       return {
         PRODUCTO:      inv.withQty !== false ? 'SI' : 'NO',
-        TIPO:          'FACTURA',
+        ZAPATOS:       inv.shoeDelivered ? 'Si' : 'No',
         MARCA:         it.marca        || prod?.marca        || '',
         DESCRIPCION:   it.descripcion  || prod?.descripcion  || '',
         GENERO:        genero,
