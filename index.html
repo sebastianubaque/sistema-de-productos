@@ -3094,6 +3094,92 @@ function clearForm(){
   tempVariations=[];
   document.querySelectorAll('.form-input').forEach(i=>i.classList.remove('is-new','is-existing'));
   acResetAll();
+  clearFormDraft();
+}
+
+// ══════════════════════════════════════════
+// BORRADOR DEL FORMULARIO "AGREGAR"
+// Guarda lo que se va llenando (incluidas las variaciones) para no
+// perderlo si se sale de la app, se recarga o se cambia de pestaña.
+// Se borra al guardar el producto o al tocar "Limpiar".
+// ══════════════════════════════════════════
+const FORM_DRAFT_KEY = 'jahdiel_form_draft';
+const FORM_DRAFT_FIELDS = ['marca','descripcion','genero','precioCompra','precioVenta','estilo','color','talla','cantidad'];
+let formDraftTimer = null;
+
+function isVariationsModalOpen(){
+  const m = document.getElementById('variationsModal');
+  return !!m && m.style.display !== 'none' && !!m.querySelector('[data-var-id]');
+}
+function saveFormDraft(){
+  clearTimeout(formDraftTimer);
+  try{
+    const fields = {};
+    FORM_DRAFT_FIELDS.forEach(f => { fields[f] = document.getElementById(f)?.value || ''; });
+    const modalOpen = isVariationsModalOpen();
+    if(modalOpen) syncVarModalFromDOM();
+    const hasFields = FORM_DRAFT_FIELDS.some(f => f === 'cantidad' ? (parseInt(fields[f]) || 0) > 0 : fields[f].trim());
+    const hasVars = tempVariations.some(v => v.estilo || v.color || v.talla || v.cantidad);
+    if(!hasFields && !hasVars){ clearFormDraft(); return; }
+    localStorage.setItem(FORM_DRAFT_KEY, JSON.stringify({
+      type: currentProductType, fields, vars: tempVariations,
+      varModalOpen: modalOpen, varModalData: _varModalData, savedAt: Date.now()
+    }));
+  }catch{}
+}
+function queueFormDraftSave(){
+  clearTimeout(formDraftTimer);
+  formDraftTimer = setTimeout(saveFormDraft, 300);
+}
+function clearFormDraft(){
+  clearTimeout(formDraftTimer);
+  try{ localStorage.removeItem(FORM_DRAFT_KEY); }catch{}
+}
+
+let formDraftReady = false;
+function initFormDraft(){
+  if(formDraftReady) return;
+  formDraftReady = true;
+  // Escribir, chips, stepper de cantidad, tipo de producto y modal de variaciones
+  const watch = el => {
+    if(!el) return;
+    el.addEventListener('input', queueFormDraftSave);
+    el.addEventListener('change', queueFormDraftSave);
+    el.addEventListener('click', queueFormDraftSave);
+  };
+  watch(document.getElementById('page-add'));
+  watch(document.getElementById('variationsModal'));
+  // Al salir de la app o recargar, guardar de inmediato
+  window.addEventListener('pagehide', saveFormDraft);
+  document.addEventListener('visibilitychange', () => { if(document.visibilityState === 'hidden') saveFormDraft(); });
+  restoreFormDraft();
+}
+
+function restoreFormDraft(){
+  let d = null;
+  try{ d = JSON.parse(localStorage.getItem(FORM_DRAFT_KEY) || 'null'); }catch{}
+  if(!d || !d.fields) return;
+
+  setProductType(d.type === 'variations' ? 'variations' : 'simple');
+  FORM_DRAFT_FIELDS.forEach(f => {
+    const inp = document.getElementById(f);
+    if(inp && d.fields[f] != null) inp.value = d.fields[f];
+  });
+  ['marca','genero','estilo','color','talla'].forEach(f => { if(d.fields[f]) checkNewValue(f, d.fields[f]); });
+  AC_FIELDS.forEach(name => { if(acGetValue(name)){ acUpdateSummary(name); acCollapse(name); } });
+  calcPriceInfo();
+
+  tempVariations = Array.isArray(d.vars) ? d.vars : [];
+  _varModalData = d.varModalData || {};
+
+  switchPage('add', document.querySelector('[data-page=add]'));
+  if(d.varModalOpen && tempVariations.length && _varModalData.marca) openVariationsModal(true);
+
+  const nVars = tempVariations.filter(v => v.color || v.talla || v.cantidad).length;
+  const que = scanEsc([d.fields.marca, d.fields.descripcion].filter(Boolean).join(' — ')) || 'el producto';
+  showToast('Formulario recuperado',
+    `Seguimos con ${que}${nVars ? ` · ${nVars} variación${nVars!==1?'es':''}` : ''}. Toca "Limpiar" para empezar de cero.`,
+    'info', 6000);
 }
 
 // ══════════════════════════════════════════
@@ -5695,10 +5781,12 @@ async function init(){
     initMultiFieldAccordions();
     lucide.createIcons();
     updateStats();
+    initFormDraft();
     setInterval(refreshFromSupabase, 8000);
   }catch(err){
     supabaseSyncPaused = false;
     console.error('Init error:',err);
+    try{ initFormDraft(); }catch(e){ console.error('Form draft error:',e); }
   }
 }
 
