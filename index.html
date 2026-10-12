@@ -738,7 +738,7 @@
       transition: var(--transition); -webkit-tap-highlight-color: transparent;
     }
     .fab-invoice:active { transform: scale(0.92); }
-    .fab-invoice i { width: 22px; height: 22px; color: #fff; }
+    .fab-invoice i, .fab-invoice svg { width: 22px; height: 22px; color: #fff; }
     .invoice-empty { text-align: center; padding: 48px 24px; }
     .product-picker-item {
       display: flex; align-items: center; justify-content: space-between;
@@ -919,6 +919,121 @@
       display: flex; align-items: center; gap: 6px;
     }
     .ac-expanded-label span { color: var(--red); }
+    /* ══════════ ESCÁNER IA ══════════ */
+    /* Botón flotante IA (luminoso) */
+    .fab-ai {
+      position: fixed; bottom: 80px; right: 16px; z-index: 160;
+      width: 60px; height: 60px; padding: 0; border: none; border-radius: 50%;
+      background: transparent; cursor: pointer; -webkit-tap-highlight-color: transparent;
+      transition: bottom 0.3s cubic-bezier(.4,0,.2,1), transform 0.15s;
+    }
+    .fab-ai.raised { bottom: 146px; }
+    .fab-ai:active { transform: scale(0.92); }
+    .fab-ai::before {
+      content: ''; position: absolute; inset: -10px; border-radius: 50%; pointer-events: none;
+      background: radial-gradient(circle, rgba(108,99,255,0.65) 0%, rgba(56,189,248,0.30) 45%, transparent 70%);
+      filter: blur(6px); animation: fabAiPulse 2.4s ease-in-out infinite;
+    }
+    .fab-ai-ring {
+      position: absolute; inset: 0; border-radius: 50%;
+      background: conic-gradient(from 0deg, #6C63FF, #38BDF8, #10D9A0, #8B5CF6, #6C63FF);
+      animation: fabAiSpin 3s linear infinite;
+      box-shadow: 0 6px 26px rgba(108,99,255,0.55);
+    }
+    .fab-ai-core {
+      position: absolute; inset: 3px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.25);
+    }
+    .fab-ai-core i, .fab-ai-core svg {
+      width: 26px; height: 26px; color: #fff;
+      filter: drop-shadow(0 0 6px rgba(255,255,255,0.8));
+      animation: fabAiTwinkle 2.4s ease-in-out infinite;
+    }
+    .fab-ai-tag {
+      position: absolute; top: -3px; right: -3px;
+      font-size: 9px; font-weight: 800; letter-spacing: 0.04em; line-height: 1;
+      padding: 3px 5px; border-radius: 999px;
+      background: var(--green); color: #06251b; border: 2px solid var(--bg);
+    }
+    @keyframes fabAiSpin    { to { transform: rotate(360deg); } }
+    @keyframes fabAiPulse   { 0%,100% { opacity: 0.55; transform: scale(0.92); } 50% { opacity: 1; transform: scale(1.1); } }
+    @keyframes fabAiTwinkle { 0%,100% { transform: scale(1) rotate(0); } 50% { transform: scale(1.12) rotate(12deg); } }
+    @media (prefers-reduced-motion: reduce) {
+      .fab-ai::before, .fab-ai-ring, .fab-ai-core svg { animation: none; }
+    }
+
+    .scan-sheet { display: flex; flex-direction: column; max-height: 94dvh; padding-bottom: 0 !important; }
+    .scan-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 12px; }
+    .scan-footer {
+      position: sticky; bottom: 0; padding: 12px 0 calc(14px + env(safe-area-inset-bottom));
+      background: var(--bg2); border-top: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .scan-loading { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 40px 10px; text-align: center; }
+    .scan-spinner {
+      width: 46px; height: 46px; border-radius: 50%;
+      border: 4px solid rgba(108,99,255,0.18); border-top-color: var(--accent);
+      animation: scanSpin 0.9s linear infinite;
+    }
+    @keyframes scanSpin { to { transform: rotate(360deg); } }
+
+    .scan-meta {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;
+      padding: 12px; border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--border);
+    }
+    .scan-meta-k { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+    .scan-meta-v { font-size: 13px; font-weight: 600; word-break: break-word; }
+    .scan-note {
+      font-size: 12px; line-height: 1.4; color: var(--yellow); padding: 10px 12px; margin-bottom: 12px;
+      background: rgba(255,181,71,0.08); border: 1px solid rgba(255,181,71,0.3); border-radius: var(--radius-sm);
+    }
+    .scan-toolbar {
+      position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+      padding: 8px 0 10px; background: var(--bg2);
+    }
+    .scan-toolbar .btn { flex: 1 1 auto; }
+    .scan-count { font-size: 12px; color: var(--text2); width: 100%; }
+
+    .scan-item, .scan-group {
+      border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface);
+      padding: 10px; margin-bottom: 10px;
+    }
+    .scan-item.selected, .scan-var.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+    .scan-group { border-color: rgba(255,181,71,0.35); background: rgba(255,181,71,0.04); }
+    .scan-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .scan-head-title { flex: 1; min-width: 0; font-size: 12px; font-weight: 700; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .scan-check { width: 20px; height: 20px; accent-color: var(--accent); flex-shrink: 0; }
+    .scan-badge {
+      font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 6px; flex-shrink: 0; letter-spacing: 0.03em;
+    }
+    .scan-badge.simple { background: rgba(56,189,248,0.12); color: var(--blue); }
+    .scan-badge.var    { background: rgba(255,181,71,0.14); color: var(--yellow); }
+    .scan-badge.exists { background: rgba(16,217,160,0.12); color: var(--green); }
+    .scan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .scan-grid .full { grid-column: 1 / -1; }
+    .scan-f { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    .scan-f label { font-size: 10px; color: var(--text3); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    .scan-f input {
+      width: 100%; min-width: 0; padding: 8px 9px; font-size: 13px; font-weight: 600; font-family: inherit;
+      color: var(--text); background: var(--surface2); border: 1.5px solid var(--border); border-radius: var(--radius-xs);
+      text-transform: uppercase; outline: none;
+    }
+    .scan-f input:focus { border-color: var(--accent); background: var(--surface3); }
+    .scan-f input::placeholder { color: var(--text3); font-weight: 400; text-transform: none; }
+    .scan-f input.scan-new { border-color: rgba(255,181,71,0.6); }
+    .scan-f input.scan-err { border-color: var(--red); background: rgba(255,87,87,0.08); }
+    .scan-cat { font-size: 11px; color: var(--text2); margin-top: 6px; }
+    .scan-cat b { color: var(--accent); font-weight: 700; }
+    .scan-vars { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(255,181,71,0.3); }
+    .scan-var { border: 1px solid var(--border); border-radius: var(--radius-xs); padding: 8px; background: var(--bg2); }
+    .scan-var .scan-grid { grid-template-columns: 1fr 1fr 1fr; }
+    .scan-row-actions { display: flex; gap: 6px; justify-content: flex-end; margin-top: 8px; }
+    .scan-legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 11px; color: var(--text3); margin-bottom: 10px; }
+    .scan-legend span::before { content: ''; display: inline-block; width: 9px; height: 9px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; border: 1.5px solid; }
+    .scan-legend .l-new::before { border-color: rgba(255,181,71,0.8); }
+    .scan-legend .l-err::before { border-color: var(--red); background: rgba(255,87,87,0.15); }
   </style>
 </head>
 <body>
@@ -1323,6 +1438,12 @@
 </div><!-- /app -->
 
 <!-- FAB nueva factura (solo visible en tab facturas) -->
+<button class="fab-ai" id="fabAI" onclick="openScanSheet()" aria-label="Escanear factura con IA" title="Escanear factura con IA">
+  <span class="fab-ai-ring"></span>
+  <span class="fab-ai-core"><i data-lucide="sparkles"></i></span>
+  <span class="fab-ai-tag">IA</span>
+</button>
+<input type="file" id="scanQuickInput" accept="image/*,application/pdf,.pdf" multiple hidden onchange="scanOnFilesPicked(this)">
 <button class="fab-invoice" id="fabInvoice" onclick="openNewInvoiceSheet()" style="display:none;" aria-label="Nueva factura">
   <i data-lucide="plus"></i>
 </button>
@@ -1362,6 +1483,8 @@ function switchPage(name, el) {
   if (name === 'invoices') { renderInvoices(); }
   const fab = document.getElementById('fabInvoice');
   if (fab) fab.style.display = name === 'invoices' ? 'flex' : 'none';
+  // En Facturas el botón de IA sube para no tapar el "+"
+  document.getElementById('fabAI')?.classList.toggle('raised', name === 'invoices');
 }
 
 // ══════════════════════════════════════════
@@ -2778,6 +2901,7 @@ function editProduct(productId){
       <div class="modal-handle"></div>
       <div class="modal-title">Editar Producto</div>
       <form id="editForm" class="form-stack" style="gap:12px;">
+        <div class="form-group"><label class="form-label">Código</label><input type="text" id="editCodigo" value="${p.codigo||''}" class="form-input" placeholder="Sin código"></div>
         <div class="form-grid-2">
           <div class="form-group"><label class="form-label">Marca</label><input type="text" id="editMarca" value="${p.marca||''}" class="form-input"></div>
           <div class="form-group"><label class="form-label">Descripción</label><input type="text" id="editDescripcion" value="${p.descripcion||''}" class="form-input"></div>
@@ -2823,6 +2947,7 @@ function editProduct(productId){
   document.getElementById('editForm').onsubmit=(e)=>{
     e.preventDefault();
     const updated={...p,
+      codigo:document.getElementById('editCodigo').value.toUpperCase().trim(),
       marca:document.getElementById('editMarca').value.toUpperCase().trim(),
       descripcion:document.getElementById('editDescripcion').value.toUpperCase().trim(),
       genero:document.getElementById('editGenero').value.toUpperCase().trim(),
@@ -3929,6 +4054,7 @@ function renderProductsPage() {
     return {
       idx,
       productId:   it.productId,
+      codigo:      it.codigo       || prod?.codigo       || '',
       marca:       it.marca        || prod?.marca        || '',
       descripcion: it.descripcion  || prod?.descripcion  || '',
       genero:      prod?.genero    || '',
@@ -3991,6 +4117,7 @@ function renderProductsPage() {
         </div>
         <div class="product-card-body" id="${isid}">
           <div class="product-attrs">
+            ${it.codigo ? `<div class="attr-pill"><span class="attr-key">Código</span><span class="attr-val">${it.codigo}</span></div>`:''}
             ${it.genero ? `<div class="attr-pill"><span class="attr-key">Género</span><span class="attr-val">${it.genero}</span></div>`:''}
             ${it.color  ? `<div class="attr-pill"><span class="attr-key">Color</span><span class="attr-val">${it.color}</span></div>`:''}
             ${it.talla  ? `<div class="attr-pill"><span class="attr-key">Talla</span><span class="attr-val">${it.talla}</span></div>`:''}
@@ -4019,6 +4146,7 @@ function renderProductsPage() {
       const varsHTML = its.map(it => `
         <div class="var-row">
           <div class="var-row-attrs">
+            ${it.codigo?`<div class="var-attr"><span class="var-attr-k">Código</span><span class="var-attr-v">${it.codigo}</span></div>`:''}
             ${it.estilo?`<div class="var-attr"><span class="var-attr-k">Estilo</span><span class="var-attr-v">${it.estilo}</span></div>`:''}
             <div class="var-attr"><span class="var-attr-k">Color</span><span class="var-attr-v">${it.color||'-'}</span></div>
             <div class="var-attr"><span class="var-attr-k">Talla</span><span class="var-attr-v">${it.talla||'-'}</span></div>
@@ -4949,6 +5077,606 @@ function showOnboarding() {
   }
 
   renderSlide();
+}
+
+// ══════════════════════════════════════════
+// ESCÁNER DE FACTURAS CON IA
+// Flujo: subir foto/imagen/PDF → la IA (Supabase Edge Function
+// "escanear-factura" + OpenAI) extrae los productos → revisión editable
+// (agrupar en variaciones) → se guardan en inventario + factura activa.
+// ══════════════════════════════════════════
+// Interruptor del escáner: en false el botón IA se ve pero solo muestra un mensaje.
+// Cambiar a true cuando la función "escanear-factura" esté desplegada en Supabase.
+const SCAN_ENABLED = false;
+const SCAN_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/escanear-factura`;
+const SCAN_MAX_PAGES = 8;      // páginas/imágenes por escaneo
+const SCAN_MAX_SIDE  = 1800;   // px del lado mayor al comprimir
+const SCAN_DRAFT_KEY = 'jahdiel_scan_draft';
+const PDFJS_SRC    = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+const PDFJS_WORKER = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+const SCAN_VOCAB_FIELDS = { marca:'marca', genero:'genero', estilo:'estilo', color:'color', talla:'talla' };
+
+let scanFiles = [];    // [{ file, kind:'image'|'pdf' }]
+let scanState = null;  // { meta:{...}, rows:[...] }
+let scanCodeSeq = 0;
+let pdfjsReady = null;
+
+// Código provisional. Cuando se defina el patrón real, cambiar SOLO esta función.
+function generarCodigoPrueba(){
+  scanCodeSeq++;
+  return 'PRB-' + Date.now().toString(36).toUpperCase().slice(-5) + String(scanCodeSeq).padStart(2,'0');
+}
+
+function scanUid(){ return 's' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function scanEsc(v){ return String(v ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function scanUp(v){ return String(v ?? '').toUpperCase().trim(); }
+function scanNum(v){ const n = Number(v); return Number.isFinite(n) && n > 0 ? Math.round(n) : null; }
+function scanMoney(n){ return n ? '$' + Number(n).toLocaleString('es-CO') : ''; }
+function scanGroupKey(r){ return `${scanUp(r.marca)}_${scanUp(r.descripcion)}_${scanUp(r.genero)}`; }
+
+// ── Borrador (para no perder un escaneo si se cierra la app) ──
+function scanSaveDraft(){ try{ localStorage.setItem(SCAN_DRAFT_KEY, JSON.stringify(scanState)); }catch{} }
+function scanLoadDraft(){ try{ return JSON.parse(localStorage.getItem(SCAN_DRAFT_KEY) || 'null'); }catch{ return null; } }
+function scanClearDraft(){ try{ localStorage.removeItem(SCAN_DRAFT_KEY); }catch{} }
+
+// ── Contenedor ──
+function scanSheet(){
+  let ov = document.getElementById('scanOverlay');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.id = 'scanOverlay'; ov.className = 'modal-overlay'; ov.style.zIndex = '1400';
+    ov.innerHTML = '<div class="modal-sheet scan-sheet" id="scanSheet"></div>';
+    document.body.appendChild(ov);
+  }
+  return document.getElementById('scanSheet');
+}
+function closeScan(){
+  scanFiles = [];
+  document.getElementById('scanOverlay')?.remove();
+}
+function scanHeader(title){
+  return `
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;">
+      <div class="modal-title" style="margin:0;">${title}</div>
+      <button class="btn-icon" title="Cerrar" onclick="closeScan()"><i data-lucide="x"></i></button>
+    </div>`;
+}
+
+// Botón flotante IA: abre directo el selector de archivos (cámara, galería o PDF)
+function openScanSheet(){
+  if(!SCAN_ENABLED){
+    showToast('Deshabilitado', 'Por mi querida, mi tinto, mi consentida 💜', 'info', 5000);
+    return;
+  }
+  const draft = scanLoadDraft();
+  if(draft?.rows?.length){
+    showConfirmation('Tienes un escaneo sin guardar',
+      `${draft.rows.length} producto${draft.rows.length!==1?'s':''}${draft.meta?.proveedor?' de <b>'+scanEsc(draft.meta.proveedor)+'</b>':''} sin guardar. ¿Continuar revisándolo o escanear otra factura? (el escaneo anterior se descarta)`,
+      () => { scanState = draft; renderScanReview(); }, 'Continuar', 'Escanear otra', true);
+    const cancel = document.getElementById('conf-cancel');
+    if(cancel) cancel.onclick = () => { cancel.closest('.modal-overlay')?.remove(); scanClearDraft(); scanPickFiles(); };
+    return;
+  }
+  scanPickFiles();
+}
+function scanPickFiles(){
+  const input = document.getElementById('scanQuickInput');
+  input.value = '';
+  input.click();
+}
+function scanOnFilesPicked(input){
+  scanFiles = [];
+  [...(input.files||[])].forEach(file => {
+    const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+    if(!isPdf && !file.type.startsWith('image/')){
+      showToast('Archivo no válido', `${file.name} no es imagen ni PDF.`, 'warning'); return;
+    }
+    scanFiles.push({ file, kind: isPdf ? 'pdf' : 'image' });
+  });
+  input.value = '';
+  if(scanFiles.length) runScan();
+}
+
+function renderScanLoading(title, sub){
+  const sheet = scanSheet();
+  sheet.innerHTML = `
+    ${scanHeader('Analizando factura')}
+    <div class="scan-loading">
+      <div class="scan-spinner"></div>
+      <div style="font-weight:700;">${title}</div>
+      ${sub?`<div style="font-size:12px;color:var(--text2);">${sub}</div>`:''}
+    </div>`;
+  lucide.createIcons({ nodes:[sheet] });
+}
+
+// ── Conversión de archivos a imágenes JPEG comprimidas ──
+function scanLoadImage(src){
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => res(img);
+    img.onerror = () => rej(new Error('No se pudo leer una de las imágenes.'));
+    img.src = src;
+  });
+}
+function scanCanvasToJpeg(drawable, w, h){
+  const k = Math.min(1, SCAN_MAX_SIDE / Math.max(w, h));
+  const c = document.createElement('canvas');
+  c.width = Math.round(w*k); c.height = Math.round(h*k);
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+  ctx.drawImage(drawable, 0, 0, c.width, c.height);
+  return c.toDataURL('image/jpeg', 0.85);
+}
+async function scanImageToDataUrl(file){
+  const url = URL.createObjectURL(file);
+  try{ const img = await scanLoadImage(url); return scanCanvasToJpeg(img, img.naturalWidth, img.naturalHeight); }
+  finally{ URL.revokeObjectURL(url); }
+}
+function scanLoadPdfJs(){
+  if(window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+  if(!pdfjsReady){
+    pdfjsReady = new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = PDFJS_SRC;
+      s.onload = () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER; res(window.pdfjsLib); };
+      s.onerror = () => { pdfjsReady = null; rej(new Error('No se pudo cargar el lector de PDF. Revisa tu conexión.')); };
+      document.head.appendChild(s);
+    });
+  }
+  return pdfjsReady;
+}
+async function scanPdfToImages(file, maxPages){
+  const lib = await scanLoadPdfJs();
+  const pdf = await lib.getDocument({ data: await file.arrayBuffer() }).promise;
+  const images = [];
+  for(let i = 1; i <= Math.min(pdf.numPages, maxPages); i++){
+    const page = await pdf.getPage(i);
+    const base = page.getViewport({ scale:1 });
+    const vp = page.getViewport({ scale: SCAN_MAX_SIDE / Math.max(base.width, base.height) });
+    const c = document.createElement('canvas');
+    c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+    await page.render({ canvasContext:ctx, viewport:vp }).promise;
+    images.push(c.toDataURL('image/jpeg', 0.85));
+  }
+  return { images, total: pdf.numPages };
+}
+
+// Valores que ya usa el sistema: la IA los prefiere para mantener la coherencia
+function scanVocabulario(){
+  const uniq = (arr, n) => [...new Set((arr||[]).map(scanUp).filter(Boolean))].slice(0, n);
+  return {
+    marcas:        uniq(usedValues.marca, 300),
+    generos:       uniq(usedValues.genero, 20),
+    estilos:       uniq(usedValues.estilo, 200),
+    colores:       uniq(usedValues.color, 250),
+    tallas:        uniq(usedValues.talla, 80),
+    descripciones: uniq(currentProducts.map(p => p.descripcion), 300),
+  };
+}
+
+async function runScan(){
+  if(!scanFiles.length) return;
+  renderScanLoading('Preparando archivos…');
+  try{
+    const images = [];
+    let truncated = false;
+    for(const f of scanFiles){
+      const left = SCAN_MAX_PAGES - images.length;
+      if(left <= 0){ truncated = true; break; }
+      if(f.kind === 'pdf'){
+        const r = await scanPdfToImages(f.file, left);
+        images.push(...r.images);
+        if(r.total > r.images.length) truncated = true;
+      } else {
+        images.push(await scanImageToDataUrl(f.file));
+      }
+    }
+    renderScanLoading(`La IA está leyendo ${images.length} página${images.length!==1?'s':''}…`,
+      'Puede tardar entre 20 segundos y 1 minuto. No cierres la app.');
+    let resp;
+    try{
+      resp = await fetch(SCAN_FUNCTION_URL, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', apikey:SUPABASE_PUBLISHABLE_KEY },
+        body: JSON.stringify({ images, vocabulario: scanVocabulario() })
+      });
+    }catch{
+      throw new Error('No hay conexión con el servicio de IA. Revisa internet o que la función "escanear-factura" esté desplegada.');
+    }
+    let payload = null;
+    try{ payload = await resp.json(); }catch{}
+    if(!resp.ok || !payload?.ok) throw new Error(payload?.error || `El servicio de IA respondió con error ${resp.status}.`);
+    const state = scanBuildState(payload.data, truncated);
+    if(!state.rows.length) throw new Error('La IA no encontró productos en el documento. Prueba con una foto más clara.');
+    scanState = state;
+    scanSaveDraft();
+    scanFiles = [];
+    renderScanReview();
+  }catch(err){
+    console.error('Scan error:', err);
+    closeScan();
+    showToast('No se pudo escanear', err.message, 'error');
+  }
+}
+
+// Convierte la respuesta de la IA al formato de revisión
+function scanBuildState(data, truncated){
+  const rows = (data?.items || []).map(it => ({
+    uid: scanUid(),
+    codigo: scanUp(it.codigo), marca: scanUp(it.marca), descripcion: scanUp(it.descripcion),
+    genero: scanUp(it.genero), estilo: scanUp(it.estilo), color: scanUp(it.color), talla: scanUp(it.talla),
+    cantidad: Math.max(0, parseInt(it.cantidad) || 0),
+    precioCompra: scanNum(it.precio_compra), precioVenta: scanNum(it.precio_venta),
+    nota: String(it.nota || '').trim(),
+    grupo: null, sel: false, _ai: String(it.grupo || '').trim()
+  }));
+  // Grupos sugeridos por la IA: solo si cumplen la regla del sistema
+  // (misma marca + descripción + género y mismos precios)
+  const buckets = {};
+  rows.forEach(r => {
+    if(!r._ai) return;
+    const k = `${r._ai}|${scanGroupKey(r)}|${r.precioCompra}|${r.precioVenta}`;
+    (buckets[k] = buckets[k] || []).push(r);
+  });
+  Object.values(buckets).forEach(list => { if(list.length > 1){ const g = scanUid(); list.forEach(r => r.grupo = g); } });
+  // Si un producto suelto coincide con un grupo de variaciones del inventario, se une a él
+  const invGroupIds = {};
+  rows.forEach(r => {
+    delete r._ai;
+    if(!r.grupo && scanInventoryHasGroup(r)) r.grupo = invGroupIds[scanGroupKey(r)] ||= scanUid();
+  });
+  return {
+    meta: {
+      proveedor: String(data?.proveedor || '').trim(),
+      numero: String(data?.numero_factura || '').trim(),
+      fecha: String(data?.fecha || '').trim(),
+      observaciones: String(data?.observaciones || '').trim(),
+      truncated
+    },
+    rows
+  };
+}
+function scanInventoryHasGroup(r){
+  const k = scanGroupKey(r);
+  return currentProducts.some(p => p.tipo === 'variation' && scanGroupKey(p) === k);
+}
+function scanInventoryHasProduct(r){
+  const k = scanGroupKey(r);
+  return currentProducts.some(p => scanGroupKey(p) === k);
+}
+
+// ── Validación y coherencia ──
+function scanIsNewValue(field, value){
+  const v = scanUp(value);
+  if(!v) return false;
+  const list = (usedValues[SCAN_VOCAB_FIELDS[field]] || []).map(scanUp);
+  const parts = MULTI_SELECT_FIELDS.includes(field) ? v.split('/').map(s => s.trim()).filter(Boolean) : [v];
+  return parts.some(p => !list.includes(p));
+}
+function scanFieldError(r, field){
+  switch(field){
+    case 'marca': case 'descripcion': return !scanUp(r[field]);
+    case 'cantidad': return !(r.cantidad > 0);
+    case 'precioCompra': case 'precioVenta': return !(r[field] > 0);
+    case 'color': case 'talla': return !!r.grupo && !scanUp(r[field]);
+    default: return false;
+  }
+}
+const SCAN_REQUIRED = ['marca','descripcion','cantidad','precioCompra','precioVenta','color','talla'];
+function scanCountErrors(){
+  return scanState.rows.reduce((n, r) => n + SCAN_REQUIRED.filter(f => scanFieldError(r, f)).length, 0);
+}
+function scanInputClass(r, field){
+  if(scanFieldError(r, field)) return 'scan-err';
+  if(SCAN_VOCAB_FIELDS[field] && scanIsNewValue(field, r[field])) return 'scan-new';
+  return '';
+}
+
+// ── Paso 2: revisión ──
+function scanField(r, field, label, opts={}){
+  const isPrice = field === 'precioCompra' || field === 'precioVenta';
+  const val = isPrice ? (r[field] ? Number(r[field]).toLocaleString('es-CO') : '') : (r[field] ?? '');
+  const target = opts.group ? `data-g="${r.grupo}"` : `data-uid="${r.uid}"`;
+  const extra = isPrice
+    ? `inputmode="numeric" oninput="formatPriceInput(this);scanOnInput(this)"`
+    : field === 'cantidad'
+      ? `type="number" inputmode="numeric" min="0" oninput="scanOnInput(this)"`
+      : `oninput="scanOnInput(this)" ${SCAN_VOCAB_FIELDS[field] ? `list="scanDL-${field}"` : ''} autocomplete="off"`;
+  return `
+    <div class="scan-f ${opts.full?'full':''}" ${opts.span2?'style="grid-column:span 2;"':''}>
+      <label>${label}</label>
+      <input ${field==='cantidad'?'':'type="text"'} ${target} data-f="${field}" value="${scanEsc(val)}"
+        class="${scanInputClass(r, field)}" placeholder="${opts.ph||''}" ${extra}>
+    </div>`;
+}
+function scanCatHTML(r, id){
+  return `<div class="scan-cat" id="${id}">Categoría: <b>${scanEsc(generateCategory(scanUp(r.descripcion), scanUp(r.genero)))}</b></div>`;
+}
+function scanSummaryText(){
+  const rows = scanState.rows;
+  const uds = rows.reduce((s, r) => s + (r.cantidad || 0), 0);
+  const total = rows.reduce((s, r) => s + (r.precioCompra || 0) * (r.cantidad || 0), 0);
+  const errs = scanCountErrors();
+  return `${rows.length} producto${rows.length!==1?'s':''} · ${uds} uds. · Compra ${scanMoney(total) || '$0'}`
+    + (errs ? ` · <span style="color:var(--red);font-weight:700;">${errs} dato${errs!==1?'s':''} por completar</span>` : ` · <span style="color:var(--green);font-weight:700;">Todo completo</span>`);
+}
+
+function renderScanReview(){
+  const sheet = scanSheet();
+  const prevScroll = sheet.querySelector('.scan-scroll')?.scrollTop || 0;
+  const { meta, rows } = scanState;
+  const sel = rows.filter(r => r.sel);
+  const selInGroup = sel.some(r => r.grupo);
+
+  // Bloques en el orden de la factura: grupos y productos sueltos
+  const blocks = [], seen = new Set();
+  rows.forEach(r => {
+    if(!r.grupo){ blocks.push({ type:'item', row:r }); return; }
+    if(seen.has(r.grupo)) return;
+    seen.add(r.grupo);
+    blocks.push({ type:'group', id:r.grupo, rows:rows.filter(x => x.grupo === r.grupo) });
+  });
+
+  const rowActions = r => `
+    <button class="btn-icon" title="Duplicar" onclick="scanDupRow('${r.uid}')"><i data-lucide="copy"></i></button>
+    <button class="btn-icon danger" title="Eliminar" onclick="scanDelRow('${r.uid}')"><i data-lucide="trash-2"></i></button>`;
+
+  const blocksHTML = blocks.map((b, bi) => {
+    if(b.type === 'item'){
+      const r = b.row;
+      return `
+        <div class="scan-item ${r.sel?'selected':''}">
+          <div class="scan-head">
+            <input type="checkbox" class="scan-check" ${r.sel?'checked':''} onchange="scanToggleSel('${r.uid}')">
+            <span class="scan-badge simple">SIMPLE</span>
+            ${scanInventoryHasProduct(r)?'<span class="scan-badge exists">YA EXISTE</span>':''}
+            <span class="scan-head-title"></span>
+            ${rowActions(r)}
+          </div>
+          <div class="scan-grid">
+            ${scanField(r,'codigo','Código',{ph:'Auto (prueba)'})}
+            ${scanField(r,'marca','Marca')}
+            ${scanField(r,'descripcion','Descripción',{full:true})}
+            ${scanField(r,'genero','Género')}
+            ${scanField(r,'estilo','Estilo')}
+            ${scanField(r,'color','Color')}
+            ${scanField(r,'talla','Talla')}
+            ${scanField(r,'cantidad','Cantidad')}
+            <div></div>
+            ${scanField(r,'precioCompra','P. Compra',{ph:'Escribir'})}
+            ${scanField(r,'precioVenta','P. Venta',{ph:'Escribir'})}
+          </div>
+          ${r.nota?`<div class="scan-cat" style="color:var(--yellow);">IA: ${scanEsc(r.nota)}</div>`:''}
+          ${scanCatHTML(r, 'scanCat-'+r.uid)}
+        </div>`;
+    }
+    const base = b.rows[0];
+    const uds = b.rows.reduce((s, r) => s + (r.cantidad || 0), 0);
+    const varsHTML = b.rows.map((r, i) => `
+      <div class="scan-var ${r.sel?'selected':''}">
+        <div class="scan-head" style="margin-bottom:6px;">
+          <input type="checkbox" class="scan-check" ${r.sel?'checked':''} onchange="scanToggleSel('${r.uid}')">
+          <span class="scan-head-title">Variación ${i+1}</span>
+          ${rowActions(r)}
+        </div>
+        <div class="scan-grid">
+          ${scanField(r,'codigo','Código',{ph:'Auto (prueba)',span2:true})}
+          ${scanField(r,'cantidad','Cant.')}
+          ${scanField(r,'estilo','Estilo')}
+          ${scanField(r,'color','Color')}
+          ${scanField(r,'talla','Talla')}
+        </div>
+        ${r.nota?`<div class="scan-cat" style="color:var(--yellow);">IA: ${scanEsc(r.nota)}</div>`:''}
+      </div>`).join('');
+    return `
+      <div class="scan-group">
+        <div class="scan-head">
+          <span class="scan-badge var">VARIACIONES · ${b.rows.length}</span>
+          ${scanInventoryHasGroup(base)?'<span class="scan-badge exists">SE SUMA AL GRUPO EXISTENTE</span>':''}
+          <span class="scan-head-title">${uds} uds.</span>
+        </div>
+        <div class="scan-grid">
+          ${scanField(base,'marca','Marca',{group:true})}
+          ${scanField(base,'genero','Género',{group:true})}
+          ${scanField(base,'descripcion','Descripción',{group:true,full:true})}
+          ${scanField(base,'precioCompra','P. Compra',{group:true,ph:'Escribir'})}
+          ${scanField(base,'precioVenta','P. Venta',{group:true,ph:'Escribir'})}
+        </div>
+        ${scanCatHTML(base, 'scanCat-'+b.id)}
+        <div class="scan-vars">${varsHTML}</div>
+        <div class="scan-row-actions">
+          <button class="btn btn-ghost btn-sm" onclick="scanAddVariation('${b.id}')"><i data-lucide="plus"></i> Variación</button>
+          <button class="btn btn-ghost btn-sm" onclick="scanUngroup('${b.id}')"><i data-lucide="unlink"></i> Desagrupar</button>
+        </div>
+      </div>`;
+  }).join('');
+
+  const datalists = Object.keys(SCAN_VOCAB_FIELDS).map(f =>
+    `<datalist id="scanDL-${f}">${(usedValues[SCAN_VOCAB_FIELDS[f]]||[]).map(v => `<option value="${scanEsc(v)}">`).join('')}</datalist>`
+  ).join('');
+
+  const metaHTML = `
+    <div class="scan-meta">
+      <div><div class="scan-meta-k">Proveedor</div><div class="scan-meta-v">${scanEsc(meta.proveedor) || '—'}</div></div>
+      <div><div class="scan-meta-k">N° factura</div><div class="scan-meta-v">${scanEsc(meta.numero) || '—'}</div></div>
+      <div><div class="scan-meta-k">Fecha</div><div class="scan-meta-v">${scanEsc(meta.fecha) || '—'}</div></div>
+    </div>
+    ${meta.truncated ? `<div class="scan-note">Solo se analizaron las primeras ${SCAN_MAX_PAGES} páginas. Escanea el resto por separado.</div>` : ''}
+    ${meta.observaciones ? `<div class="scan-note">IA: ${scanEsc(meta.observaciones)}</div>` : ''}`;
+
+  sheet.innerHTML = `
+    ${scanHeader('Revisar productos')}
+    <div class="scan-scroll">
+      ${metaHTML}
+      <div class="scan-legend"><span class="l-new">Valor nuevo (no está en el sistema)</span><span class="l-err">Falta completar</span></div>
+      <div class="scan-toolbar">
+        <div class="scan-count" id="scanSummary">${scanSummaryText()}</div>
+        <button class="btn btn-ghost btn-sm" onclick="scanSelectAll()">${rows.length && rows.every(r=>r.sel)?'Quitar selección':'Seleccionar todo'}</button>
+        <button class="btn btn-primary btn-sm" onclick="scanGroupSelected()" ${sel.length?'':'disabled'}><i data-lucide="layers"></i> Agrupar${sel.length?` (${sel.length})`:''}</button>
+        ${selInGroup?`<button class="btn btn-ghost btn-sm" onclick="scanUngroupSelected()"><i data-lucide="unlink"></i> Sacar</button>`:''}
+        ${sel.length?`<button class="btn btn-ghost btn-sm" style="color:var(--red);" onclick="scanDelSelected()"><i data-lucide="trash-2"></i> ${sel.length}</button>`:''}
+      </div>
+      ${blocksHTML}
+      <button class="btn btn-ghost btn-sm" style="width:100%;" onclick="scanAddRow()"><i data-lucide="plus"></i> Agregar producto a mano</button>
+      ${datalists}
+    </div>
+    <div class="scan-footer">
+      <button class="btn btn-green btn-lg" onclick="scanSaveAll()"><i data-lucide="check"></i> Guardar ${rows.length} producto${rows.length!==1?'s':''}</button>
+      <button class="btn btn-ghost btn-sm" onclick="scanDiscardFromReview()">Descartar escaneo</button>
+    </div>`;
+  lucide.createIcons({ nodes:[sheet] });
+  const sc = sheet.querySelector('.scan-scroll');
+  if(sc) sc.scrollTop = prevScroll;
+}
+
+// Edición en vivo (sin redibujar para no perder el foco)
+function scanOnInput(input){
+  const field = input.dataset.f;
+  let value;
+  if(field === 'precioCompra' || field === 'precioVenta') value = parsePriceInput(input) || null;
+  else if(field === 'cantidad') value = Math.max(0, parseInt(input.value) || 0);
+  else value = input.value.toUpperCase();
+  const targets = input.dataset.g
+    ? scanState.rows.filter(r => r.grupo === input.dataset.g)
+    : scanState.rows.filter(r => r.uid === input.dataset.uid);
+  targets.forEach(r => { r[field] = value; });
+  const r = targets[0];
+  if(!r) return;
+  input.classList.remove('scan-err','scan-new');
+  const cls = scanInputClass(r, field);
+  if(cls) input.classList.add(cls);
+  if(field === 'descripcion' || field === 'genero'){
+    const cat = document.getElementById('scanCat-' + (input.dataset.g || r.uid));
+    if(cat) cat.innerHTML = `Categoría: <b>${scanEsc(generateCategory(scanUp(r.descripcion), scanUp(r.genero)))}</b>`;
+  }
+  const sum = document.getElementById('scanSummary');
+  if(sum) sum.innerHTML = scanSummaryText();
+  scanSaveDraft();
+}
+
+// ── Acciones de revisión ──
+function scanCommit(){ scanSaveDraft(); renderScanReview(); }
+function scanToggleSel(uid){ const r = scanState.rows.find(x => x.uid === uid); if(r){ r.sel = !r.sel; renderScanReview(); } }
+function scanSelectAll(){
+  const all = scanState.rows.every(r => r.sel);
+  scanState.rows.forEach(r => r.sel = !all);
+  renderScanReview();
+}
+function scanDupRow(uid){
+  const i = scanState.rows.findIndex(x => x.uid === uid);
+  if(i < 0) return;
+  scanState.rows.splice(i + 1, 0, { ...scanState.rows[i], uid:scanUid(), codigo:'', sel:false });
+  scanCommit();
+}
+function scanDelRow(uid){
+  scanState.rows = scanState.rows.filter(x => x.uid !== uid);
+  scanCommit();
+}
+function scanDelSelected(){
+  const n = scanState.rows.filter(r => r.sel).length;
+  showConfirmation('Eliminar productos', `Se quitarán ${n} producto${n!==1?'s':''} de esta revisión.`, () => {
+    scanState.rows = scanState.rows.filter(r => !r.sel);
+    scanCommit();
+  }, 'Eliminar', 'Cancelar');
+}
+function scanAddRow(){
+  scanState.rows.push({ uid:scanUid(), codigo:'', marca:'', descripcion:'', genero:'', estilo:'', color:'', talla:'',
+    cantidad:1, precioCompra:null, precioVenta:null, nota:'', grupo:null, sel:false });
+  scanCommit();
+  const sc = document.querySelector('#scanSheet .scan-scroll');
+  if(sc) sc.scrollTop = sc.scrollHeight;
+}
+function scanAddVariation(gid){
+  const members = scanState.rows.filter(r => r.grupo === gid);
+  const last = members[members.length - 1];
+  if(!last) return;
+  const i = scanState.rows.indexOf(last);
+  scanState.rows.splice(i + 1, 0, { ...last, uid:scanUid(), codigo:'', color:'', talla:'', cantidad:1, nota:'', sel:false });
+  scanCommit();
+}
+function scanUngroup(gid){
+  scanState.rows.forEach(r => { if(r.grupo === gid) r.grupo = null; });
+  scanCommit();
+}
+function scanUngroupSelected(){
+  scanState.rows.forEach(r => { if(r.sel && r.grupo){ r.grupo = null; r.sel = false; } });
+  scanCommit();
+}
+// Agrupar: todas las seleccionadas quedan con la misma marca, descripción, género y precios
+function scanGroupSelected(){
+  const sel = scanState.rows.filter(r => r.sel);
+  if(!sel.length) return;
+  const shared = ['marca','descripcion','genero','precioCompra','precioVenta'];
+  const base = {};
+  shared.forEach(f => { base[f] = (sel.find(r => r[f]) || sel[0])[f]; });
+  const labels = { marca:'marca', descripcion:'descripción', genero:'género', precioCompra:'precio de compra', precioVenta:'precio de venta' };
+  const diffs = shared.filter(f => sel.some(r => (r[f] ?? '') !== (base[f] ?? '') && r[f]));
+  const apply = () => {
+    const g = scanUid();
+    sel.forEach(r => { Object.assign(r, base); r.grupo = g; r.sel = false; });
+    // Las variaciones agrupadas quedan juntas en la lista
+    const rest = scanState.rows.filter(r => r.grupo !== g);
+    const at = Math.min(...sel.map(r => scanState.rows.indexOf(r)));
+    const before = rest.filter(r => scanState.rows.indexOf(r) < at);
+    const after = rest.filter(r => scanState.rows.indexOf(r) > at);
+    scanState.rows = [...before, ...sel, ...after];
+    scanCommit();
+  };
+  if(diffs.length){
+    showConfirmation('Agrupar como variaciones',
+      `Los productos seleccionados tienen distinto(a) <b>${diffs.map(f => labels[f]).join(', ')}</b>. Todos quedarán con: <b>${scanEsc(base.marca)} — ${scanEsc(base.descripcion)}</b> ${scanEsc(base.genero)}, compra ${scanMoney(base.precioCompra) || 'vacío'}, venta ${scanMoney(base.precioVenta) || 'vacío'}.`,
+      apply, 'Agrupar', 'Cancelar');
+  } else apply();
+}
+function scanDiscardFromReview(){
+  showConfirmation('Descartar escaneo','Se perderán todos los productos escaneados. No se guardará nada.',
+    () => { scanClearDraft(); scanState = null; closeScan(); }, 'Descartar', 'Cancelar');
+}
+
+// ── Paso 3: guardar en inventario (y en la factura activa de la app, si hay una) ──
+function scanSaveAll(){
+  const inv = getActiveInvoice();
+  if(!scanState.rows.length){ showToast('Sin productos','No hay productos para guardar.','warning'); return; }
+  const errs = scanCountErrors();
+  if(errs){
+    renderScanReview();
+    showToast('Faltan datos', `Completa los ${errs} campo${errs!==1?'s':''} en rojo (precios, marca, descripción, color y talla de variaciones).`, 'warning');
+    document.querySelector('#scanSheet .scan-err')?.scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+  const rows = scanState.rows;
+  const uds = rows.reduce((s, r) => s + r.cantidad, 0);
+  showConfirmation('Guardar productos',
+    `Se agregarán <b>${rows.length}</b> productos (${uds} uds.) al inventario${inv ? ` y a la factura activa <b>#${String(inv.number).padStart(4,'0')} ${scanEsc(inv.name||'')}</b>` : ''}.`,
+    () => {
+      const now = new Date().toISOString();
+      rows.forEach((r, i) => {
+        const marca = scanUp(r.marca), descripcion = scanUp(r.descripcion), genero = scanUp(r.genero),
+              estilo = scanUp(r.estilo), color = scanUp(r.color), talla = scanUp(r.talla);
+        const codigo = scanUp(r.codigo) || generarCodigoPrueba();
+        const { cantidad, precioCompra, precioVenta } = r;
+        const prod = {
+          id: 'PROD_' + Date.now() + '_' + i + '_' + Math.floor(Math.random()*9999),
+          tipo: r.grupo ? 'variation' : 'simple',
+          codigo, marca, descripcion, genero, estilo, color, talla,
+          cantidad, precioCompra, precioVenta,
+          fechaCreacion: now, categoria: generateCategory(descripcion, genero)
+        };
+        currentProducts.push(prod);
+        if(inv) inv.items.push({ productId:prod.id, codigo, marca, descripcion, genero, color, talla, estilo, precioCompra, precioVenta, qty:cantidad });
+      });
+      saveToLocalStorage();
+      if(inv) saveInvoices();
+      filteredProducts = [...currentProducts];
+      updateProductsDisplay(); updateCounter(); populateFilterOptions(); updateStats();
+      refreshAllInvoiceBars();
+      SFX.create();
+      showToast('Factura escaneada guardada', `${rows.length} productos · ${uds} uds.${inv ? ' · factura #'+String(inv.number).padStart(4,'0') : ''}`, 'success');
+      scanClearDraft(); scanState = null; closeScan();
+    }, 'Guardar', 'Cancelar', true);
 }
 
 async function init(){

@@ -461,3 +461,29 @@ Input desconocido:
 Repositorio: `https://github.com/sebastianubaque/sistema-de-productos`  
 Rama principal: `main`  
 Último commit al crear este documento: `de2b166`
+
+---
+
+## 15. ESCÁNER DE FACTURAS CON IA (2026-10-04)
+
+Botón flotante luminoso **IA** (`#fabAI`, visible en todas las pestañas; en Facturas sube sobre el "+") → `openScanSheet()`.
+
+```
+Paso 1  openScanSheet()     — abre DIRECTO el selector de archivos (#scanQuickInput):
+                              cámara, galería o PDF de la factura física (máx. 8 páginas)
+        runScan()           — comprime a JPEG (PDF → pdf.js), envía a la Edge Function
+Paso 2  renderScanReview()  — revisión editable: agrupar / desagrupar variaciones,
+                              duplicar, eliminar, agregar a mano. Campos en rojo = faltan,
+                              borde amarillo = valor nuevo (no está en usedValues)
+Paso 3  scanSaveAll()       — crea productos (simple / variation) en el inventario;
+                              si hay factura activa en la app, también los agrega a ella
+                              (no es obligatorio tener factura activa)
+```
+
+- Regla de grupo (igual que el resto del sistema): misma **marca + descripción + género** y mismos precios.
+- Borrador en `localStorage` `jahdiel_scan_draft` (se recupera si se cierra la app).
+- Campo nuevo **`codigo`** en productos e ítems de factura (visible en tarjetas y en Editar).
+  Si la factura no trae código se usa `generarCodigoPrueba()` → `PRB-xxxxx` (provisional; cambiar solo esa función).
+- Precio de venta: solo si la factura lo trae; si no, queda vacío y es obligatorio llenarlo antes de guardar.
+- Backend: `supabase/functions/escanear-factura/index.ts` (OpenAI, secrets `OPENAI_API_KEY` y `OPENAI_MODEL`).
+  Recibe el vocabulario de la tienda (marcas, colores, tallas…) para mantener la coherencia de los datos.

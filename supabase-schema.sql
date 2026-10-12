@@ -15,7 +15,9 @@ create table if not exists public.jahdiel_costos_envios (
   cantidad_productos integer not null,
   costo numeric not null,
   fecha timestamptz not null,
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  nombre_factura text,
+  numero_factura text
 );
 
 create table if not exists public.jahdiel_abonos (
