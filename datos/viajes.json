@@ -1,0 +1,283 @@
+{
+  "exportado": "2026-10-13T15:46:44.363Z",
+  "fuente": "Supabase tabla jahdiel_viajes (sin encargos)",
+  "viajes": [
+    {
+      "id": "VJ_2025_11_01",
+      "fecha": "2025-11-01",
+      "notas": "Cargado desde el Excel de Noviembre",
+      "gastos": [
+        {
+          "id": "G_nov25_1",
+          "nota": "",
+          "icono": "utensils",
+          "valor": 100000,
+          "descripcion": "ALIMENTACIÓN"
+        },
+        {
+          "id": "G_nov25_2",
+          "nota": "",
+          "icono": "receipt",
+          "valor": 45000,
+          "descripcion": "HOJAS"
+        },
+        {
+          "id": "G_nov25_3",
+          "nota": "",
+          "icono": "gift",
+          "valor": 45000,
+          "descripcion": "REGALO HERMANA"
+        },
+        {
+          "id": "G_nov25_4",
+          "nota": "",
+          "icono": "bus",
+          "valor": 110000,
+          "descripcion": "PASAJES"
+        }
+      ],
+      "nombre": "Viaje 1 · Noviembre",
+      "createdAt": "2026-10-13T15:44:09.999Z",
+      "productos": [
+        {
+          "id": "P_nov25_1",
+          "total": 60000,
+          "cantidad": 4,
+          "proveedor": "BÁSICAS"
+        },
+        {
+          "id": "P_nov25_2",
+          "total": 60000,
+          "cantidad": 5,
+          "proveedor": "BÁSICAS"
+        },
+        {
+          "id": "P_nov25_3",
+          "total": 168000,
+          "cantidad": 14,
+          "proveedor": "BÁSICAS"
+        },
+        {
+          "id": "P_nov25_4",
+          "total": 389000,
+          "cantidad": 13,
+          "proveedor": "FUEGO"
+        },
+        {
+          "id": "P_nov25_5",
+          "total": 286000,
+          "cantidad": 8,
+          "proveedor": "MODA Y ESTILO"
+        },
+        {
+          "id": "P_nov25_6",
+          "total": 45000,
+          "cantidad": 3,
+          "proveedor": "LICRAS"
+        },
+        {
+          "id": "P_nov25_7",
+          "total": 168000,
+          "cantidad": 14,
+          "proveedor": "BLUSAS NIÑA"
+        },
+        {
+          "id": "P_nov25_8",
+          "total": 196000,
+          "cantidad": 7,
+          "proveedor": "TAYRA"
+        },
+        {
+          "id": "P_nov25_9",
+          "total": 204000,
+          "cantidad": 10,
+          "proveedor": "A&B"
+        },
+        {
+          "id": "P_nov25_10",
+          "total": 390000,
+          "cantidad": 13,
+          "proveedor": "VALERISA"
+        },
+        {
+          "id": "P_nov25_11",
+          "total": 321500,
+          "cantidad": 39,
+          "proveedor": "CACHUCHAS"
+        },
+        {
+          "id": "P_nov25_12",
+          "total": 503000,
+          "cantidad": 19,
+          "proveedor": "CHINO"
+        },
+        {
+          "id": "P_nov25_13",
+          "total": 60000,
+          "cantidad": 4,
+          "proveedor": "BUSOS"
+        },
+        {
+          "id": "P_nov25_14",
+          "total": 96000,
+          "cantidad": 8,
+          "proveedor": "BÁSICAS"
+        },
+        {
+          "id": "P_nov25_15",
+          "total": 120000,
+          "cantidad": 4,
+          "proveedor": "BOXER"
+        },
+        {
+          "id": "P_nov25_16",
+          "total": 315000,
+          "cantidad": 9,
+          "proveedor": "SAMA"
+        },
+        {
+          "id": "P_nov25_17",
+          "total": 835000,
+          "cantidad": 12,
+          "proveedor": "SEVEN"
+        },
+        {
+          "id": "P_nov25_18",
+          "total": 200000,
+          "cantidad": 8,
+          "proveedor": "POLOS DAMA"
+        },
+        {
+          "id": "P_nov25_19",
+          "total": 183000,
+          "cantidad": 4,
+          "proveedor": "NEW MARKS"
+        },
+        {
+          "id": "P_nov25_20",
+          "total": 176000,
+          "cantidad": 4,
+          "proveedor": "JOSMUZ"
+        },
+        {
+          "id": "P_nov25_21",
+          "total": 490000,
+          "cantidad": 18,
+          "proveedor": "KARIDADH"
+        },
+        {
+          "id": "P_nov25_22",
+          "total": 60000,
+          "cantidad": 3,
+          "proveedor": "ACETATO"
+        },
+        {
+          "id": "P_nov25_23",
+          "total": 222000,
+          "cantidad": 6,
+          "proveedor": "PEOPLE"
+        },
+        {
+          "id": "P_nov25_24",
+          "total": 183000,
+          "cantidad": 5,
+          "proveedor": "XICARO"
+        }
+      ],
+      "updatedAt": "2026-10-13T15:44:09.999Z",
+      "saldoInicial": 6145000
+    },
+    {
+      "id": "VJ_2026_10_01",
+      "fecha": "2026-10-01",
+      "notas": "Cargado desde el Excel de Octubre",
+      "gastos": [
+        {
+          "id": "G_oct26_1",
+          "valor": 122000,
+          "descripcion": "PASAJES"
+        },
+        {
+          "id": "G_oct26_2",
+          "valor": 65000,
+          "descripcion": "TAXIS"
+        },
+        {
+          "id": "G_oct26_3",
+          "valor": 55000,
+          "descripcion": "ALIMENTACIÓN"
+        },
+        {
+          "id": "G_oct26_4",
+          "valor": 90000,
+          "descripcion": "HERMANITA"
+        },
+        {
+          "id": "G_oct26_5",
+          "valor": 40000,
+          "descripcion": "OTROS"
+        }
+      ],
+      "nombre": "Viaje 1 · Octubre",
+      "createdAt": "2026-10-13T15:17:04.209Z",
+      "productos": [
+        {
+          "id": "P_oct26_1",
+          "total": 366000,
+          "cantidad": 10,
+          "proveedor": "EVEREST"
+        },
+        {
+          "id": "P_oct26_2",
+          "total": 984000,
+          "cantidad": 31,
+          "proveedor": "XEROS"
+        },
+        {
+          "id": "P_oct26_3",
+          "total": 72000,
+          "cantidad": 6,
+          "proveedor": "ACETATO"
+        },
+        {
+          "id": "P_oct26_4",
+          "total": 270000,
+          "cantidad": 9,
+          "proveedor": "ARCHIX"
+        },
+        {
+          "id": "P_oct26_5",
+          "total": 499000,
+          "cantidad": 17,
+          "proveedor": "KROMMY"
+        },
+        {
+          "id": "P_oct26_6",
+          "total": 60000,
+          "cantidad": 2,
+          "proveedor": "VALENTÍN"
+        },
+        {
+          "id": "P_oct26_7",
+          "total": 152000,
+          "cantidad": 4,
+          "proveedor": "MAGICA"
+        },
+        {
+          "id": "P_oct26_8",
+          "total": 38000,
+          "cantidad": 1,
+          "proveedor": "XICARO"
+        },
+        {
+          "id": "P_oct26_9",
+          "total": 372000,
+          "cantidad": 12,
+          "proveedor": "ALL PEOPLE"
+        }
+      ],
+      "updatedAt": "2026-10-13T15:17:04.209Z",
+      "saldoInicial": 3234000
+    }
+  ]
+}
