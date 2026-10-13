@@ -504,11 +504,16 @@ Viaje = { id, nombre, fecha (YYYY-MM-DD), saldoInicial, notas,
 Saldo final = saldoInicial − Σ productos.total − Σ gastos.valor
 ```
 
-Pantallas (barra inferior: Viajes · Resumen · Tienda):
-- **Viajes** — selector de año, tarjeta "Invertido en…", tarjetas de meses (filtran) y lista de viajes.
+Pantallas (barra inferior: Viajes · Encargos · Resumen; para volver a la tienda, la X de arriba o el botón atrás):
+- **Viajes** — selector de año, tarjeta "Invertido en…", tarjetas solo de los meses que tienen viajes (filtran; sin viajes la sección se oculta) y lista de viajes.
 - **Detalle de viaje** — saldo inicial, prendas, gastos, total gastado, saldo final (o faltante),
   barra "¿En qué se fue la base?", costo promedio y costo real por prenda, pestañas Prendas / Gastos.
-- **Resumen** — KPIs del año, gasto por mes (barras apiladas + tabla), top proveedores, gastos por concepto.
+- **Resumen** — selector **Año · Mes · Viaje** (`cj.sScope`, `cj.sMonth`, `cj.sTrip`; `cjStatsScope()` devuelve los
+  viajes que entran). Muestra: total invertido, capital llevado, prendas, gastos;
+  **"¿Cuánto sumarle a cada prenda?"** (`cjMarkupCardHTML`, **solo con Viaje elegido**): gastos ÷ prendas = cuánto cargarle a cada prenda
+  (redondeado a la centena hacia arriba) y, por proveedor, costo c/u + gasto c/u = **costo real c/u**. Con varios
+  viajes, cada prenda lleva los gastos de su propio viaje (promedio ponderado y desglose por viaje);
+  luego top proveedores, gastos por concepto y "¿De dónde salió el capital?".
 
 Formularios:
 - **Viaje** — fecha, nombre automático "Viaje N · Mes", base (saldo inicial), notas.
@@ -522,19 +527,46 @@ Formularios:
   herramientas, bolsas, combustible, otros) o concepto **nuevo** con ícono elegido de `CJ_ICON_CHOICES`;
   valor y nota opcional. El ícono se guarda en cada gasto (`icono`), así los conceptos nuevos se sincronizan.
 
-**Encargos** (pestaña de la barra: Viajes · Encargos · Resumen · Tienda) — prendas que la gente pide:
+**Encargos** (pestaña de la barra) — prendas que la gente pide:
 ```
 Encargo = { id: 'EN_…', tipo: 'encargo', prenda, persona, detalle,
             conseguido, valor (costo), proveedor, precioVenta (opcional),
+            viajeId, productoId,   // compra del viaje de la que salió
             fechaConseguido, createdAt, updatedAt }
 ```
 - Resumen arriba (conseguidos de total, pendientes, invertido, ganancia = venta − costo), filtros
-  Pendientes / Conseguidos / Todos y buscador por persona, prenda o proveedor (solo redibuja la lista).
-- El chulo marca conseguido; si falta costo o proveedor abre la hoja para llenarlos (proveedores sugeridos
-  de los viajes). Hoja con "Guardar y otro" y Enter entre campos, igual que prendas y gastos.
+  **Pendientes / Conseguidos** y buscador por persona, prenda o proveedor (solo redibuja la lista).
+- **Chulo en un pendiente → "¿De dónde salió?"** (`cjEncAssignSheet`) con dos opciones:
+  - **De un viaje**: queda elegido el **último viaje creado** que tenga prendas (tarjetita; "Otro viaje" muestra
+    los demás). Lista de sus compras por proveedor; al elegir una, `proveedor` y `valor` = costo de **una unidad**
+    (total ÷ cantidad) se ponen solos y queda vinculado (`viajeId`, `productoId`). Muestra cuántas unidades de
+    cada compra ya están asignadas y no deja pasar de la cantidad comprada.
+  - **Independiente** (`independiente: true`): conseguido por fuera, sin factura; proveedor, precio de compra y
+    precio de venta, todos opcionales. Si no hay viajes con prendas, abre directo en este modo.
+  Precio de venta opcional con ganancia en ambos. Quitar el chulo vuelve a pendiente y suelta el vínculo; editar a
+  mano el proveedor o el valor también lo suelta. La tarjeta muestra el viaje o la etiqueta "Independiente".
+- Hoja de encargo con "Guardar y otro" y Enter entre campos, igual que prendas y gastos.
 - Se guardan en `localStorage` `jahdiel_encargos` y en la **misma tabla** `jahdiel_viajes` (se separan por
   `tipo === 'encargo'`; `cjDocs()` = viajes + encargos para sincronizar).
 
 Datos: `localStorage` `jahdiel_viajes` + Supabase tabla **`jahdiel_viajes`** (ver `supabase-schema.sql`).
 Si la tabla no existe, funciona solo en el celular (indicador "Celular") y sube todo cuando exista ("Nube").
 Botón atrás del celular: cierra hojas → vuelve a Viajes → sale del módulo.
+
+**Deslizar tarjetas de viaje** (`.cj-swipe`, `cjBindSwipes()`): → muestra **Abonar** (verde), ← muestra
+**Eliminar** (rojo, con confirmación). Solo arrastres horizontales (`touch-action: pan-y`, el scroll vertical sigue
+normal); con la tarjeta abierta, un toque la cierra; tocar fuera cierra la abierta.
+
+**Abonos al capital** (`v.abonos: [{ id, valor, origen, icono, nota, fecha }]`):
+- Base del viaje = `saldoInicial` + Σ abonos (`cjTotals` devuelve `base0`, `abonos`, `inicial`).
+- Hoja `cjAbonoSheet(tripId, abonoId)`: valor, origen con ícono (`CJ_ORIGENES`: tarjeta de crédito, préstamo,
+  ahorros, ventas, efectivo, transferencia, otro) u origen nuevo con ícono de `CJ_ABONO_ICONS`, nota opcional.
+- En el viaje: pestaña **Abonos** (ver / editar / borrar). En el Resumen: tarjeta **"¿De dónde salió el capital?"**
+  con barras por origen (incluye la base inicial) y filtro por origen con la lista de abonos.
+
+Tarjetas de viaje (`.cj-tcard`): mismo estilo que la tarjeta "Invertido en…" (degradado morado, texto blanco,
+cajitas translúcidas Base / Prendas / Gastos / Unidades); en rojo si el viaje quedó en faltante.
+
+Textos en celular: dentro de la Caja **ningún texto se corta con "…"**; pasan a la siguiente línea
+(`overflow-wrap: anywhere`) y los títulos y montos usan `clamp()` para ajustarse al ancho. En pantallas
+≤ 370 px las filas de 4 datos pasan a 2×2 y los conceptos de gasto a 3 columnas; ≤ 330 px las tarjetas van en 1 columna.

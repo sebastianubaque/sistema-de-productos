@@ -950,8 +950,8 @@
     .cj-top { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
     .cj-top-mid { flex: 1; min-width: 0; }
     .cj-hello { font-size: 14px; color: var(--cj-ink2); }
-    .cj-title { font-family: 'Space Grotesk', sans-serif; font-size: 27px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
-    .cj-title.sm { font-size: 21px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cj-title { font-family: 'Space Grotesk', sans-serif; font-size: clamp(22px, 7vw, 27px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+    .cj-title.sm { font-size: clamp(18px, 5.5vw, 21px); overflow-wrap: anywhere; }
     .cj-top-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
     .cj-round {
       width: 42px; height: 42px; border-radius: 50%; border: none; cursor: pointer; flex-shrink: 0;
@@ -980,11 +980,13 @@
     }
     .cj-hero::after { content: ''; position: absolute; right: -40px; top: -40px; width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,0.10); }
     .cj-hero-k { font-size: 13px; opacity: 0.85; }
-    .cj-hero-v { font-family: 'Space Grotesk', sans-serif; font-size: 34px; font-weight: 700; letter-spacing: -0.02em; margin: 2px 0 14px; }
-    .cj-hero-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; position: relative; z-index: 1; }
-    .cj-hero-row div { background: rgba(255,255,255,0.14); border-radius: 14px; padding: 8px 9px; min-width: 0; }
-    .cj-hero-row span { display: block; font-size: 10px; opacity: 0.8; }
-    .cj-hero-row b { display: block; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cj-hero-v { font-family: 'Space Grotesk', sans-serif; font-size: clamp(26px, 9vw, 34px); line-height: 1.1; overflow-wrap: anywhere; font-weight: 700; letter-spacing: -0.02em; margin: 2px 0 14px; }
+    .cj-hero-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; position: relative; z-index: 1; }
+    .cj-hero-row > div, .cj-hero-row > span { display: block; background: rgba(255,255,255,0.14); border-radius: 14px; padding: 8px 9px; min-width: 0; }
+    .cj-hero-row div > span, .cj-hero-row small { display: flex; align-items: center; gap: 4px; font-size: 10px; opacity: 0.85; overflow-wrap: break-word; }
+    @media (max-width: 440px) { .cj-hero-enc .cj-hero-row { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .cj-hero-row .dot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
+    .cj-hero-row b { display: block; font-size: 13px; overflow-wrap: anywhere; }
 
     .cj-sec-head { display: flex; align-items: baseline; justify-content: space-between; margin: 6px 2px 12px; }
     .cj-sec-head h3 { font-size: 17px; font-weight: 700; }
@@ -1021,7 +1023,7 @@
     .cj-date.tint-yellow { background: var(--cj-t-yellow); color: #3B2A00; }
     .cj-date.tint-green  { background: var(--cj-t-green); }
     .cj-trip-body { flex: 1; min-width: 0; }
-    .cj-trip-name { font-weight: 700; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cj-trip-name { font-weight: 700; font-size: 15px; overflow-wrap: anywhere; }
     .cj-trip-meta { font-size: 12px; color: var(--cj-ink2); margin-top: 2px; }
     .cj-progress { height: 6px; border-radius: 999px; background: #ECECF4; margin-top: 8px; overflow: hidden; display: flex; gap: 2px; }
     .cj-progress i { display: block; height: 100%; }
@@ -1040,12 +1042,12 @@
     .cj-tile { border: none; text-align: left; background: var(--cj-card); border-radius: 20px; padding: 14px; min-width: 0; }
     .cj-tile span { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--cj-ink2); font-weight: 600; }
     .cj-tile span i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
-    .cj-tile b { display: block; font-family: 'Space Grotesk', sans-serif; font-size: 20px; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cj-tile b { display: block; font-family: 'Space Grotesk', sans-serif; font-size: clamp(16px, 5vw, 20px); line-height: 1.15; margin-top: 4px; overflow-wrap: anywhere; }
     .cj-tile small { font-size: 11px; color: var(--cj-ink3); }
     .cj-tile.base { cursor: pointer; }
     .cj-tile.final { grid-column: 1 / -1; background: linear-gradient(135deg, #7B5CFA, #5A3BE0); color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
     .cj-tile.final span, .cj-tile.final small { color: rgba(255,255,255,0.85); }
-    .cj-tile.final b { font-size: 28px; margin: 0; }
+    .cj-tile.final b { font-size: clamp(22px, 7vw, 28px); margin: 0; text-align: right; }
     .cj-tile.final.short { background: linear-gradient(135deg, #F0605A, #D93636); }
 
     .cj-card { background: var(--cj-card); border-radius: 22px; padding: 16px; margin-bottom: 14px; }
@@ -1065,7 +1067,7 @@
     .cj-metrics span { display: block; font-size: 11px; color: var(--cj-ink2); }
     .cj-metrics b { font-size: 16px; }
 
-    .cj-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 5px; border-radius: 999px; background: #E7E7F2; margin: 4px 0 12px; }
+    .cj-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 5px; border-radius: 999px; background: #E7E7F2; margin: 4px 0 12px; }
     .cj-tabs button { border: none; cursor: pointer; padding: 10px; border-radius: 999px; font-size: 14px; font-weight: 600; background: transparent; color: var(--cj-ink2) !important; }
     .cj-tabs button.active { background: var(--cj-card); color: var(--cj-ink) !important; box-shadow: 0 3px 10px rgba(23,23,43,0.08); }
 
@@ -1078,8 +1080,8 @@
     .cj-row-ico.p { background: var(--cj-soft); color: var(--cj-prendas); }
     .cj-row-ico.g { background: #FDECEB; color: var(--cj-gastos); }
     .cj-row-body { flex: 1; min-width: 0; }
-    .cj-row-name { display: block; font-weight: 700; font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .cj-row-meta { display: block; font-size: 12px; color: var(--cj-ink2); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cj-row-name { display: block; font-weight: 700; font-size: 14.5px; overflow-wrap: anywhere; }
+    .cj-row-meta { display: block; font-size: 12px; color: var(--cj-ink2); margin-top: 1px; overflow-wrap: anywhere; }
     .cj-row-val { font-weight: 700; font-size: 15px; flex-shrink: 0; }
     .cj-total-row { display: flex; justify-content: space-between; padding: 12px 6px 0; font-size: 13px; color: var(--cj-ink2); }
     .cj-total-row b { color: var(--cj-ink); }
@@ -1096,7 +1098,7 @@
       position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(14px + env(safe-area-inset-bottom)); z-index: 5;
       width: min(448px, calc(100% - 32px)); height: 64px; border-radius: 999px;
       background: var(--cj-primary); box-shadow: 0 12px 28px rgba(108,76,241,0.38);
-      display: grid; grid-template-columns: repeat(4, 1fr);
+      display: grid; grid-template-columns: repeat(3, 1fr);
     }
     .cj-nav button { border: none; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: rgba(255,255,255,0.62) !important; font-size: 11px; font-weight: 600; }
     .cj-nav button svg { width: 21px; height: 21px; }
@@ -1117,7 +1119,7 @@
     .cj-xlabels { display: grid; grid-template-columns: repeat(12, 1fr); gap: 5px; margin-top: 6px; font-size: 10px; color: var(--cj-ink3); text-align: center; }
     .cj-hbars { display: flex; flex-direction: column; gap: 10px; }
     .cj-hbar-top { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; margin-bottom: 4px; }
-    .cj-hbar-top span { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cj-hbar-top span { font-weight: 600; overflow-wrap: anywhere; }
     .cj-hbar-top b { flex-shrink: 0; }
     .cj-hbar-top small { color: var(--cj-ink3); font-weight: 500; margin-left: 4px; }
     .cj-hbar-track { height: 10px; border-radius: 999px; background: #ECECF4; overflow: hidden; }
@@ -1191,8 +1193,8 @@
     }
     .cj-add-dual button { padding: 14px; border-radius: 999px; font-size: 15px; box-shadow: 0 10px 24px rgba(23,23,43,0.22); }
     .cj-add-dual button svg { width: 18px; height: 18px; }
-    #cajaApp .cj-add-dual button:first-child { background: var(--cj-ink); color: #fff; }
-    #cajaApp .cj-add-dual button:last-child  { background: #fff; color: var(--cj-ink); border: 1.5px solid var(--cj-line); }
+    #cajaApp .cj-add-dual button:first-child { background: #FFC542; color: #3B2A00; }
+    #cajaApp .cj-add-dual button:last-child  { background: #D93636; color: #fff; }
     .cj-sheet-ov.noanim, .cj-sheet-ov.noanim .cj-sheet { animation: none; }
     .cj-seg-lg { margin-bottom: 10px; }
     .cj-seg-lg button { padding: 12px; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 6px; }
@@ -1210,7 +1212,8 @@
     }
     .cj-cat span { width: 38px; height: 38px; border-radius: 12px; background: #FDECEB; color: #C9403A; display: flex; align-items: center; justify-content: center; }
     .cj-cat span svg { width: 19px; height: 19px; }
-    .cj-cat small { font-size: 11px; font-weight: 600; color: var(--cj-ink2); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 2px; }
+    .cj-cat small { font-size: 11px; font-weight: 600; color: var(--cj-ink2); max-width: 100%; overflow-wrap: break-word; text-align: center; line-height: 1.2; padding: 0 2px; }
+    .cj-cat small.long { font-size: 9.5px; letter-spacing: -0.01em; }
     .cj-cat.on { border-color: var(--cj-gastos); background: #FFF6F5; }
     .cj-cat.on small { color: var(--cj-ink); }
     .cj-cat.add span { background: #EFEFF6; color: var(--cj-ink2); }
@@ -1227,6 +1230,9 @@
     .cj-hero-enc { background: linear-gradient(135deg, #22C9A0, #0E9F8E); box-shadow: 0 14px 30px rgba(14,159,142,0.28); }
     .cj-enc-progress { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.25); overflow: hidden; margin: -4px 0 14px; position: relative; z-index: 1; }
     .cj-enc-progress i { display: block; height: 100%; border-radius: 999px; background: #fff; transition: width 0.4s ease; }
+    .cj-chips-enc { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; }
+    .cj-chips-enc .cj-chip { padding: 8px 4px; font-size: clamp(12px, 3.6vw, 14px); line-height: 1.2; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 1px; border-radius: 18px; }
+    .cj-chips-enc .cj-chip b { font-size: 1.15em; }
     .cj-search { position: relative; margin-bottom: 14px; }
     .cj-search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--cj-ink3); }
     .cj-search input {
@@ -1244,9 +1250,9 @@
     #cajaApp .cj-check.on svg { background: var(--cj-queda); border-color: var(--cj-queda); color: #fff; }
     .cj-check:active svg { transform: scale(0.88); }
     .cj-enc-body { flex: 1; min-width: 0; border: none; background: none; cursor: pointer; text-align: left; padding: 13px 14px 13px 0; display: flex; flex-direction: column; gap: 3px; }
-    .cj-enc-name { font-weight: 700; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cj-enc-name { font-weight: 700; font-size: 15px; overflow-wrap: anywhere; }
     .cj-enc.done .cj-enc-name { color: var(--cj-ink2); text-decoration: line-through; text-decoration-color: #B9B9CC; }
-    .cj-enc-meta { display: flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--cj-ink2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cj-enc-meta { display: flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--cj-ink2); overflow-wrap: anywhere; }
     .cj-enc-meta svg { width: 13px; height: 13px; flex-shrink: 0; }
     .cj-enc-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
     .cj-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; padding: 4px 8px; border-radius: 8px; background: #F1F1F7; color: var(--cj-ink2); }
@@ -1257,6 +1263,170 @@
     .cj-tag.good b { color: #0B6E62; }
     .cj-tag.bad { background: #FDECEC; color: #9E1F1F; }
     .cj-tag.bad b { color: #9E1F1F; }
+
+    .cj-tcard {
+      position: relative; overflow: hidden; border-radius: 26px; color: #fff;
+      background: linear-gradient(135deg, #7B5CFA, #5A3BE0); box-shadow: 0 14px 30px rgba(90,59,224,0.28);
+    }
+    .cj-tcard.short { background: linear-gradient(135deg, #F0605A, #C93A34); box-shadow: 0 14px 30px rgba(201,58,52,0.28); }
+    .cj-tcard::after { content: ''; position: absolute; right: -40px; top: -40px; width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,0.10); pointer-events: none; }
+    #cajaApp .cj-tcard-main { position: relative; z-index: 1; display: block; width: 100%; border: none; background: none; color: #fff; text-align: left; cursor: pointer; padding: 18px 18px 12px; }
+    .cj-tcard-main > span { display: block; }
+    .cj-tcard-main > .cj-hero-row { display: grid; }
+    .cj-tcard-top { display: flex !important; align-items: center; gap: 6px; font-size: 13px; opacity: 0.88; }
+    .cj-tcard-top svg { width: 15px; height: 15px; }
+    .cj-tcard-top .go { margin-left: auto; width: 18px; height: 18px; }
+    .cj-tcard-head { display: flex !important; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .cj-tcard-head .cj-date { box-shadow: 0 6px 14px rgba(0,0,0,0.12); }
+    .cj-tcard .cj-date.tint-purple { background: #fff; color: #5A3BE0; }
+    .cj-tcard.short .cj-date.tint-coral { background: #fff; color: #C93A34; }
+    .cj-tcard-headtxt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .cj-tcard-title { font-family: 'Space Grotesk', sans-serif; font-size: clamp(17px, 5.2vw, 20px); font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+    .cj-tcard-sub { font-size: 12.5px; opacity: 0.85; }
+    .cj-tcard-head .go { width: 20px; height: 20px; flex-shrink: 0; opacity: 0.9; }
+    .cj-tcard-k { font-size: 12px; opacity: 0.85; }
+    .cj-tcard-v { font-family: 'Space Grotesk', sans-serif; font-size: clamp(26px, 9vw, 32px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 12px; overflow-wrap: anywhere; }
+    .cj-tcard-bar { display: flex !important; gap: 2px; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.22); overflow: hidden; margin-bottom: 14px; }
+    .cj-tcard-bar i { display: block; height: 100%; }
+    .cj-tcard-actions { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 18px 18px; }
+    #cajaApp .cj-tcard-actions button {
+      border: none; cursor: pointer;
+      border-radius: 14px; padding: 11px 8px; font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.14); transition: transform 0.12s, filter 0.12s;
+    }
+    .cj-tcard-actions button svg { width: 15px; height: 15px; }
+    .cj-tcard-actions button:active { transform: scale(0.96); filter: brightness(0.94); }
+    /* Prenda en amarillo, Gasto en rojo */
+    #cajaApp .cj-tcard-actions button:first-child { background: #FFC542; color: #3B2A00; }
+    #cajaApp .cj-tcard-actions button:last-child  { background: #D93636; color: #fff; }
+
+    /* Pantallas pequeñas: nada se corta, todo pasa a la siguiente línea */
+    @media (max-width: 370px) {
+      .cj-wrap { padding-left: 12px; padding-right: 12px; }
+      .cj-hero, .cj-tcard-main { padding-left: 14px; padding-right: 14px; }
+      .cj-tcard-actions { padding: 0 14px 14px; }
+      .cj-hero-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .cj-kpis, .cj-tiles, .cj-metrics, .cj-row2 { gap: 8px; }
+      .cj-tile { padding: 12px; }
+      .cj-cats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .cj-icon-grid { grid-template-columns: repeat(6, 1fr); }
+      .cj-nav button { font-size: 10px; }
+      .cj-sheet { padding-left: 14px; padding-right: 14px; }
+    }
+    @media (max-width: 330px) {
+      .cj-tiles, .cj-kpis, .cj-row2 { grid-template-columns: 1fr; }
+      .cj-tile.final { flex-direction: column; align-items: flex-start; }
+      .cj-tile.final b { text-align: left; }
+    }
+
+    /* Tarjetas deslizables: → abonar (verde), ← eliminar (rojo) */
+    .cj-swipe { position: relative; border-radius: 26px; }
+    .cj-swipe .cj-tcard { position: relative; z-index: 1; touch-action: pan-y; transition: transform 0.36s cubic-bezier(.2,.9,.3,1.15); }
+    .cj-swipe.dragging .cj-tcard { transition: none; }
+    .cj-swipe.open-l .cj-tcard { transform: translateX(-92px); }
+    .cj-swipe.open-r .cj-tcard { transform: translateX(92px); }
+    .cj-swipe-act {
+      position: absolute; top: 0; bottom: 0; width: 84px; z-index: 0; border: none; border-radius: 24px; cursor: pointer;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+      font-size: 13px; font-weight: 700; opacity: 0; transition: opacity 0.2s;
+    }
+    .cj-swipe-act svg { width: 24px; height: 24px; }
+    #cajaApp .cj-swipe-act.l { left: 0; background: #0B7A6E; color: #fff; }
+    #cajaApp .cj-swipe-act.r { right: 0; background: #D93636; color: #fff; }
+    .cj-swipe.show-r .cj-swipe-act.l, .cj-swipe.show-l .cj-swipe-act.r { opacity: 1; }
+    .cj-hint { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--cj-ink3); margin: -6px 2px 12px; flex-wrap: wrap; }
+    .cj-hint svg { width: 14px; height: 14px; }
+    .cj-hint b { color: var(--cj-ink2); font-weight: 600; }
+
+    /* Abonos */
+    .cj-tabs button { padding: 10px 4px; font-size: clamp(12px, 3.6vw, 14px); line-height: 1.2; }
+    .cj-row-ico.ab, .cj-icon-now.ab { background: #E3F4F1; color: #0B7A6E; }
+    .cj-cats.ab .cj-cat span { background: #E3F4F1; color: #0B7A6E; }
+    .cj-cats.ab .cj-cat.on { border-color: #0B7A6E; background: #F1FAF8; }
+    .cj-cats.ab .cj-cat.add span { background: #EFEFF6; color: var(--cj-ink2); }
+    #cajaApp .cj-btn.primary.green { background: #0B7A6E; box-shadow: 0 8px 18px rgba(11,122,110,0.3); }
+    .cj-abono-add {
+      width: 100%; border: 1.5px dashed #9FD3CB; background: #F1FAF8; cursor: pointer; border-radius: 18px; padding: 14px;
+      display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 700;
+    }
+    #cajaApp .cj-abono-add { color: #0B7A6E; }
+    .cj-abono-add svg { width: 18px; height: 18px; }
+    .cj-ab-list { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+    .cj-ab-item { width: 100%; border: 1px solid var(--cj-line); background: #fff; cursor: pointer; text-align: left; border-radius: 16px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; }
+
+    /* Resumen: selector Año · Mes · Viaje */
+    .cj-scope { margin-bottom: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .cj-scope button:disabled { opacity: 0.4; cursor: default; }
+    .cj-scope-trips { display: flex; gap: 10px; overflow-x: auto; padding: 4px 4px 14px; margin: 0 -4px 4px; scrollbar-width: none; }
+    .cj-scope-trips::-webkit-scrollbar { display: none; }
+    .cj-scope-trip {
+      flex-shrink: 0; max-width: 220px; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;
+      background: var(--cj-card); border: 1.5px solid var(--cj-line); border-radius: 18px; padding: 8px 14px 8px 8px;
+      font-size: 13.5px; font-weight: 700; line-height: 1.25;
+    }
+    .cj-scope-trip .cj-date { width: 42px; height: 44px; border-radius: 12px; }
+    .cj-scope-trip .cj-date b { font-size: 16px; }
+    .cj-scope-trip .cj-date span { font-size: 10px; }
+    .cj-scope-trip.on { border-color: var(--cj-primary); background: var(--cj-soft); box-shadow: 0 6px 16px rgba(108,76,241,0.18); }
+
+    /* ¿Cuánto sumarle a cada prenda? */
+    .cj-mk-hero { border-radius: 18px; padding: 16px; margin-bottom: 12px; color: #fff; background: linear-gradient(135deg, #7B5CFA, #5A3BE0); }
+    .cj-mk-formula { font-size: 13.5px; opacity: 0.92; line-height: 1.4; }
+    .cj-mk-formula span { opacity: 0.8; font-size: 12px; }
+    .cj-mk-big { font-family: 'Space Grotesk', sans-serif; font-size: clamp(28px, 9vw, 36px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin: 6px 0 10px; overflow-wrap: anywhere; }
+    .cj-mk-big small { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; opacity: 0.85; letter-spacing: 0; }
+    .cj-mk-tip { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; line-height: 1.45; background: rgba(255,255,255,0.16); border-radius: 12px; padding: 10px 12px; }
+    .cj-mk-tip svg { width: 17px; height: 17px; flex-shrink: 0; margin-top: 1px; }
+    .cj-mk-trips { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    .cj-mk-trips div { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: 12.5px; padding: 8px 10px; border-radius: 12px; background: var(--cj-bg); }
+    .cj-mk-trips span { color: var(--cj-ink2); }
+    .cj-mk-head { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; font-weight: 700; color: var(--cj-ink3); text-transform: uppercase; letter-spacing: 0.04em; padding: 4px 4px 8px; }
+    .cj-mk-list { display: flex; flex-direction: column; }
+    .cj-mk-row {
+      display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name real" "calc real";
+      column-gap: 10px; row-gap: 2px; align-items: center; padding: 10px 4px; border-top: 1px solid var(--cj-line);
+    }
+    .cj-mk-name { grid-area: name; display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; min-width: 0; }
+    .cj-mk-name b { font-size: 14px; overflow-wrap: anywhere; }
+    .cj-mk-name small { font-size: 11.5px; color: var(--cj-ink3); }
+    .cj-mk-calc { grid-area: calc; font-size: 12px; color: var(--cj-ink2); }
+    .cj-mk-calc em { font-style: normal; color: #C9403A; font-weight: 600; }
+    .cj-mk-real { grid-area: real; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 16px; text-align: right; }
+
+    /* Encargo → ¿de qué compra salió? */
+    .cj-pick-list { display: flex; flex-direction: column; gap: 6px; max-height: 42dvh; overflow-y: auto; padding: 2px; }
+    .cj-pick {
+      width: 100%; display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer;
+      border: 1.5px solid var(--cj-line); background: #fff; border-radius: 14px; padding: 9px 12px 9px 9px;
+    }
+    .cj-pick-ico { width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--cj-soft); color: var(--cj-prendas); }
+    .cj-pick-ico svg { width: 17px; height: 17px; }
+    .cj-pick-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+    .cj-pick-body b { font-size: 14px; overflow-wrap: anywhere; }
+    .cj-pick-body small { font-size: 11.5px; color: var(--cj-ink2); }
+    .cj-pick-val { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 14px; text-align: right; flex-shrink: 0; }
+    .cj-pick.on { border-color: #0B7A6E; background: #F1FAF8; }
+    #cajaApp .cj-pick.on .cj-pick-ico { background: #0B7A6E; color: #fff; }
+    .cj-pick.full { opacity: 0.5; cursor: not-allowed; }
+    .cj-pick.full .cj-pick-val { font-family: inherit; font-size: 11px; color: var(--cj-ink3); }
+    .cj-asg-trip { display: flex; align-items: center; gap: 12px; padding: 10px 12px 10px 10px; border-radius: 16px; background: var(--cj-soft); margin-bottom: 12px; }
+    .cj-asg-trip .cj-date { width: 46px; height: 48px; border-radius: 13px; }
+    .cj-asg-trip .cj-date b { font-size: 17px; }
+    .cj-asg-trip .cj-date span { font-size: 10.5px; }
+    .cj-asg-trip-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+    .cj-asg-trip-txt b { font-size: 15px; overflow-wrap: anywhere; }
+    .cj-asg-trip-txt small { font-size: 12px; color: var(--cj-ink2); }
+    .cj-asg-trips { display: flex; flex-direction: column; gap: 6px; margin: -4px 0 12px; }
+    .cj-asg-trips button { display: flex; align-items: center; gap: 10px; text-align: left; cursor: pointer; border: 1.5px solid var(--cj-line); background: #fff; border-radius: 14px; padding: 7px 12px 7px 7px; font-size: 14px; font-weight: 700; }
+    .cj-asg-trips .cj-date { width: 38px; height: 40px; border-radius: 11px; }
+    .cj-asg-trips .cj-date b { font-size: 14px; }
+    .cj-asg-trips .cj-date span { font-size: 9.5px; }
+    .cj-asg-trips small { display: block; font-size: 11.5px; font-weight: 500; color: var(--cj-ink3); }
+    .cj-asg-sum { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; line-height: 1.4; padding: 10px 12px; border-radius: 12px; background: #F1FAF8; color: #0B5A51; margin-bottom: 12px; }
+    .cj-asg-sum svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .cj-asg-sum span { flex: 1; min-width: 0; }
+    .cj-btn:disabled { opacity: 0.45; cursor: default; box-shadow: none; }
 
     /* Botón flotante IA (luminoso) */
     .fab-ai {
@@ -5547,7 +5717,7 @@ const CJ_COLOR = { prendas:'#6C4CF1', gastos:'#F0605A', queda:'#0E9F8E' };
 let cjViajes = [];
 let cjEncargos = [];
 const CJ_ENC_KEY = 'jahdiel_encargos';
-let cj = { open:false, view:'home', tripId:null, year:new Date().getFullYear(), month:null, tab:'prendas' };
+let cj = { open:false, view:'home', tripId:null, year:new Date().getFullYear(), month:null, tab:'prendas', sScope:'year', sMonth:null, sTrip:null };
 let cjSyncState = 'local';
 let cjSyncTimer = null;
 const cjDirty = new Set();
@@ -5573,12 +5743,14 @@ function cjTotals(v){
   const prendas  = (v.productos || []).reduce((s, p) => s + (Number(p.total) || 0), 0);
   const unidades = (v.productos || []).reduce((s, p) => s + (Number(p.cantidad) || 0), 0);
   const gastos   = (v.gastos || []).reduce((s, g) => s + (Number(g.valor) || 0), 0);
-  const inicial  = Number(v.saldoInicial) || 0;
-  return { inicial, prendas, gastos, unidades, gastado: prendas + gastos, final: inicial - prendas - gastos };
+  const abonos   = (v.abonos || []).reduce((s, a) => s + (Number(a.valor) || 0), 0);
+  const base0    = Number(v.saldoInicial) || 0;
+  const inicial  = base0 + abonos;   // base del viaje = saldo inicial + abonos
+  return { base0, abonos, inicial, prendas, gastos, unidades, gastado: prendas + gastos, final: inicial - prendas - gastos };
 }
 function cjSum(list){
-  return list.reduce((a, v) => { const t = cjTotals(v); a.inicial += t.inicial; a.prendas += t.prendas; a.gastos += t.gastos; a.unidades += t.unidades; a.gastado += t.gastado; return a; },
-    { inicial:0, prendas:0, gastos:0, unidades:0, gastado:0 });
+  return list.reduce((a, v) => { const t = cjTotals(v); a.inicial += t.inicial; a.abonos += t.abonos; a.prendas += t.prendas; a.gastos += t.gastos; a.unidades += t.unidades; a.gastado += t.gastado; return a; },
+    { inicial:0, abonos:0, prendas:0, gastos:0, unidades:0, gastado:0 });
 }
 function cjSorted(list){ return [...list].sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '') || (b.createdAt || '').localeCompare(a.createdAt || '')); }
 function cjTrip(){ return cjViajes.find(v => v.id === cj.tripId) || null; }
@@ -5716,7 +5888,6 @@ function cjNav(){
     ${b('home','plane','Viajes',"cjGo('home')")}
     ${b('enc','clipboard-list','Encargos',"cjGo('enc')")}
     ${b('stats','bar-chart-3','Resumen',"cjGo('stats')")}
-    ${b('exit','store','Tienda','cjExit()')}
   </nav>`;
 }
 function cjYears(){
@@ -5735,14 +5906,13 @@ function cjRender(){
   if(cj.view === 'trip' && !cjTrip()) cj.view = 'home';
   main.innerHTML = cj.view === 'trip' ? cjTripHTML() : cj.view === 'stats' ? cjStatsHTML() : cj.view === 'enc' ? cjEncargosHTML() : cjHomeHTML();
   lucide.createIcons({ nodes:[main] });
-  if(cj.view === 'home') cjScrollMonths();
+  if(cj.view === 'home'){ cjScrollMonths(); cjBindSwipes(); }
 }
 // Muestra el mes elegido o el último mes con viajes (si no, el mes actual)
 function cjScrollMonths(){
   const row = document.querySelector('#cjMain .cj-months'); if(!row) return;
-  const withTrips = [...new Set(cjViajes.filter(v => cjParts(v.fecha).y === cj.year).map(v => cjParts(v.fecha).m))];
-  const m = cj.month != null ? cj.month : withTrips.length ? Math.max(...withTrips) : (cj.year === new Date().getFullYear() ? new Date().getMonth() : 0);
-  const card = row.children[m]; if(!card) return;
+  const card = (cj.month != null && row.querySelector(`[data-m="${cj.month}"]`)) || row.lastElementChild;
+  if(!card) return;
   row.style.scrollBehavior = 'auto';
   row.scrollLeft = Math.max(0, card.offsetLeft - row.offsetLeft - row.clientWidth + card.offsetWidth + 16);
   row.style.scrollBehavior = '';
@@ -5754,34 +5924,51 @@ function cjHomeHTML(){
   const sum = cjSum(shown);
   const scope = cj.month == null ? `en ${cj.year}` : `en ${CJ_MESES[cj.month]} ${cj.year}`;
 
+  // Solo los meses que tienen viajes
   const months = CJ_MESES.map((name, m) => {
     const list = ofYear.filter(v => cjParts(v.fecha).m === m);
+    if(!list.length) return '';
     const s = cjSum(list);
-    const tint = list.length ? 'tint-' + CJ_TINTS[m % 4] : 'empty';
-    return `<button class="cj-month ${tint} ${cj.month===m?'sel':''}" onclick="cjSetMonth(${m})" aria-pressed="${cj.month===m}">
-      <span class="cj-month-ico"><i data-lucide="${list.length?'plane':'calendar'}"></i></span>
-      <span><b>${name}</b><small>${list.length ? `${list.length} viaje${list.length!==1?'s':''} · ${cjShort(s.gastado)}` : 'Sin viajes'}</small></span>
+    return `<button class="cj-month tint-${CJ_TINTS[m % 4]} ${cj.month===m?'sel':''}" data-m="${m}" onclick="cjSetMonth(${m})" aria-pressed="${cj.month===m}">
+      <span class="cj-month-ico"><i data-lucide="plane"></i></span>
+      <span><b>${name}</b><small>${list.length} viaje${list.length!==1?'s':''} · ${cjShort(s.gastado)}</small></span>
     </button>`;
   }).join('');
 
   const trips = shown.map((v, i) => {
     const t = cjTotals(v), p = cjParts(v.fecha);
     const base = Math.max(t.inicial, t.gastado) || 1;
-    return `<div class="cj-trip-wrap"><button class="cj-trip" onclick="cjOpenTrip('${v.id}')">
-      <div class="cj-date tint-${CJ_TINTS[p.m % 4]}"><b>${p.d}</b><span>${CJ_MES3[p.m]}</span></div>
-      <div class="cj-trip-body">
-        <div class="cj-trip-name">${cjEsc(v.nombre)}</div>
-        <div class="cj-trip-meta">${(v.productos||[]).length} proveedor${(v.productos||[]).length!==1?'es':''} · ${t.unidades} uds · Gastos ${cjShort(t.gastos)}</div>
-        <div class="cj-progress" aria-hidden="true">
-          <i style="width:${t.prendas/base*100}%;background:${CJ_COLOR.prendas}"></i>
-          <i style="width:${t.gastos/base*100}%;background:${CJ_COLOR.gastos}"></i>
-        </div>
+    const short = t.final < 0;
+    return `<div class="cj-swipe" data-id="${v.id}">
+      <button class="cj-swipe-act l" onclick="cjSwipeAction(this,'ab')" tabindex="-1"><i data-lucide="hand-coins"></i>Abonar</button>
+      <button class="cj-swipe-act r" onclick="cjSwipeAction(this,'del')" tabindex="-1"><i data-lucide="trash-2"></i>Eliminar</button>
+      <div class="cj-tcard ${short ? 'short' : ''}">
+      <button class="cj-tcard-main" onclick="cjOpenTrip('${v.id}')">
+        <span class="cj-tcard-head">
+          <span class="cj-date tint-${CJ_TINTS[p.m % 4]}"><b>${p.d}</b><span>${CJ_MES3[p.m]}</span></span>
+          <span class="cj-tcard-headtxt">
+            <span class="cj-tcard-title">${cjEsc(v.nombre)}</span>
+            <span class="cj-tcard-sub">${p.y} · ${(v.productos||[]).length} proveedor${(v.productos||[]).length!==1?'es':''}</span>
+          </span>
+          <i data-lucide="chevron-right" class="go"></i>
+        </span>
+        <span class="cj-tcard-k">${short ? 'Faltó' : 'Quedó'}</span>
+        <span class="cj-tcard-v">${cjMoney(t.final)}</span>
+        <span class="cj-tcard-bar" aria-hidden="true">
+          <i style="width:${t.prendas/base*100}%;background:#FFFFFF"></i>
+          <i style="width:${t.gastos/base*100}%;background:#FFC1BC"></i>
+        </span>
+        <span class="cj-hero-row">
+          <span><small>Base${t.abonos ? ' + abonos' : ''}</small><b>${cjShort(t.inicial)}</b></span>
+          <span><small><i class="dot" style="background:#FFFFFF"></i>Prendas</small><b>${cjShort(t.prendas)}</b></span>
+          <span><small><i class="dot" style="background:#FFC1BC"></i>Gastos</small><b>${cjShort(t.gastos)}</b></span>
+          <span><small>Unidades</small><b>${t.unidades}</b></span>
+        </span>
+      </button>
+      <div class="cj-tcard-actions">
+        <button onclick="cjAddSheet('prenda', null, '${v.id}')"><i data-lucide="shirt"></i> Prenda</button>
+        <button onclick="cjAddSheet('gasto', null, '${v.id}')"><i data-lucide="receipt"></i> Gasto</button>
       </div>
-      <div class="cj-trip-right"><div class="cj-k">${t.final < 0 ? 'Faltó' : 'Quedó'}</div><div class="cj-v ${t.final<0?'cj-neg':''}">${cjMoney(t.final)}</div></div>
-    </button>
-    <div class="cj-quick">
-      <button onclick="cjAddSheet('prenda', null, '${v.id}')"><i data-lucide="shirt"></i> Prenda</button>
-      <button onclick="cjAddSheet('gasto', null, '${v.id}')"><i data-lucide="receipt"></i> Gasto</button>
     </div></div>`;
   }).join('');
 
@@ -5807,9 +5994,10 @@ function cjHomeHTML(){
         <div><span>Unidades</span><b>${sum.unidades}</b></div>
       </div>
     </section>
-    <div class="cj-sec-head"><h3>Meses</h3>${cj.month != null ? `<button class="cj-link" onclick="cjSetMonth(null)">Ver todo el año</button>` : ''}</div>
-    <div class="cj-months">${months}</div>
+    ${months ? `<div class="cj-sec-head"><h3>Meses</h3>${cj.month != null ? `<button class="cj-link" onclick="cjSetMonth(null)">Ver todo el año</button>` : ''}</div>
+    <div class="cj-months">${months}</div>` : ''}
     <div class="cj-sec-head"><h3>Viajes ${cj.month != null ? 'de ' + CJ_MESES[cj.month] : ''}</h3><span class="cj-k">${shown.length}</span></div>
+    ${shown.length ? `<div class="cj-hint"><i data-lucide="arrow-left-right"></i>Desliza una tarjeta: → <b>abonar</b> · ← <b>eliminar</b></div>` : ''}
     <div class="cj-list">${trips || empty}</div>
     <button class="cj-add" onclick="cjTripSheet()"><i data-lucide="plus"></i> Nuevo viaje</button>
     ${cjNav()}`;
@@ -5832,7 +6020,16 @@ function cjTripHTML(){
 
   const prods = (v.productos || []);
   const gastos = (v.gastos || []);
-  const list = cj.tab === 'prendas'
+  const abonos = (v.abonos || []);
+  const abonosList = `<button class="cj-abono-add" onclick="cjAbonoSheet('${v.id}')"><i data-lucide="hand-coins"></i> Abonar a la base</button>` +
+    (abonos.length ? abonos.map(a => `
+        <button class="cj-row" onclick="cjAbonoSheet('${v.id}','${a.id}')">
+          <span class="cj-row-ico ab"><i data-lucide="${cjAbonoIcon(a)}"></i></span>
+          <span class="cj-row-body"><span class="cj-row-name">${cjEsc(cjLabel(cjUp(a.origen)))}</span><span class="cj-row-meta">${a.fecha ? a.fecha.split('-').reverse().join('/') : ''}${a.nota ? ' · ' + cjEsc(a.nota) : ''}</span></span>
+          <span class="cj-row-val" style="color:#0B7A6E">+${cjMoney(a.valor)}</span>
+        </button>`).join('') + `<div class="cj-total-row"><span>Inicial ${cjMoney(t.base0)} + abonos ${cjMoney(t.abonos)}</span><b>Base ${cjMoney(t.inicial)}</b></div>`
+      : `<div class="cj-empty"><div class="cj-empty-ico"><i data-lucide="hand-coins"></i></div><b>Sin abonos</b><p>Si le metes más plata al viaje (tarjeta, préstamo, ahorros…), regístrala aquí y se suma a la base.</p></div>`);
+  const list = cj.tab === 'abonos' ? abonosList : cj.tab === 'prendas'
     ? (prods.length ? prods.map(x => `
         <button class="cj-row" onclick="cjProdSheet('${x.id}')">
           <span class="cj-row-ico p"><i data-lucide="shirt"></i></span>
@@ -5856,7 +6053,7 @@ function cjTripHTML(){
       <button class="cj-round" onclick="cjTripSheet('${v.id}')" aria-label="Editar viaje"><i data-lucide="pencil"></i></button>
     </header>
     <div class="cj-tiles">
-      <button class="cj-tile base" onclick="cjTripSheet('${v.id}')"><span><i style="background:#9C9CB4"></i>Saldo inicial</span><b>${cjMoney(t.inicial)}</b><small>Toca para cambiar</small></button>
+      <button class="cj-tile base" onclick="${t.abonos ? `cjSetTab('abonos')` : `cjTripSheet('${v.id}')`}"><span><i style="background:#9C9CB4"></i>${t.abonos ? 'Base del viaje' : 'Saldo inicial'}</span><b>${cjMoney(t.inicial)}</b><small>${t.abonos ? `${cjShort(t.base0)} + abonos ${cjShort(t.abonos)}` : 'Toca para cambiar'}</small></button>
       <div class="cj-tile"><span><i style="background:${CJ_COLOR.prendas}"></i>Prendas</span><b>${cjMoney(t.prendas)}</b><small>${t.unidades} unidades</small></div>
       <div class="cj-tile"><span><i style="background:${CJ_COLOR.gastos}"></i>Gastos</span><b>${cjMoney(t.gastos)}</b><small>${gastos.length} gasto${gastos.length!==1?'s':''}</small></div>
       <div class="cj-tile"><span><i style="background:${CJ_COLOR.queda}"></i>Total gastado</span><b>${cjMoney(t.gastado)}</b><small>${cjPct(t.gastado, t.inicial)}% de la base</small></div>
@@ -5865,7 +6062,7 @@ function cjTripHTML(){
     <div class="cj-card">
       <div class="cj-card-title">¿En qué se fue la base?</div>
       ${base > 0 ? `<div class="cj-stack" role="img" aria-label="Prendas ${cjMoney(t.prendas)}, gastos ${cjMoney(t.gastos)}, queda ${cjMoney(Math.max(t.final,0))}">${stack}</div><div class="cj-legend">${legend}</div>` : `<div class="cj-k">Agrega la base y las compras para ver la distribución.</div>`}
-      ${t.final < 0 ? `<div class="cj-alert"><i data-lucide="alert-triangle"></i><div><b>Faltaron ${cjMoney(-t.final)}</b>. Lo gastado supera el saldo inicial.</div></div>` : ''}
+      ${t.final < 0 ? `<div class="cj-alert"><i data-lucide="alert-triangle"></i><div><b>Faltaron ${cjMoney(-t.final)}</b>. Lo gastado supera la base del viaje. Puedes deslizar la tarjeta del viaje → para abonar.</div></div>` : ''}
     </div>
     <div class="cj-card"><div class="cj-metrics">
       <div><span>Costo promedio por prenda</span><b>${cjMoney(prom)}</b></div>
@@ -5874,6 +6071,7 @@ function cjTripHTML(){
     <div class="cj-tabs">
       <button class="${cj.tab==='prendas'?'active':''}" onclick="cjSetTab('prendas')">Prendas · ${prods.length}</button>
       <button class="${cj.tab==='gastos'?'active':''}" onclick="cjSetTab('gastos')">Gastos · ${gastos.length}</button>
+      <button class="${cj.tab==='abonos'?'active':''}" onclick="cjSetTab('abonos')">Abonos · ${abonos.length}</button>
     </div>
     <div class="cj-list">${list}</div>
     <button class="cj-danger-link" onclick="cjDeleteTrip('${v.id}')">Eliminar este viaje</button>
@@ -5884,40 +6082,93 @@ function cjTripHTML(){
     ${cjNav()}`;
 }
 
-function cjStatsHTML(){
-  const ofYear = cjViajes.filter(v => cjParts(v.fecha).y === cj.year);
-  const sum = cjSum(ofYear);
-  const byMonth = CJ_MESES.map((_, m) => cjSum(ofYear.filter(v => cjParts(v.fecha).m === m)));
-  const max = Math.max(...byMonth.map(s => s.gastado), 0);
-
-  let chart;
-  if(max > 0){
-    const cols = byMonth.map((s, m) => {
-      const tip = `<b>${CJ_MESES[m]}</b><br>Prendas ${cjMoney(s.prendas)}<br>Gastos ${cjMoney(s.gastos)}<br>Total ${cjMoney(s.gastado)}`;
-      return `<div class="cj-col" data-tip="${cjEsc(tip)}">
-        ${s.gastos ? `<i style="height:${s.gastos/max*100}%;background:${CJ_COLOR.gastos}"></i>` : ''}
-        ${s.prendas ? `<i style="height:${s.prendas/max*100}%;background:${CJ_COLOR.prendas}"></i>` : ''}
-      </div>`;
-    }).join('');
-    chart = `
-      <div class="cj-legend-inline"><span><i style="background:${CJ_COLOR.prendas}"></i>Prendas</span><span><i style="background:${CJ_COLOR.gastos}"></i>Gastos</span></div>
-      <div class="cj-chart" role="img" aria-label="Gasto por mes en ${cj.year}">
-        <div class="cj-grid-line" style="top:6px"><span>${cjShort(max)}</span></div>
-        <div class="cj-grid-line" style="top:calc(6px + (100% - 6px) / 2)"><span>${cjShort(max/2)}</span></div>
-        ${cols}
-      </div>
-      <div class="cj-xlabels">${CJ_MES3.map(m => `<span>${m[0]}</span>`).join('')}</div>
-      <details class="cj-table-toggle"><summary>Ver tabla</summary>
-        <table class="cj-table"><thead><tr><th>Mes</th><th>Prendas</th><th>Gastos</th><th>Total</th></tr></thead><tbody>
-        ${byMonth.map((s, m) => s.gastado ? `<tr><td>${CJ_MESES[m]}</td><td>${cjMoney(s.prendas)}</td><td>${cjMoney(s.gastos)}</td><td>${cjMoney(s.gastado)}</td></tr>` : '').join('')}
-        </tbody></table>
-      </details>`;
-  } else {
-    chart = `<div class="cj-k">Aún no hay viajes en ${cj.year}.</div>`;
+// ── Resumen: año completo, un mes o un viaje ──
+function cjSetScope(s){ cj.sScope = s; cjRender(); }
+function cjSetSMonth(m){ cj.sScope = 'month'; cj.sMonth = m; cjRender(); }
+function cjSetSTrip(id){ cj.sScope = 'trip'; cj.sTrip = id; cjRender(); }
+// Viajes que entran en el resumen según lo elegido (y lo corrige si ya no aplica)
+function cjStatsScope(){
+  const ofYear = cjSorted(cjViajes.filter(v => cjParts(v.fecha).y === cj.year));
+  const months = [...new Set(ofYear.map(v => cjParts(v.fecha).m))].sort((a, b) => a - b);
+  cj.sScope = cj.sScope || 'year';
+  if(cj.sScope === 'month'){
+    if(!months.includes(cj.sMonth)) cj.sMonth = months.length ? months[months.length - 1] : null;
+    if(cj.sMonth == null) cj.sScope = 'year';
   }
+  if(cj.sScope === 'trip'){
+    if(!ofYear.some(v => v.id === cj.sTrip)) cj.sTrip = ofYear.length ? ofYear[0].id : null;
+    if(!cj.sTrip) cj.sScope = 'year';
+  }
+  const list = cj.sScope === 'month' ? ofYear.filter(v => cjParts(v.fecha).m === cj.sMonth)
+    : cj.sScope === 'trip' ? ofYear.filter(v => v.id === cj.sTrip) : ofYear;
+  const label = cj.sScope === 'month' ? `${CJ_MESES[cj.sMonth]} ${cj.year}`
+    : cj.sScope === 'trip' ? (ofYear.find(v => v.id === cj.sTrip) || {}).nombre : `todo ${cj.year}`;
+  return { ofYear, months, list, label };
+}
+
+// ¿Cuánto sumarle a cada prenda? Gastos ÷ prendas, y costo real por proveedor.
+// Cada prenda carga los gastos de su propio viaje.
+function cjMarkupCardHTML(list){
+  const trips = list.map(v => {
+    const t = cjTotals(v);
+    return { v, t, rate: t.unidades ? t.gastos / t.unidades : 0 };
+  });
+  const conUds = trips.filter(x => x.t.unidades > 0);
+  const G = conUds.reduce((s, x) => s + x.t.gastos, 0);
+  const U = conUds.reduce((s, x) => s + x.t.unidades, 0);
+  const sinUds = trips.filter(x => !x.t.unidades && x.t.gastos > 0);
+  if(!U) return `<div class="cj-card"><div class="cj-card-title">¿Cuánto sumarle a cada prenda?</div>
+    <div class="cj-k">Agrega prendas a ${list.length === 1 ? 'este viaje' : 'los viajes'} para calcular cuánto le toca a cada una de los gastos.</div></div>`;
+  const avg = G / U;
+  const redondeo = Math.ceil(avg / 100) * 100;
+
+  // Por proveedor
+  const prov = {};
+  trips.forEach(({ v, rate }) => (v.productos || []).forEach(p => {
+    const k = cjUp(p.proveedor) || 'SIN NOMBRE';
+    const u = Number(p.cantidad) || 0, tot = Number(p.total) || 0;
+    prov[k] = prov[k] || { u:0, tot:0, gasto:0 };
+    prov[k].u += u; prov[k].tot += tot; prov[k].gasto += u * rate;
+  }));
+  const rows = Object.entries(prov).filter(([, o]) => o.u > 0)
+    .map(([k, o]) => ({ k, u:o.u, costo:o.tot / o.u, gastoPU:o.gasto / o.u, real:(o.tot + o.gasto) / o.u }))
+    .sort((a, b) => b.u - a.u);
+  const sumTot = Object.values(prov).reduce((s, o) => s + o.tot, 0);
+
+  const formula = list.length === 1
+    ? `<div class="cj-mk-formula">Gastos <b>${cjMoney(G)}</b> ÷ <b>${U}</b> prendas</div>`
+    : `<div class="cj-mk-formula">Gastos <b>${cjMoney(G)}</b> ÷ <b>${U}</b> prendas <span>(promedio de ${conUds.length} viajes)</span></div>`;
+  const porViaje = list.length > 1 ? `<div class="cj-mk-trips">${conUds.map(x => `
+      <div><span>${cjEsc(x.v.nombre)}</span><b>${cjMoney(x.t.gastos)} ÷ ${x.t.unidades} = ${cjMoney(x.rate)}</b></div>`).join('')}
+    </div>` : '';
+  const aviso = sinUds.length ? `<div class="cj-alert" style="background:#FFF6E5;color:#7A4B00;"><i data-lucide="info"></i><div>${sinUds.map(x => cjEsc(x.v.nombre)).join(', ')} tiene gastos pero aún no tiene prendas, por eso no entra en el cálculo.</div></div>` : '';
+
+  return `<div class="cj-card">
+    <div class="cj-card-title">¿Cuánto sumarle a cada prenda?</div>
+    <div class="cj-mk-hero">
+      ${formula}
+      <div class="cj-mk-big">+${cjMoney(avg)} <small>por prenda</small></div>
+      <div class="cj-mk-tip"><i data-lucide="lightbulb"></i><span>Súmale <b>${cjMoney(redondeo)}</b> a cada prenda (redondeado) para cubrir los gastos${list.length === 1 ? ' del viaje' : ''}. Encima de eso va tu ganancia.</span></div>
+    </div>
+    ${porViaje}${aviso}
+    <div class="cj-mk-head"><span>Por proveedor</span><span>Costo real c/u</span></div>
+    <div class="cj-mk-list">${rows.map(r => `
+      <div class="cj-mk-row">
+        <div class="cj-mk-name"><b>${cjEsc(r.k)}</b><small>${r.u} ud${r.u!==1?'s':''}</small></div>
+        <div class="cj-mk-calc">${cjMoney(r.costo)} <em>+ ${cjMoney(r.gastoPU)}</em></div>
+        <div class="cj-mk-real">${cjMoney(r.real)}</div>
+      </div>`).join('')}
+    </div>
+    <div class="cj-total-row" style="flex-wrap:wrap;gap:4px 10px;"><span>Prendas ${cjMoney(sumTot)} + gastos ${cjMoney(G)}</span><b>Costo real ${cjMoney(sumTot + G)}</b></div>
+  </div>`;
+}
+
+function cjStatsHTML(){
+  const { ofYear, months, list, label } = cjStatsScope();
+  const sum = cjSum(list);
 
   const hbars = (rows, color, unit) => {
-    if(!rows.length) return `<div class="cj-k">Sin datos en ${cj.year}.</div>`;
+    if(!rows.length) return `<div class="cj-k">Sin datos en ${cjEsc(label)}.</div>`;
     const top = rows[0].v || 1;
     return `<div class="cj-hbars">${rows.map(r => `
       <div data-tip="${cjEsc(`<b>${cjEsc(r.k)}</b><br>${cjMoney(r.v)}${r.u ? ` · ${r.u} uds` : ''} · ${cjPct(r.v, unit)}%`)}">
@@ -5926,7 +6177,7 @@ function cjStatsHTML(){
       </div>`).join('')}</div>`;
   };
   const provMap = {}, gasMap = {};
-  ofYear.forEach(v => {
+  list.forEach(v => {
     (v.productos || []).forEach(p => { const k = cjUp(p.proveedor) || 'SIN NOMBRE'; provMap[k] = provMap[k] || { v:0, u:0 }; provMap[k].v += Number(p.total)||0; provMap[k].u += Number(p.cantidad)||0; });
     (v.gastos || []).forEach(g => { const k = cjUp(g.descripcion) || 'OTROS'; gasMap[k] = (gasMap[k] || 0) + (Number(g.valor)||0); });
   });
@@ -5934,23 +6185,40 @@ function cjStatsHTML(){
   const catIcons = new Map(cjCategorias().map(c => [c.k, c.i]));
   const gasRows = Object.entries(gasMap).map(([k, v]) => ({ k, v, i: catIcons.get(k) || 'receipt' })).sort((a, b) => b.v - a.v).slice(0, 10);
 
+  // Selector: Año · Mes · Viaje
+  const seg = (s, ico, txt, dis) => `<button type="button" class="${cj.sScope===s?'on':''}" ${dis ? 'disabled' : ''} onclick="cjSetScope('${s}')"><i data-lucide="${ico}"></i> ${txt}</button>`;
+  const picker = cj.sScope === 'month'
+    ? `<div class="cj-chips">${months.map(m => `<button class="cj-chip ${cj.sMonth===m?'active':''}" onclick="cjSetSMonth(${m})">${CJ_MESES[m]}</button>`).join('')}</div>`
+    : cj.sScope === 'trip'
+      ? `<div class="cj-scope-trips">${ofYear.map(v => { const p = cjParts(v.fecha); return `
+          <button class="cj-scope-trip ${cj.sTrip===v.id?'on':''}" onclick="cjSetSTrip('${v.id}')">
+            <span class="cj-date tint-${CJ_TINTS[p.m % 4]}"><b>${p.d}</b><span>${CJ_MES3[p.m]}</span></span>
+            <span>${cjEsc(v.nombre)}</span>
+          </button>`; }).join('')}</div>`
+      : '';
+
+  const empty = !list.length;
   return `
     <header class="cj-top">
-      <div><div class="cj-hello">Resumen del año</div><div class="cj-title">Mis números</div></div>
+      <div><div class="cj-hello">Resumen de ${cjEsc(label)}</div><div class="cj-title">Mis números</div></div>
       <div class="cj-top-actions">${cjSyncBadge()}<button class="cj-round" onclick="cjExit()" aria-label="Volver a la tienda"><i data-lucide="x"></i></button></div>
     </header>
     ${cjYearChips()}
+    <div class="cj-seg cj-seg-lg cj-scope">
+      ${seg('year','calendar-range','Año')}${seg('month','calendar','Mes', !months.length)}${seg('trip','plane','Viaje', !ofYear.length)}
+    </div>
+    ${picker}
+    ${empty ? `<div class="cj-empty"><div class="cj-empty-ico"><i data-lucide="bar-chart-3"></i></div><b>Sin viajes en ${cj.year}</b><p>Cuando registres viajes de este año verás aquí su resumen.</p></div>` : `
     <div class="cj-kpis">
-      <div class="cj-tile"><span>Total invertido</span><b>${cjMoney(sum.gastado)}</b><small>${ofYear.length} viaje${ofYear.length!==1?'s':''}</small></div>
-      <div class="cj-tile"><span>Bases llevadas</span><b>${cjMoney(sum.inicial)}</b><small>Suma de saldos iniciales</small></div>
+      <div class="cj-tile"><span>Total invertido</span><b>${cjMoney(sum.gastado)}</b><small>${list.length} viaje${list.length!==1?'s':''}</small></div>
+      <div class="cj-tile"><span>Capital llevado</span><b>${cjMoney(sum.inicial)}</b><small>${sum.abonos ? `Incluye ${cjShort(sum.abonos)} en abonos` : 'Suma de las bases'}</small></div>
       <div class="cj-tile"><span><i style="background:${CJ_COLOR.prendas}"></i>Prendas</span><b>${cjMoney(sum.prendas)}</b><small>${sum.unidades} unidades · ${cjPct(sum.prendas, sum.gastado)}%</small></div>
       <div class="cj-tile"><span><i style="background:${CJ_COLOR.gastos}"></i>Gastos</span><b>${cjMoney(sum.gastos)}</b><small>${cjPct(sum.gastos, sum.gastado)}% de lo invertido</small></div>
-      <div class="cj-tile"><span>Costo prom. por prenda</span><b>${cjMoney(sum.unidades ? sum.prendas / sum.unidades : 0)}</b><small>Solo prendas</small></div>
-      <div class="cj-tile"><span>Costo real por prenda</span><b>${cjMoney(sum.unidades ? sum.gastado / sum.unidades : 0)}</b><small>Prendas + gastos</small></div>
     </div>
-    <div class="cj-card"><div class="cj-card-title">Gasto por mes · ${cj.year}</div>${chart}</div>
+    ${cj.sScope === 'trip' ? cjMarkupCardHTML(list) : ''}
     <div class="cj-card"><div class="cj-card-title">Proveedores donde más compré</div>${hbars(provRows, CJ_COLOR.prendas, sum.prendas)}</div>
     <div class="cj-card"><div class="cj-card-title">Gastos por concepto</div>${hbars(gasRows, CJ_COLOR.gastos, sum.gastos)}</div>
+    ${cjCapitalCardHTML(list)}`}
     ${cjNav()}`;
 }
 
@@ -6186,7 +6454,7 @@ function cjGastoBody(v){
   const isNew = cjAdd.cat === '__new__';
   const tiles = cats.map(c => `
     <button type="button" class="cj-cat ${cjAdd.cat===c.k?'on':''}" data-k="${cjEsc(c.k)}" onclick="cjPickCat(this.dataset.k)">
-      <span><i data-lucide="${c.i}"></i></span><small>${cjEsc(c.k.charAt(0) + c.k.slice(1).toLowerCase())}</small>
+      <span><i data-lucide="${c.i}"></i></span><small class="${c.k.length > 11 ? 'long' : ''}">${cjEsc(c.k.charAt(0) + c.k.slice(1).toLowerCase())}</small>
     </button>`).join('');
   const icon = cjAdd.icon || 'receipt';
   const picker = (cjAdd.picker || isNew) ? `
@@ -6389,7 +6657,7 @@ function cjEncListHTML(){
   const st = cjEncStats();
   const total = cjEncargos.length;
   const q = cjUp(cjEncQuery);
-  let list = cjEncFilter === 'pend' ? st.pend : cjEncFilter === 'ok' ? st.ok : [...cjEncargos];
+  let list = cjEncFilter === 'ok' ? st.ok : st.pend;
   if(q) list = list.filter(e => [e.prenda, e.persona, e.detalle, e.proveedor].some(x => cjUp(x).includes(q)));
   list.sort((a, b) => cjEncFilter === 'ok'
     ? (b.fechaConseguido || b.updatedAt || '').localeCompare(a.fechaConseguido || a.updatedAt || '')
@@ -6400,6 +6668,9 @@ function cjEncListHTML(){
     const gana = ok && e.precioVenta > 0 && e.valor > 0 ? e.precioVenta - e.valor : null;
     const tags = [];
     if(ok && e.proveedor) tags.push(`<span class="cj-tag prov"><i data-lucide="store"></i>${cjEsc(e.proveedor)}</span>`);
+    const vt = ok ? cjEncTrip(e) : null;
+    if(vt) tags.push(`<span class="cj-tag"><i data-lucide="plane"></i>${cjEsc(vt.nombre)}</span>`);
+    else if(ok && e.independiente) tags.push(`<span class="cj-tag"><i data-lucide="unlink"></i>Independiente</span>`);
     if(ok && e.valor) tags.push(`<span class="cj-tag">Costó <b>${cjMoney(e.valor)}</b></span>`);
     if(e.precioVenta) tags.push(`<span class="cj-tag">Venta <b>${cjMoney(e.precioVenta)}</b></span>`);
     if(gana != null) tags.push(`<span class="cj-tag ${gana < 0 ? 'bad' : 'good'}">${gana < 0 ? 'Pierde' : 'Gana'} <b>${cjMoney(Math.abs(gana))}</b></span>`);
@@ -6415,14 +6686,14 @@ function cjEncListHTML(){
 
   const emptyMsg = q ? `No hay encargos que coincidan con “${cjEsc(cjEncQuery)}”.`
     : cjEncFilter === 'pend' ? (total ? '¡Todo conseguido! No hay encargos pendientes.' : 'Anota aquí lo que te piden: la prenda y para quién.')
-    : cjEncFilter === 'ok' ? 'Aún no has marcado encargos como conseguidos.' : 'Todavía no hay encargos.';
+    : 'Aún no has marcado encargos como conseguidos. Toca el círculo de un pendiente cuando lo consigas.';
   return cards || `<div class="cj-empty"><div class="cj-empty-ico"><i data-lucide="clipboard-list"></i></div><b>${q ? 'Sin resultados' : 'Nada por aquí'}</b><p>${emptyMsg}</p></div>`;
 }
 
 function cjEncargosHTML(){
   const st = cjEncStats();
   const total = cjEncargos.length;
-  const chip = (f, label, n) => `<button class="cj-chip ${cjEncFilter===f?'active':''}" onclick="cjSetEncFilter('${f}')">${label} · ${n}</button>`;
+  const chip = (f, label, n) => `<button class="cj-chip ${cjEncFilter===f?'active':''}" onclick="cjSetEncFilter('${f}')"><span>${label}</span><b>${n}</b></button>`;
 
   return `
     <header class="cj-top">
@@ -6440,8 +6711,8 @@ function cjEncargosHTML(){
         <div><span>Ganancia</span><b>${st.conVenta ? cjShort(st.ganancia) : '—'}</b></div>
       </div>
     </section>
-    <div class="cj-chips">${chip('pend','Pendientes',st.pend.length)}${chip('ok','Conseguidos',st.ok.length)}${chip('all','Todos',total)}</div>
-    <div class="cj-search"><i data-lucide="search"></i><input id="cjEncSearch" placeholder="Buscar persona, prenda o proveedor" value="${cjEsc(cjEncQuery)}" oninput="cjSearchEnc(this)" autocomplete="off"></div>
+    <div class="cj-chips cj-chips-enc">${chip('pend','Pendientes',st.pend.length)}${chip('ok','Conseguidos',st.ok.length)}</div>
+    <div class="cj-search"><i data-lucide="search"></i><input id="cjEncSearch" placeholder="Persona, prenda o proveedor" value="${cjEsc(cjEncQuery)}" oninput="cjSearchEnc(this)" autocomplete="off"></div>
     <div class="cj-list" id="cjEncList">${cjEncListHTML()}</div>
     <button class="cj-add" onclick="cjEncSheet()"><i data-lucide="plus"></i> Nuevo encargo</button>
     ${cjNav()}`;
@@ -6450,9 +6721,10 @@ function cjEncargosHTML(){
 // Chulo: marcar conseguido pide costo y proveedor si faltan
 function cjToggleEnc(id){
   const e = cjEncargos.find(x => x.id === id); if(!e) return;
-  if(!e.conseguido && (!e.valor || !e.proveedor)){ cjEncSheet(id, true); return; }
-  e.conseguido = !e.conseguido;
-  e.fechaConseguido = e.conseguido ? new Date().toISOString() : '';
+  if(!e.conseguido){ cjEncAssignSheet(id); return; }
+  e.conseguido = false;
+  e.fechaConseguido = '';
+  e.viajeId = ''; e.productoId = ''; e.independiente = false;
   cjTouch(e);
   cjRender();
   if(e.conseguido) SFX.addInventory(); else SFX.delete();
@@ -6492,6 +6764,9 @@ function cjRenderEncSheet(animate, focusCost){
       </div>
     </div>
     <div id="cjE-donebox" style="${cjEnc.done ? '' : 'display:none'}">
+      ${e && cjEncTrip(e) ? `<div class="cj-asg-sum" style="margin-bottom:12px;"><i data-lucide="plane"></i><span>Salió de <b>${cjEsc(cjEncTrip(e).nombre)}</b> · ${cjEsc(e.proveedor)}</span><button type="button" class="cj-link" onclick="cjEncAssignSheet('${e.id}')">Cambiar</button></div>` : ''}
+      ${e && !cjEncTrip(e) && e.independiente ? `<div class="cj-asg-sum" style="margin-bottom:12px;background:#F6F6FB;color:var(--cj-ink2);"><i data-lucide="unlink"></i><span>Conseguido <b>independiente</b>, sin factura de viaje</span><button type="button" class="cj-link" onclick="cjEncAssignSheet('${e.id}')">Cambiar</button></div>` : ''}
+      ${e && !cjEncTrip(e) && !e.independiente && cjTripsConPrendas().length ? `<button type="button" class="cj-abono-add" style="margin-bottom:12px;" onclick="cjEncAssignSheet('${e.id}')"><i data-lucide="plane"></i> Elegir la compra de un viaje</button>` : ''}
       <div class="cj-field"><label>¿Cuánto valió?</label>${money('cjE-valor', e?.valor, 'cjE-prov')}</div>
       <div class="cj-field"><label>¿En qué proveedor?</label>
         <input class="cj-input" id="cjE-prov" list="cjEProvList" placeholder="Ej: XEROS" style="text-transform:uppercase" autocomplete="off" enterkeyhint="next"
@@ -6556,6 +6831,7 @@ function cjSaveEnc(andNext){
     e = cjEncargos.find(x => x.id === cjEnc.editId); if(!e) return;
     if(data.conseguido && !e.conseguido) data.fechaConseguido = new Date().toISOString();
     if(!data.conseguido) data.fechaConseguido = '';
+    if(!data.conseguido || data.proveedor !== e.proveedor || data.valor !== e.valor){ data.viajeId = ''; data.productoId = ''; }
     Object.assign(e, data);
   } else {
     e = { id:cjUid('EN'), tipo:'encargo', ...data, fechaConseguido: data.conseguido ? new Date().toISOString() : '', createdAt:new Date().toISOString() };
@@ -6582,6 +6858,418 @@ function cjDeleteEnc(id){
     cjRender();
     SFX.delete();
   });
+}
+
+// ══════════════════════════════════════════
+// ABONOS AL CAPITAL DEL VIAJE
+// Plata que se suma a la base de un viaje después de crearlo,
+// con su origen (tarjeta de crédito, préstamo, ahorros…) y una nota.
+// Base del viaje = saldoInicial + Σ abonos.
+// ══════════════════════════════════════════
+const CJ_ORIGENES = [
+  { k:'TARJETA DE CRÉDITO', i:'credit-card' }, { k:'PRÉSTAMO', i:'hand-coins' }, { k:'AHORROS', i:'piggy-bank' },
+  { k:'VENTAS', i:'store' }, { k:'EFECTIVO', i:'banknote' }, { k:'TRANSFERENCIA', i:'landmark' }, { k:'OTRO', i:'wallet' },
+];
+const CJ_ABONO_ICONS = ['credit-card','hand-coins','piggy-bank','banknote','coins','circle-dollar-sign','landmark','building-2','wallet','store','briefcase','users','heart','hand-heart','gift','smartphone','arrow-left-right','star'];
+let cjAb = { tripId:null, editId:null, cat:'', icon:'', picker:false };
+let cjAbFilter = null;   // filtro por origen en el Resumen
+
+function cjOrigenes(){
+  const map = new Map(CJ_ORIGENES.map(o => [o.k, o.i]));
+  const used = {};
+  cjViajes.forEach(v => (v.abonos || []).forEach(a => {
+    const k = cjUp(a.origen); if(!k) return;
+    used[k] = (used[k] || 0) + 1;
+    if(a.icono) map.set(k, a.icono); else if(!map.has(k)) map.set(k, 'wallet');
+  }));
+  const fixed = CJ_ORIGENES.map(o => o.k);
+  return [...map.entries()]
+    .map(([k, i]) => ({ k, i, n: used[k] || 0, f: fixed.indexOf(k) }))
+    .sort((a, b) => (b.n - a.n) || ((a.f < 0 ? 99 : a.f) - (b.f < 0 ? 99 : b.f)))
+    .map(({ k, i }) => ({ k, i }));
+}
+function cjAbonoIcon(a){ return a.icono || (cjOrigenes().find(o => o.k === cjUp(a.origen)) || {}).i || 'wallet'; }
+function cjLabel(k){ return k.charAt(0) + k.slice(1).toLowerCase(); }
+
+function cjAbonoSheet(tripId, abonoId){
+  const v = cjViajes.find(x => x.id === tripId); if(!v) return;
+  const a = abonoId ? (v.abonos || []).find(x => x.id === abonoId) : null;
+  cjAb = { tripId, editId: a ? a.id : null, cat: a ? cjUp(a.origen) : '', icon: a ? cjAbonoIcon(a) : '', picker:false };
+  cjRenderAbonoSheet(true);
+}
+function cjRenderAbonoSheet(animate){
+  const v = cjViajes.find(x => x.id === cjAb.tripId); if(!v) return;
+  const a = cjAb.editId ? (v.abonos || []).find(x => x.id === cjAb.editId) : null;
+  const t = cjTotals(v);
+  const isNew = cjAb.cat === '__new__';
+  const icon = cjAb.icon || 'wallet';
+  const tiles = cjOrigenes().map(o => `
+    <button type="button" class="cj-cat ${cjAb.cat===o.k?'on':''}" data-k="${cjEsc(o.k)}" onclick="cjAbPick(this.dataset.k)">
+      <span><i data-lucide="${o.i}"></i></span><small class="${o.k.length > 11 && !o.k.includes(' ') ? 'long' : ''}">${cjEsc(cjLabel(o.k))}</small>
+    </button>`).join('');
+  const picker = (cjAb.picker || isNew)
+    ? `<div class="cj-icon-grid">${CJ_ABONO_ICONS.map(i => `<button type="button" class="${icon===i?'on':''}" onclick="cjAbIcon('${i}')" aria-label="${i}"><i data-lucide="${i}"></i></button>`).join('')}</div>` : '';
+  cjOpenSheet(`
+    <h4>${a ? 'Editar abono' : 'Abonar a la base'}</h4>
+    <div class="cj-sheet-trip"><i data-lucide="plane"></i> ${cjEsc(v.nombre)} · base actual ${cjMoney(t.inicial)}</div>
+    <div class="cj-field"><label>¿Cuánto vas a abonar?</label>
+      <input class="cj-input cj-input-big" id="cjA-val" inputmode="numeric" placeholder="$ 0" autocomplete="off" enterkeyhint="next"
+        value="${a ? Math.round(a.valor).toLocaleString('es-CO') : ''}" oninput="formatPriceInput(this);cjAbCalc()"></div>
+    <div class="cj-calc" id="cjA-calc" style="margin:-4px 2px 12px;"></div>
+    <div class="cj-field"><label>¿De dónde salió?</label>
+      <div class="cj-cats ab">${tiles}
+        <button type="button" class="cj-cat add ${isNew?'on':''}" onclick="cjAbPick('__new__')"><span><i data-lucide="plus"></i></span><small>Nuevo</small></button>
+      </div>
+    </div>
+    ${isNew ? `<div class="cj-field"><label>Nombre del origen nuevo</label>
+      <input class="cj-input" id="cjA-new" placeholder="Ej: MAMÁ, NEQUI, NÓMINA…" style="text-transform:uppercase" autocomplete="off"></div>` : ''}
+    ${cjAb.cat ? `<div class="cj-field"><label>Ícono</label>
+      <div class="cj-icon-row"><span class="cj-icon-now ab"><i data-lucide="${icon}"></i></span>
+        <span style="flex:1;font-size:13px;color:var(--cj-ink2);">${isNew ? 'Elige el ícono de este origen' : 'Así se verá este abono'}</span>
+        ${isNew ? '' : `<button type="button" class="cj-link" onclick="cjAbTogglePicker()">${cjAb.picker ? 'Cerrar' : 'Cambiar'}</button>`}
+      </div>${picker}</div>` : ''}
+    <div class="cj-field"><label>Nota <span style="font-weight:500;color:var(--cj-ink3)">(opcional)</span></label>
+      <input class="cj-input" id="cjA-nota" placeholder="Ej: Cuota 1 de 3" autocomplete="off" enterkeyhint="done"
+        value="${a ? cjEsc(a.nota || '') : ''}" onkeydown="if(event.key==='Enter'){event.preventDefault();cjSaveAbono();}"></div>
+    <div class="cj-actions">
+      ${a ? `<button class="cj-btn danger" onclick="cjDeleteAbono('${a.id}')"><i data-lucide="trash-2"></i> Eliminar</button>`
+          : `<button class="cj-btn ghost" onclick="cjCloseSheet()">Cancelar</button>`}
+      <button class="cj-btn primary green" onclick="cjSaveAbono()"><i data-lucide="check"></i> ${a ? 'Guardar' : 'Abonar'}</button>
+    </div>`, { noAnim: !animate });
+  cjAbCalc();
+  if(animate && !a) setTimeout(() => document.getElementById('cjA-val')?.focus(), 260);
+}
+function cjAbCalc(){
+  const out = document.getElementById('cjA-calc'); if(!out) return;
+  const v = cjViajes.find(x => x.id === cjAb.tripId); if(!v) return;
+  const t = cjTotals(v);
+  const prev = cjAb.editId ? (Number((v.abonos || []).find(x => x.id === cjAb.editId)?.valor) || 0) : 0;
+  const val = cjVal('cjA-val');
+  out.innerHTML = val ? `La base queda en <b>${cjMoney(t.inicial - prev + val)}</b> y te quedarían <b>${cjMoney(t.final - prev + val)}</b>` : '';
+}
+function cjAbPick(k){
+  const keep = cjKeepInputs(['cjA-val','cjA-nota','cjA-new']);
+  cjAb.cat = k; cjAb.picker = false;
+  cjAb.icon = k === '__new__' ? (cjAb.icon || 'wallet') : ((cjOrigenes().find(o => o.k === k) || {}).i || 'wallet');
+  cjRenderAbonoSheet(false); cjRestoreInputs(keep); cjAbCalc();
+  if(k === '__new__') setTimeout(() => document.getElementById('cjA-new')?.focus(), 30);
+}
+function cjAbIcon(i){
+  const keep = cjKeepInputs(['cjA-val','cjA-nota','cjA-new']);
+  cjAb.icon = i; if(cjAb.cat !== '__new__') cjAb.picker = false;
+  cjRenderAbonoSheet(false); cjRestoreInputs(keep); cjAbCalc();
+}
+function cjAbTogglePicker(){
+  const keep = cjKeepInputs(['cjA-val','cjA-nota']);
+  cjAb.picker = !cjAb.picker;
+  cjRenderAbonoSheet(false); cjRestoreInputs(keep); cjAbCalc();
+}
+function cjSaveAbono(){
+  const v = cjViajes.find(x => x.id === cjAb.tripId); if(!v) return;
+  const valor = cjVal('cjA-val');
+  const isNew = cjAb.cat === '__new__';
+  const origen = isNew ? cjUp(document.getElementById('cjA-new')?.value) : cjAb.cat;
+  if(cjMark('cjA-val', !(valor > 0))){ showToast('Falta el valor','Escribe cuánto vas a abonar.','warning'); return; }
+  if(!origen){ if(isNew) cjMark('cjA-new', true); showToast('¿De dónde salió?','Elige el origen del abono: tarjeta, préstamo, ahorros…','warning'); return; }
+  const data = { valor: Math.round(valor), origen, icono: cjAb.icon || 'wallet', nota: (document.getElementById('cjA-nota')?.value || '').trim() };
+  v.abonos = v.abonos || [];
+  if(cjAb.editId) Object.assign(v.abonos.find(x => x.id === cjAb.editId) || {}, data);
+  else v.abonos.push({ id: cjUid('AB'), ...data, fecha: cjToday() });
+  cjTouch(v);
+  cjCloseSheet();
+  cjRender();
+  SFX.addAbono();
+  showToast(cjAb.editId ? 'Abono actualizado' : 'Abono agregado', `${cjMoney(data.valor)} · ${cjEsc(cjLabel(origen))} → ${cjEsc(v.nombre)}`, 'success');
+}
+function cjDeleteAbono(id){
+  const v = cjViajes.find(x => x.id === cjAb.tripId); if(!v) return;
+  v.abonos = (v.abonos || []).filter(x => x.id !== id);
+  cjTouch(v); cjCloseSheet(); cjRender(); SFX.delete();
+}
+
+// Resumen: ¿de dónde salió el capital? (filtrable por origen)
+function cjSetAbFilter(k){ cjAbFilter = cjAbFilter === k ? null : k; cjRender(); }
+function cjCapitalCardHTML(ofYear){
+  const all = [];
+  ofYear.forEach(v => (v.abonos || []).forEach(a => all.push({ ...a, origen: cjUp(a.origen), viaje: v.nombre, tripId: v.id })));
+  const base0 = ofYear.reduce((s, v) => s + (Number(v.saldoInicial) || 0), 0);
+  const byOrig = {};
+  all.forEach(a => { byOrig[a.origen] = (byOrig[a.origen] || 0) + (Number(a.valor) || 0); });
+  const totalAb = all.reduce((s, a) => s + (Number(a.valor) || 0), 0);
+  const icons = new Map(cjOrigenes().map(o => [o.k, o.i]));
+  const rows = [{ k:'BASE INICIAL', v:base0, i:'wallet', base:true }, ...Object.entries(byOrig).map(([k, v]) => ({ k, v, i: icons.get(k) || 'wallet' })).sort((a, b) => b.v - a.v)];
+  const top = Math.max(...rows.map(r => r.v), 1);
+  const total = base0 + totalAb;
+  if(cjAbFilter && !byOrig[cjAbFilter]) cjAbFilter = null;
+  const bars = rows.map(r => `
+    <div data-tip="${cjEsc(`<b>${cjEsc(cjLabel(r.k))}</b><br>${cjMoney(r.v)} · ${cjPct(r.v, total)}% del capital`)}">
+      <div class="cj-hbar-top"><span><i data-lucide="${r.i}" class="cj-hbar-ico"></i>${cjEsc(cjLabel(r.k))}</span><b>${cjMoney(r.v)}</b></div>
+      <div class="cj-hbar-track"><i style="width:${r.v / top * 100}%;background:${r.base ? '#9C9CB4' : '#0B7A6E'}"></i></div>
+    </div>`).join('');
+  const chips = Object.keys(byOrig).length ? `<div class="cj-qchips" style="margin-top:14px;">
+      <button type="button" class="cj-qchip ${!cjAbFilter?'on':''}" onclick="cjSetAbFilter(null)">Todos</button>
+      ${Object.keys(byOrig).map(k => `<button type="button" class="cj-qchip ${cjAbFilter===k?'on':''}" data-k="${cjEsc(k)}" onclick="cjSetAbFilter(this.dataset.k)"><i data-lucide="${icons.get(k) || 'wallet'}" style="width:13px;height:13px;vertical-align:-2px;margin-right:4px;"></i>${cjEsc(cjLabel(k))}</button>`).join('')}
+    </div>` : '';
+  const list = all.filter(a => !cjAbFilter || a.origen === cjAbFilter).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
+  const listHTML = list.length ? `<div class="cj-ab-list">${list.map(a => `
+      <button class="cj-ab-item" onclick="cjOpenTrip('${a.tripId}')">
+        <span class="cj-row-ico ab"><i data-lucide="${cjAbonoIcon(a)}"></i></span>
+        <span class="cj-row-body"><span class="cj-row-name">${cjEsc(cjLabel(a.origen))}</span>
+          <span class="cj-row-meta">${cjEsc(a.viaje)}${a.fecha ? ' · ' + a.fecha.split('-').reverse().join('/') : ''}${a.nota ? ' · ' + cjEsc(a.nota) : ''}</span></span>
+        <span class="cj-row-val" style="color:#0B7A6E">+${cjMoney(a.valor)}</span>
+      </button>`).join('')}
+      <div class="cj-total-row"><span>${list.length} abono${list.length!==1?'s':''}${cjAbFilter ? ' · ' + cjEsc(cjLabel(cjAbFilter)) : ''}</span><b>${cjMoney(list.reduce((s, a) => s + (Number(a.valor) || 0), 0))}</b></div></div>`
+    : `<div class="cj-k" style="margin-top:12px;">Aún no hay abonos en ${cj.year}. Desliza una tarjeta de viaje hacia la derecha para abonar.</div>`;
+  return `<div class="cj-card"><div class="cj-card-title">¿De dónde salió el capital?</div>
+    <div class="cj-k" style="margin:-6px 0 12px;">Capital total ${cjMoney(total)} · abonos ${cjMoney(totalAb)}</div>
+    <div class="cj-hbars">${bars}</div>${chips}${listHTML}</div>`;
+}
+
+// ── Deslizar tarjetas de viaje: → abonar, ← eliminar ──
+const CJ_SWIPE = 92;
+let cjSwipeOpen = null;
+function cjCloseSwipe(sw){
+  if(!sw) return;
+  sw.classList.remove('open-l', 'open-r');
+  setTimeout(() => { if(!sw.classList.contains('open-l') && !sw.classList.contains('open-r')) sw.classList.remove('show-l', 'show-r'); }, 300);
+  if(cjSwipeOpen === sw) cjSwipeOpen = null;
+}
+function cjSwipeAction(btn, action){
+  const sw = btn.closest('.cj-swipe'); const id = sw.dataset.id;
+  cjCloseSwipe(sw);
+  if(action === 'del') cjDeleteTrip(id); else cjAbonoSheet(id);
+}
+function cjBindSwipes(){
+  cjSwipeOpen = null;
+  document.querySelectorAll('#cjMain .cj-swipe').forEach(sw => {
+    const card = sw.querySelector('.cj-tcard');
+    let x0 = 0, y0 = 0, dx = 0, base = 0, mode = null, pid = null;
+    card.addEventListener('pointerdown', e => {
+      if(e.target.closest('.cj-tcard-actions') || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      x0 = e.clientX; y0 = e.clientY; dx = 0; mode = null; pid = e.pointerId;
+      base = sw.classList.contains('open-l') ? -CJ_SWIPE : sw.classList.contains('open-r') ? CJ_SWIPE : 0;
+    });
+    card.addEventListener('pointermove', e => {
+      if(e.pointerId !== pid || mode === 'v') return;
+      const mx = e.clientX - x0, my = e.clientY - y0;
+      if(!mode){
+        if(Math.abs(mx) < 8 && Math.abs(my) < 8) return;
+        mode = Math.abs(mx) > Math.abs(my) ? 'h' : 'v';
+        if(mode === 'v') return;
+        try{ card.setPointerCapture(pid); }catch{}
+        if(cjSwipeOpen && cjSwipeOpen !== sw) cjCloseSwipe(cjSwipeOpen);
+        sw.classList.add('dragging');
+      }
+      dx = mx;
+      let pos = base + dx;
+      if(Math.abs(pos) > CJ_SWIPE) pos = Math.sign(pos) * (CJ_SWIPE + (Math.abs(pos) - CJ_SWIPE) * 0.25);
+      card.style.transform = `translateX(${pos}px)`;
+      sw.classList.toggle('show-l', pos < 0);
+      sw.classList.toggle('show-r', pos > 0);
+    });
+    const end = e => {
+      if(e.pointerId !== pid) return;
+      pid = null;
+      if(mode !== 'h'){ mode = null; return; }
+      mode = null;
+      sw.classList.remove('dragging');
+      sw.dataset.justSwiped = '1'; setTimeout(() => delete sw.dataset.justSwiped, 350);
+      const pos = base + dx;
+      card.style.transform = '';
+      sw.classList.remove('open-l', 'open-r');
+      if(pos < -CJ_SWIPE / 2){ sw.classList.add('open-l', 'show-l'); sw.classList.remove('show-r'); cjSwipeOpen = sw; }
+      else if(pos > CJ_SWIPE / 2){ sw.classList.add('open-r', 'show-r'); sw.classList.remove('show-l'); cjSwipeOpen = sw; }
+      else cjCloseSwipe(sw);
+    };
+    card.addEventListener('pointerup', end);
+    card.addEventListener('pointercancel', end);
+    // Con la tarjeta abierta, un toque la cierra en vez de abrir el viaje
+    card.addEventListener('click', e => {
+      const open = sw.classList.contains('open-l') || sw.classList.contains('open-r');
+      if(sw.dataset.justSwiped || open){
+        e.stopPropagation(); e.preventDefault();
+        if(!sw.dataset.justSwiped) cjCloseSwipe(sw);
+      }
+    }, true);
+  });
+}
+document.addEventListener('pointerdown', e => {
+  if(cjSwipeOpen && !cjSwipeOpen.contains(e.target)) cjCloseSwipe(cjSwipeOpen);
+}, true);
+
+// ── Encargo conseguido: ¿de qué compra salió? ──
+// Dos caminos:
+//  · De un viaje: se elige una compra (proveedor) del último viaje creado; el valor
+//    es el de UNA unidad (total ÷ cantidad) y queda vinculado al viaje.
+//  · Independiente: conseguido por fuera, sin factura; proveedor y precios opcionales.
+let cjAsg = { encId:null, mode:'viaje', tripId:null, prodId:null, q:'', showTrips:false };
+
+function cjTripsConPrendas(){
+  // El último viaje creado primero
+  return cjViajes.filter(v => (v.productos || []).length)
+    .sort((a, b) => (b.createdAt || b.fecha || '').localeCompare(a.createdAt || a.fecha || ''));
+}
+function cjAsignadas(tripId, prodId, exceptId){
+  return cjEncargos.filter(e => e.conseguido && e.viajeId === tripId && e.productoId === prodId && e.id !== exceptId).length;
+}
+function cjEncTrip(e){ return e.viajeId ? cjViajes.find(v => v.id === e.viajeId) : null; }
+
+function cjEncAssignSheet(encId){
+  const e = cjEncargos.find(x => x.id === encId); if(!e) return;
+  const trips = cjTripsConPrendas();
+  const linked = e.viajeId && trips.some(v => v.id === e.viajeId);
+  cjAsg = {
+    encId, q:'', showTrips:false,
+    mode: !trips.length || e.independiente ? 'indep' : 'viaje',
+    tripId: linked ? e.viajeId : (trips[0] || {}).id || null,
+    prodId: linked ? e.productoId : null,
+  };
+  cjRenderAssignSheet(true);
+}
+function cjAsgMode(m){
+  const keep = cjKeepInputs(['cjS-venta','cjS-prov','cjS-costo']);
+  cjAsg.mode = m;
+  cjRenderAssignSheet(false); cjRestoreInputs(keep); cjAsgCalc();
+}
+
+function cjRenderAssignSheet(animate){
+  const e = cjEncargos.find(x => x.id === cjAsg.encId); if(!e) return;
+  const trips = cjTripsConPrendas();
+  const keepVenta = document.getElementById('cjS-venta')?.value;
+  const venta = keepVenta != null ? cjEsc(keepVenta) : (e.precioVenta ? Math.round(e.precioVenta).toLocaleString('es-CO') : '');
+  const indep = cjAsg.mode === 'indep';
+
+  const modeSeg = `<div class="cj-seg cj-seg-lg" style="margin-bottom:14px;">
+      <button type="button" class="${indep ? '' : 'on'}" onclick="cjAsgMode('viaje')" ${trips.length ? '' : 'disabled'}><i data-lucide="plane"></i> De un viaje</button>
+      <button type="button" class="${indep ? 'on' : ''}" onclick="cjAsgMode('indep')"><i data-lucide="store"></i> Independiente</button>
+    </div>`;
+
+  let body = '', canSave = true;
+  if(indep){
+    const provs = cjProveedoresAll();
+    body = `
+      <div class="cj-asg-sum" style="background:#F6F6FB;color:var(--cj-ink2);"><i data-lucide="info"></i><span>Conseguido por fuera, sin asociarlo a ninguna factura de viaje. Todo es opcional.</span></div>
+      <div class="cj-field"><label>Proveedor <span style="font-weight:500;color:var(--cj-ink3)">(opcional)</span></label>
+        <input class="cj-input" id="cjS-prov" list="cjSProvList" placeholder="¿Dónde lo conseguiste?" style="text-transform:uppercase" autocomplete="off"
+          value="${e.independiente ? cjEsc(e.proveedor || '') : ''}" oninput="cjSyncChips('cjS-prov','cjS-provchips')">
+        <datalist id="cjSProvList">${provs.map(p => `<option value="${cjEsc(p)}">`).join('')}</datalist>
+        ${provs.length ? `<div class="cj-qchips" id="cjS-provchips">${provs.slice(0, 8).map(p => `<button type="button" class="cj-qchip" data-v="${cjEsc(p)}" onclick="cjPick('cjS-prov','cjS-provchips',this.dataset.v)">${cjEsc(p)}</button>`).join('')}</div>` : ''}
+      </div>
+      <div class="cj-row2">
+        <div class="cj-field"><label>Precio de compra <span style="font-weight:500;color:var(--cj-ink3)">(opcional)</span></label>
+          <input class="cj-input" id="cjS-costo" inputmode="numeric" placeholder="$ 0" autocomplete="off"
+            value="${e.independiente && e.valor ? Math.round(e.valor).toLocaleString('es-CO') : ''}" oninput="formatPriceInput(this);cjAsgCalc()"></div>
+        <div class="cj-field"><label>Precio de venta <span style="font-weight:500;color:var(--cj-ink3)">(opcional)</span></label>
+          <input class="cj-input" id="cjS-venta" inputmode="numeric" placeholder="$ 0" autocomplete="off" value="${venta}" oninput="formatPriceInput(this);cjAsgCalc()"></div>
+      </div>
+      <div class="cj-calc" id="cjS-calc" style="margin:-4px 2px 4px;"></div>`;
+  } else {
+    const v = trips.find(x => x.id === cjAsg.tripId) || trips[0];
+    const pv = cjParts(v.fecha);
+    const prods = [...(v.productos || [])].sort((a, b) => cjUp(a.proveedor).localeCompare(cjUp(b.proveedor)));
+    const rows = prods.map(p => {
+      const cant = Number(p.cantidad) || 0, unit = cant ? p.total / cant : 0;
+      const usadas = cjAsignadas(v.id, p.id, e.id);
+      const llena = usadas >= cant, sel = cjAsg.prodId === p.id;
+      return `<button type="button" class="cj-pick ${sel ? 'on' : ''} ${llena && !sel ? 'full' : ''}" data-q="${cjEsc(cjUp(p.proveedor))}"
+          onclick="cjAsgPick('${p.id}')" ${llena && !sel ? 'disabled' : ''}>
+        <span class="cj-pick-ico">${sel ? '<i data-lucide="check"></i>' : '<i data-lucide="shirt"></i>'}</span>
+        <span class="cj-pick-body"><b>${cjEsc(p.proveedor)}</b>
+          <small>${cant} ud${cant!==1?'s':''} × ${cjMoney(unit)}${usadas ? ` · ${usadas} de ${cant} ya asignada${usadas!==1?'s':''}` : ''}</small></span>
+        <span class="cj-pick-val">${llena && !sel ? 'Todas asignadas' : cjMoney(unit)}</span>
+      </button>`;
+    }).join('');
+    const sel = prods.find(p => p.id === cjAsg.prodId);
+    canSave = !!sel;
+    const otros = trips.filter(t => t.id !== v.id);
+    body = `
+      <div class="cj-asg-trip">
+        <span class="cj-date tint-${CJ_TINTS[pv.m % 4]}"><b>${pv.d}</b><span>${CJ_MES3[pv.m]}</span></span>
+        <span class="cj-asg-trip-txt"><b>${cjEsc(v.nombre)}</b><small>${v.id === trips[0].id ? 'Último viaje creado' : `${pv.y}`} · ${prods.length} compra${prods.length!==1?'s':''}</small></span>
+        ${otros.length ? `<button type="button" class="cj-link" onclick="cjAsgToggleTrips()">${cjAsg.showTrips ? 'Cerrar' : 'Otro viaje'}</button>` : ''}
+      </div>
+      ${cjAsg.showTrips ? `<div class="cj-asg-trips">${otros.map(t => { const p = cjParts(t.fecha); return `
+        <button type="button" onclick="cjAsgTrip('${t.id}')"><span class="cj-date tint-${CJ_TINTS[p.m % 4]}"><b>${p.d}</b><span>${CJ_MES3[p.m]}</span></span><span>${cjEsc(t.nombre)}<small>${p.y}</small></span></button>`; }).join('')}</div>` : ''}
+      <div class="cj-field"><label>Proveedor (toca el que corresponde)</label>
+        ${prods.length > 6 ? `<div class="cj-search" style="margin-bottom:8px;"><i data-lucide="search"></i><input id="cjS-q" placeholder="Buscar proveedor" autocomplete="off" value="${cjEsc(cjAsg.q)}" oninput="cjAsgFilter(this.value)"></div>` : ''}
+        <div class="cj-pick-list" id="cjS-list">${rows}</div>
+      </div>
+      <div class="cj-asg-sum" id="cjS-sum">${sel
+        ? `<i data-lucide="check-circle-2"></i><span>Costó <b>${cjMoney(Math.round(sel.total / (Number(sel.cantidad) || 1)))}</b> en <b>${cjEsc(sel.proveedor)}</b> (${cjMoney(sel.total)} ÷ ${sel.cantidad})</span>`
+        : `<i data-lucide="hand"></i><span>Elige el proveedor y el valor se pone solo.</span>`}</div>
+      <div class="cj-field"><label>Precio de venta <span style="font-weight:500;color:var(--cj-ink3)">(opcional)</span></label>
+        <input class="cj-input" id="cjS-venta" inputmode="numeric" placeholder="$ 0" autocomplete="off" value="${venta}" oninput="formatPriceInput(this);cjAsgCalc()">
+        <div class="cj-calc" id="cjS-calc"></div></div>`;
+  }
+
+  cjOpenSheet(`
+    <h4>¿De dónde salió?</h4>
+    <div class="cj-sheet-trip"><i data-lucide="clipboard-list"></i> ${cjEsc(e.prenda)} · ${cjEsc(e.persona)}</div>
+    ${modeSeg}
+    ${body}
+    <div class="cj-actions">
+      <button class="cj-btn ghost" onclick="cjCloseSheet()">Cancelar</button>
+      <button class="cj-btn primary green" onclick="cjSaveAssign()" ${canSave ? '' : 'disabled'}><i data-lucide="check"></i> Conseguido</button>
+    </div>`, { noAnim: !animate });
+  if(indep) cjSyncChips('cjS-prov','cjS-provchips');
+  if(cjAsg.q) cjAsgFilter(cjAsg.q);
+  cjAsgCalc();
+}
+function cjAsgToggleTrips(){ const keep = cjKeepInputs(['cjS-venta']); cjAsg.showTrips = !cjAsg.showTrips; cjRenderAssignSheet(false); cjRestoreInputs(keep); cjAsgCalc(); }
+function cjAsgTrip(id){ const keep = cjKeepInputs(['cjS-venta']); cjAsg.tripId = id; cjAsg.prodId = null; cjAsg.q = ''; cjAsg.showTrips = false; cjRenderAssignSheet(false); cjRestoreInputs(keep); cjAsgCalc(); }
+function cjAsgPick(pid){
+  cjAsg.prodId = pid;
+  const list = document.getElementById('cjS-list'), top = list ? list.scrollTop : 0;
+  cjRenderAssignSheet(false);
+  const again = document.getElementById('cjS-list'); if(again) again.scrollTop = top;
+}
+function cjAsgFilter(q){
+  cjAsg.q = q;
+  const k = cjUp(q);
+  document.querySelectorAll('#cjS-list .cj-pick').forEach(b => { b.style.display = !k || b.dataset.q.includes(k) ? '' : 'none'; });
+}
+function cjAsgCosto(){
+  if(cjAsg.mode === 'indep') return cjVal('cjS-costo');
+  const v = cjViajes.find(x => x.id === cjAsg.tripId);
+  const p = v && (v.productos || []).find(x => x.id === cjAsg.prodId);
+  return p ? Math.round(p.total / (Number(p.cantidad) || 1)) : 0;
+}
+function cjAsgCalc(){
+  const out = document.getElementById('cjS-calc'); if(!out) return;
+  const venta = cjVal('cjS-venta'), costo = cjAsgCosto();
+  if(!venta || !costo){ out.innerHTML = ''; return; }
+  const g = venta - costo;
+  out.innerHTML = `${cjMoney(venta)} − ${cjMoney(costo)} = <b style="color:${g < 0 ? 'var(--cj-bad)' : 'var(--cj-queda)'}">${g < 0 ? 'pierdes' : 'ganas'} ${cjMoney(Math.abs(g))}</b> (${cjPct(Math.abs(g), costo)}%)`;
+}
+function cjSaveAssign(){
+  const e = cjEncargos.find(x => x.id === cjAsg.encId); if(!e) return;
+  const fecha = e.conseguido && e.fechaConseguido ? e.fechaConseguido : new Date().toISOString();
+  if(cjAsg.mode === 'indep'){
+    Object.assign(e, {
+      conseguido: true, independiente: true, viajeId: '', productoId: '',
+      proveedor: cjUp(document.getElementById('cjS-prov')?.value),
+      valor: Math.round(cjVal('cjS-costo')),
+      precioVenta: Math.round(cjVal('cjS-venta')),
+      fechaConseguido: fecha,
+    });
+  } else {
+    const v = cjViajes.find(x => x.id === cjAsg.tripId);
+    const p = v && (v.productos || []).find(x => x.id === cjAsg.prodId);
+    if(!p){ showToast('Elige el proveedor','Toca la compra de la que salió este encargo.','warning'); return; }
+    Object.assign(e, {
+      conseguido: true, independiente: false,
+      proveedor: cjUp(p.proveedor),
+      valor: Math.round(p.total / (Number(p.cantidad) || 1)),
+      viajeId: v.id, productoId: p.id,
+      precioVenta: Math.round(cjVal('cjS-venta')),
+      fechaConseguido: fecha,
+    });
+  }
+  cjTouch(e);
+  cjCloseSheet();
+  cjRender();
+  SFX.addInventory();
+  showToast('Encargo conseguido', `${cjEsc(e.prenda)}${e.proveedor ? ' · ' + cjEsc(e.proveedor) : ''}${e.valor ? ' · ' + cjMoney(e.valor) : ''}${e.independiente ? ' · independiente' : ''}`, 'success');
 }
 
 // ══════════════════════════════════════════
