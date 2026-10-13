@@ -487,3 +487,54 @@ Paso 3  scanSaveAll()       — crea productos (simple / variation) en el invent
 - Precio de venta: solo si la factura lo trae; si no, queda vacío y es obligatorio llenarlo antes de guardar.
 - Backend: `supabase/functions/escanear-factura/index.ts` (OpenAI, secrets `OPENAI_API_KEY` y `OPENAI_MODEL`).
   Recibe el vocabulario de la tienda (marcas, colores, tallas…) para mantener la coherencia de los datos.
+
+---
+
+## 16. CAJA DE VIAJES (2026-10-13)
+
+Módulo aparte en **modo claro**, para llevar la cuenta de los viajes de compra (reemplaza el Excel mensual).
+Se abre con el botón flotante verde de cartera (`#fabCaja`, encima del botón IA) → `openCaja()`.
+Vive en `#cajaApp` (overlay a pantalla completa); todo su CSS usa el prefijo `.cj-` y su JS el prefijo `cj`.
+
+```
+Viaje = { id, nombre, fecha (YYYY-MM-DD), saldoInicial, notas,
+          productos: [{ id, proveedor, cantidad, total }],   // total = cantidad × valor unitario
+          gastos:    [{ id, descripcion, valor, icono, nota }],
+          createdAt, updatedAt }
+Saldo final = saldoInicial − Σ productos.total − Σ gastos.valor
+```
+
+Pantallas (barra inferior: Viajes · Resumen · Tienda):
+- **Viajes** — selector de año, tarjeta "Invertido en…", tarjetas de meses (filtran) y lista de viajes.
+- **Detalle de viaje** — saldo inicial, prendas, gastos, total gastado, saldo final (o faltante),
+  barra "¿En qué se fue la base?", costo promedio y costo real por prenda, pestañas Prendas / Gastos.
+- **Resumen** — KPIs del año, gasto por mes (barras apiladas + tabla), top proveedores, gastos por concepto.
+
+Formularios:
+- **Viaje** — fecha, nombre automático "Viaje N · Mes", base (saldo inicial), notas.
+- **Hoja de carga rápida** `cjAddSheet(tipo, editId, tripId)` — pestañas Prenda / Gasto en la misma hoja;
+  al crear queda abierta ("Guardar y otra"), muestra lo último agregado y el acumulado de la sesión.
+  Enter pasa al siguiente campo y en el último guarda. Se abre desde los botones **+ Prenda / + Gasto**
+  del viaje o desde los botones rápidos de cada tarjeta de viaje (sin entrar al viaje).
+- **Prenda** — proveedor (autocompletado + chips de los más usados), cantidad, valor **por unidad o total**
+  (el modo se recuerda en `localStorage` `jahdiel_cj_valmode`).
+- **Gasto** — concepto con **ícono** (`CJ_GASTO_CATS`: pasajes, taxis, alimentación, hospedaje, envíos,
+  herramientas, bolsas, combustible, otros) o concepto **nuevo** con ícono elegido de `CJ_ICON_CHOICES`;
+  valor y nota opcional. El ícono se guarda en cada gasto (`icono`), así los conceptos nuevos se sincronizan.
+
+**Encargos** (pestaña de la barra: Viajes · Encargos · Resumen · Tienda) — prendas que la gente pide:
+```
+Encargo = { id: 'EN_…', tipo: 'encargo', prenda, persona, detalle,
+            conseguido, valor (costo), proveedor, precioVenta (opcional),
+            fechaConseguido, createdAt, updatedAt }
+```
+- Resumen arriba (conseguidos de total, pendientes, invertido, ganancia = venta − costo), filtros
+  Pendientes / Conseguidos / Todos y buscador por persona, prenda o proveedor (solo redibuja la lista).
+- El chulo marca conseguido; si falta costo o proveedor abre la hoja para llenarlos (proveedores sugeridos
+  de los viajes). Hoja con "Guardar y otro" y Enter entre campos, igual que prendas y gastos.
+- Se guardan en `localStorage` `jahdiel_encargos` y en la **misma tabla** `jahdiel_viajes` (se separan por
+  `tipo === 'encargo'`; `cjDocs()` = viajes + encargos para sincronizar).
+
+Datos: `localStorage` `jahdiel_viajes` + Supabase tabla **`jahdiel_viajes`** (ver `supabase-schema.sql`).
+Si la tabla no existe, funciona solo en el celular (indicador "Celular") y sube todo cuando exista ("Nube").
+Botón atrás del celular: cierra hojas → vuelve a Viajes → sale del módulo.

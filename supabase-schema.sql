@@ -98,3 +98,30 @@ grant select, insert, update, delete on public.jahdiel_productos to anon;
 grant select, insert, update, delete on public.jahdiel_facturas to anon;
 grant select, insert, update, delete on public.jahdiel_costos_envios to anon;
 grant select, insert, update, delete on public.jahdiel_abonos to anon;
+
+-- ══ Caja de viajes (módulo "Mi Caja de Viajes") ══
+create table if not exists public.jahdiel_viajes (
+  id text primary key,
+  data jsonb not null,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.jahdiel_viajes enable row level security;
+
+drop policy if exists "jahdiel_viajes_public_read" on public.jahdiel_viajes;
+drop policy if exists "jahdiel_viajes_public_write" on public.jahdiel_viajes;
+
+create policy "jahdiel_viajes_public_read"
+on public.jahdiel_viajes
+for select
+to anon
+using (true);
+
+create policy "jahdiel_viajes_public_write"
+on public.jahdiel_viajes
+for all
+to anon
+using (true)
+with check (true);
+
+grant select, insert, update, delete on public.jahdiel_viajes to anon;

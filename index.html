@@ -920,15 +920,350 @@
     }
     .ac-expanded-label span { color: var(--red); }
     /* ══════════ ESCÁNER IA ══════════ */
+    /* ══════════ CAJA DE VIAJES (módulo en modo claro) ══════════ */
+    .fab-caja {
+      position: fixed; bottom: 152px; right: 20px; z-index: 160;
+      width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #22C9A0, #0E9F8E);
+      box-shadow: 0 6px 22px rgba(14,159,142,0.45);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .fab-caja i, .fab-caja svg { width: 23px; height: 23px; color: #fff; }
+    body.cj-lock { overflow: hidden; }
+
+    #cajaApp {
+      --cj-bg: #F3F3FA; --cj-card: #FFFFFF; --cj-ink: #17172B; --cj-ink2: #62627C; --cj-ink3: #9C9CB4;
+      --cj-line: #E6E6F0; --cj-primary: #6C4CF1; --cj-primary-2: #5A3BE0; --cj-soft: #EEEAFE;
+      --cj-prendas: #6C4CF1; --cj-gastos: #F0605A; --cj-queda: #0E9F8E; --cj-bad: #D93636;
+      --cj-t-purple: #7B5CFA; --cj-t-coral: #F86A5E; --cj-t-yellow: #FFC542; --cj-t-green: #43BE66;
+      position: fixed; inset: 0; z-index: 1300; display: none; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      background: var(--cj-bg); color: var(--cj-ink); font-family: 'Inter', sans-serif;
+    }
+    #cajaApp.open { display: block; animation: cjIn 0.25s ease; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
+    @keyframes cjIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    #cajaApp button { font-family: inherit; color: inherit; -webkit-tap-highlight-color: transparent; }
+    #cajaApp svg { flex-shrink: 0; }
+    .cj-wrap { max-width: 480px; margin: 0 auto; padding: 18px 16px 170px; min-height: 100%; }
+
+    .cj-top { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .cj-top-mid { flex: 1; min-width: 0; }
+    .cj-hello { font-size: 14px; color: var(--cj-ink2); }
+    .cj-title { font-family: 'Space Grotesk', sans-serif; font-size: 27px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; }
+    .cj-title.sm { font-size: 21px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cj-top-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    .cj-round {
+      width: 42px; height: 42px; border-radius: 50%; border: none; cursor: pointer; flex-shrink: 0;
+      background: var(--cj-card); display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(23,23,43,0.07);
+    }
+    .cj-round svg { width: 19px; height: 19px; }
+    .cj-sync { font-size: 11px; font-weight: 600; padding: 6px 10px; border-radius: 999px; display: inline-flex; align-items: center; gap: 5px; background: var(--cj-card); color: var(--cj-ink2); }
+    .cj-sync svg { width: 13px; height: 13px; }
+    .cj-sync.ok svg { color: var(--cj-queda); }
+    .cj-sync.local svg { color: #C98A00; }
+
+    .cj-chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 4px 14px; margin: 0 -4px 4px; scrollbar-width: none; }
+    .cj-chips::-webkit-scrollbar { display: none; }
+    .cj-chip {
+      flex-shrink: 0; border: none; cursor: pointer; padding: 10px 18px; border-radius: 999px;
+      background: var(--cj-card); font-size: 14px; font-weight: 600; color: var(--cj-ink);
+      box-shadow: 0 3px 10px rgba(23,23,43,0.05);
+    }
+    #cajaApp .cj-chip.active { background: var(--cj-primary); color: #fff; box-shadow: 0 6px 16px rgba(108,76,241,0.35); }
+
+    .cj-hero {
+      position: relative; overflow: hidden; border-radius: 26px; padding: 20px; margin-bottom: 22px; color: #fff;
+      background: linear-gradient(135deg, #7B5CFA, #5A3BE0);
+      box-shadow: 0 14px 30px rgba(90,59,224,0.28);
+    }
+    .cj-hero::after { content: ''; position: absolute; right: -40px; top: -40px; width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,0.10); }
+    .cj-hero-k { font-size: 13px; opacity: 0.85; }
+    .cj-hero-v { font-family: 'Space Grotesk', sans-serif; font-size: 34px; font-weight: 700; letter-spacing: -0.02em; margin: 2px 0 14px; }
+    .cj-hero-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; position: relative; z-index: 1; }
+    .cj-hero-row div { background: rgba(255,255,255,0.14); border-radius: 14px; padding: 8px 9px; min-width: 0; }
+    .cj-hero-row span { display: block; font-size: 10px; opacity: 0.8; }
+    .cj-hero-row b { display: block; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .cj-sec-head { display: flex; align-items: baseline; justify-content: space-between; margin: 6px 2px 12px; }
+    .cj-sec-head h3 { font-size: 17px; font-weight: 700; }
+    .cj-link { border: none; background: none; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--cj-primary) !important; }
+
+    .cj-months { display: flex; gap: 12px; overflow-x: auto; padding: 4px 4px 14px; margin: 0 -4px 8px; scrollbar-width: none; scroll-behavior: smooth; }
+    .cj-months::-webkit-scrollbar { display: none; }
+    .cj-month {
+      flex-shrink: 0; width: 118px; height: 132px; border: none; cursor: pointer; text-align: left;
+      border-radius: 24px; padding: 14px; color: #fff !important; position: relative; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .cj-month.tint-purple { background: var(--cj-t-purple); }
+    .cj-month.tint-coral  { background: var(--cj-t-coral); }
+    .cj-month.tint-yellow { background: var(--cj-t-yellow); color: #3B2A00 !important; }
+    .cj-month.tint-green  { background: var(--cj-t-green); }
+    .cj-month.empty { background: #E4E4EF; color: var(--cj-ink3) !important; }
+    .cj-month.sel { outline: 3px solid var(--cj-ink); outline-offset: 2px; }
+    .cj-month-ico { width: 34px; height: 34px; border-radius: 11px; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; }
+    .cj-month-ico svg { width: 18px; height: 18px; }
+    .cj-month b { font-size: 16px; display: block; }
+    .cj-month small { font-size: 11px; opacity: 0.85; }
+
+    .cj-list { display: flex; flex-direction: column; gap: 12px; }
+    .cj-trip {
+      width: 100%; border: 1px solid var(--cj-line); cursor: pointer; text-align: left; background: var(--cj-card);
+      border-radius: 22px; padding: 12px; display: flex; align-items: center; gap: 12px;
+    }
+    .cj-date { width: 58px; height: 62px; border-radius: 16px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; }
+    .cj-date b { font-size: 21px; line-height: 1; }
+    .cj-date span { font-size: 12px; font-weight: 600; }
+    .cj-date.tint-purple { background: var(--cj-t-purple); }
+    .cj-date.tint-coral  { background: var(--cj-t-coral); }
+    .cj-date.tint-yellow { background: var(--cj-t-yellow); color: #3B2A00; }
+    .cj-date.tint-green  { background: var(--cj-t-green); }
+    .cj-trip-body { flex: 1; min-width: 0; }
+    .cj-trip-name { font-weight: 700; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cj-trip-meta { font-size: 12px; color: var(--cj-ink2); margin-top: 2px; }
+    .cj-progress { height: 6px; border-radius: 999px; background: #ECECF4; margin-top: 8px; overflow: hidden; display: flex; gap: 2px; }
+    .cj-progress i { display: block; height: 100%; }
+    .cj-trip-right { text-align: right; flex-shrink: 0; }
+    .cj-k { font-size: 11px; color: var(--cj-ink3); }
+    .cj-v { font-weight: 700; font-size: 15px; }
+    .cj-neg { color: var(--cj-bad) !important; }
+
+    .cj-empty { text-align: center; padding: 36px 20px; background: var(--cj-card); border-radius: 24px; border: 1px dashed #D6D6E6; }
+    .cj-empty-ico { width: 56px; height: 56px; border-radius: 18px; margin: 0 auto 12px; background: var(--cj-soft); color: var(--cj-primary); display: flex; align-items: center; justify-content: center; }
+    .cj-empty-ico svg { width: 26px; height: 26px; }
+    .cj-empty b { display: block; font-size: 16px; margin-bottom: 4px; }
+    .cj-empty p { font-size: 13px; color: var(--cj-ink2); line-height: 1.45; }
+
+    .cj-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .cj-tile { border: none; text-align: left; background: var(--cj-card); border-radius: 20px; padding: 14px; min-width: 0; }
+    .cj-tile span { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--cj-ink2); font-weight: 600; }
+    .cj-tile span i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
+    .cj-tile b { display: block; font-family: 'Space Grotesk', sans-serif; font-size: 20px; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cj-tile small { font-size: 11px; color: var(--cj-ink3); }
+    .cj-tile.base { cursor: pointer; }
+    .cj-tile.final { grid-column: 1 / -1; background: linear-gradient(135deg, #7B5CFA, #5A3BE0); color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .cj-tile.final span, .cj-tile.final small { color: rgba(255,255,255,0.85); }
+    .cj-tile.final b { font-size: 28px; margin: 0; }
+    .cj-tile.final.short { background: linear-gradient(135deg, #F0605A, #D93636); }
+
+    .cj-card { background: var(--cj-card); border-radius: 22px; padding: 16px; margin-bottom: 14px; }
+    .cj-card-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+    .cj-stack { display: flex; gap: 2px; height: 16px; border-radius: 6px; overflow: hidden; background: #ECECF4; }
+    .cj-stack i { display: block; height: 100%; min-width: 3px; cursor: pointer; }
+    .cj-legend { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+    .cj-legend-row { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .cj-legend-row i { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+    .cj-legend-row span { flex: 1; color: var(--cj-ink2); }
+    .cj-legend-row b { font-weight: 700; }
+    .cj-legend-row em { font-style: normal; color: var(--cj-ink3); font-size: 12px; width: 40px; text-align: right; }
+    .cj-alert { display: flex; gap: 8px; align-items: flex-start; margin-top: 12px; padding: 10px 12px; border-radius: 14px; background: #FDECEC; color: #9E1F1F; font-size: 12.5px; line-height: 1.4; }
+    .cj-alert svg { width: 16px; height: 16px; margin-top: 1px; }
+    .cj-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .cj-metrics div { background: var(--cj-bg); border-radius: 14px; padding: 10px 12px; }
+    .cj-metrics span { display: block; font-size: 11px; color: var(--cj-ink2); }
+    .cj-metrics b { font-size: 16px; }
+
+    .cj-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 5px; border-radius: 999px; background: #E7E7F2; margin: 4px 0 12px; }
+    .cj-tabs button { border: none; cursor: pointer; padding: 10px; border-radius: 999px; font-size: 14px; font-weight: 600; background: transparent; color: var(--cj-ink2) !important; }
+    .cj-tabs button.active { background: var(--cj-card); color: var(--cj-ink) !important; box-shadow: 0 3px 10px rgba(23,23,43,0.08); }
+
+    .cj-row {
+      width: 100%; border: 1px solid var(--cj-line); background: var(--cj-card); cursor: pointer; text-align: left;
+      border-radius: 18px; padding: 12px 14px; display: flex; align-items: center; gap: 12px;
+    }
+    .cj-row-ico { width: 40px; height: 40px; border-radius: 13px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .cj-row-ico svg { width: 19px; height: 19px; }
+    .cj-row-ico.p { background: var(--cj-soft); color: var(--cj-prendas); }
+    .cj-row-ico.g { background: #FDECEB; color: var(--cj-gastos); }
+    .cj-row-body { flex: 1; min-width: 0; }
+    .cj-row-name { display: block; font-weight: 700; font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cj-row-meta { display: block; font-size: 12px; color: var(--cj-ink2); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cj-row-val { font-weight: 700; font-size: 15px; flex-shrink: 0; }
+    .cj-total-row { display: flex; justify-content: space-between; padding: 12px 6px 0; font-size: 13px; color: var(--cj-ink2); }
+    .cj-total-row b { color: var(--cj-ink); }
+    .cj-danger-link { display: block; margin: 26px auto 0; border: none; background: none; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--cj-bad) !important; }
+
+    .cj-add {
+      position: fixed; right: max(16px, calc(50% - 224px)); bottom: 96px; z-index: 5;
+      border: none; cursor: pointer; display: flex; align-items: center; gap: 8px;
+      padding: 14px 20px; border-radius: 999px; font-size: 15px; font-weight: 700; color: #fff !important;
+      background: var(--cj-ink); box-shadow: 0 10px 24px rgba(23,23,43,0.28);
+    }
+    .cj-add svg { width: 18px; height: 18px; }
+    .cj-nav {
+      position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(14px + env(safe-area-inset-bottom)); z-index: 5;
+      width: min(448px, calc(100% - 32px)); height: 64px; border-radius: 999px;
+      background: var(--cj-primary); box-shadow: 0 12px 28px rgba(108,76,241,0.38);
+      display: grid; grid-template-columns: repeat(4, 1fr);
+    }
+    .cj-nav button { border: none; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: rgba(255,255,255,0.62) !important; font-size: 11px; font-weight: 600; }
+    .cj-nav button svg { width: 21px; height: 21px; }
+    .cj-nav button.active { color: #fff !important; }
+    .cj-nav button.active::after { content: ''; width: 4px; height: 4px; border-radius: 50%; background: #fff; }
+
+    /* Gráficas */
+    .cj-legend-inline { display: flex; gap: 14px; font-size: 12px; color: var(--cj-ink2); margin-bottom: 10px; }
+    .cj-legend-inline span { display: inline-flex; align-items: center; gap: 6px; }
+    .cj-legend-inline i { width: 10px; height: 10px; border-radius: 3px; }
+    .cj-chart { position: relative; height: 170px; display: grid; grid-template-columns: repeat(12, 1fr); gap: 5px; align-items: end; padding-top: 6px; }
+    .cj-grid-line { position: absolute; left: 0; right: 0; border-top: 1px dashed #E3E3EE; pointer-events: none; }
+    .cj-grid-line span { position: absolute; right: 0; top: -15px; font-size: 10px; color: var(--cj-ink3); background: var(--cj-card); padding-left: 4px; }
+    .cj-col { position: relative; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; cursor: pointer; }
+    .cj-col i { display: block; width: 100%; max-width: 20px; margin: 0 auto; }
+    .cj-col i:first-child { border-radius: 4px 4px 0 0; }
+    .cj-col:hover i, .cj-col.hl i { filter: brightness(0.92); }
+    .cj-xlabels { display: grid; grid-template-columns: repeat(12, 1fr); gap: 5px; margin-top: 6px; font-size: 10px; color: var(--cj-ink3); text-align: center; }
+    .cj-hbars { display: flex; flex-direction: column; gap: 10px; }
+    .cj-hbar-top { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; margin-bottom: 4px; }
+    .cj-hbar-top span { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cj-hbar-top b { flex-shrink: 0; }
+    .cj-hbar-top small { color: var(--cj-ink3); font-weight: 500; margin-left: 4px; }
+    .cj-hbar-track { height: 10px; border-radius: 999px; background: #ECECF4; overflow: hidden; }
+    .cj-hbar-track i { display: block; height: 100%; border-radius: 0 4px 4px 0; }
+    .cj-table-toggle { margin-top: 12px; font-size: 13px; }
+    .cj-table-toggle summary { cursor: pointer; color: var(--cj-primary); font-weight: 600; }
+    .cj-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12.5px; }
+    .cj-table th, .cj-table td { padding: 7px 4px; text-align: right; border-bottom: 1px solid var(--cj-line); }
+    .cj-table th:first-child, .cj-table td:first-child { text-align: left; }
+    .cj-table th { color: var(--cj-ink2); font-weight: 600; }
+    .cj-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    #cjTip {
+      position: fixed; z-index: 1350; pointer-events: none; display: none; max-width: 230px;
+      background: var(--cj-ink); color: #fff; font-size: 12px; line-height: 1.45; padding: 8px 10px; border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    /* Hojas (formularios) */
+    .cj-sheet-ov { position: fixed; inset: 0; z-index: 1320; background: rgba(23,23,43,0.42); display: flex; align-items: flex-end; justify-content: center; animation: overlayIn 0.2s ease; }
+    .cj-sheet {
+      width: 100%; max-width: 480px; max-height: 92dvh; overflow-y: auto; background: var(--cj-card); color: var(--cj-ink);
+      border-radius: 28px 28px 0 0; padding: 10px 18px calc(18px + env(safe-area-inset-bottom));
+      animation: slideUp 0.25s cubic-bezier(.4,0,.2,1);
+    }
+    .cj-sheet.center { border-radius: 24px; margin: auto 16px; max-width: 360px; padding-top: 18px; }
+    .cj-handle { width: 42px; height: 4px; border-radius: 4px; background: #DCDCE8; margin: 0 auto 14px; }
+    .cj-sheet h4 { font-family: 'Space Grotesk', sans-serif; font-size: 20px; margin-bottom: 14px; }
+    .cj-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+    .cj-field label { font-size: 12px; font-weight: 700; color: var(--cj-ink2); }
+    .cj-input {
+      width: 100%; padding: 13px 14px; border-radius: 14px; border: 1.5px solid var(--cj-line); background: #F8F8FC;
+      font-size: 16px; font-weight: 600; color: var(--cj-ink); font-family: inherit; outline: none;
+    }
+    .cj-input:focus { border-color: var(--cj-primary); background: #fff; }
+    .cj-input.err { border-color: var(--cj-bad); background: #FFF5F5; }
+    .cj-input::placeholder { color: var(--cj-ink3); font-weight: 500; }
+    .cj-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .cj-qchips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .cj-qchip { border: 1px solid var(--cj-line); background: #fff; cursor: pointer; padding: 6px 11px; border-radius: 999px; font-size: 12.5px; font-weight: 600; color: var(--cj-ink2) !important; }
+    .cj-qchip.on { background: var(--cj-soft); border-color: var(--cj-primary); color: var(--cj-primary) !important; }
+    .cj-stepper { display: flex; align-items: center; gap: 8px; }
+    .cj-stepper button { width: 46px; height: 48px; border-radius: 14px; border: none; cursor: pointer; background: var(--cj-soft); color: var(--cj-primary) !important; display: flex; align-items: center; justify-content: center; }
+    .cj-stepper button svg { width: 18px; height: 18px; }
+    .cj-stepper .cj-input { text-align: center; }
+    .cj-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: #EFEFF6; margin-bottom: 8px; }
+    .cj-seg button { border: none; cursor: pointer; padding: 8px; border-radius: 9px; font-size: 13px; font-weight: 600; background: transparent; color: var(--cj-ink2) !important; }
+    .cj-seg button.on { background: #fff; color: var(--cj-ink) !important; box-shadow: 0 2px 6px rgba(23,23,43,0.08); }
+    .cj-calc { font-size: 13px; color: var(--cj-ink2); padding: 2px 2px 0; }
+    .cj-calc b { color: var(--cj-ink); }
+    .cj-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+    .cj-btn { border: none; cursor: pointer; padding: 15px; border-radius: 16px; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .cj-btn.primary { background: var(--cj-primary); color: #fff !important; box-shadow: 0 8px 18px rgba(108,76,241,0.3); }
+    .cj-btn.ghost { background: #EFEFF6; color: var(--cj-ink) !important; }
+    .cj-btn.danger { background: #FDECEC; color: var(--cj-bad) !important; }
+    .cj-btn.full { grid-column: 1 / -1; }
+    .cj-btn svg { width: 17px; height: 17px; }
+
+    .cj-trip-wrap { background: var(--cj-card); border: 1px solid var(--cj-line); border-radius: 22px; overflow: hidden; }
+    .cj-trip-wrap .cj-trip { border: none; border-radius: 0; }
+    .cj-quick { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 12px 12px; }
+    .cj-quick button, .cj-add-dual button {
+      border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 9px; border-radius: 12px; font-size: 13px; font-weight: 700;
+    }
+    .cj-quick button svg { width: 15px; height: 15px; }
+    #cajaApp .cj-quick button:first-child { background: var(--cj-soft); color: var(--cj-prendas); }
+    #cajaApp .cj-quick button:last-child  { background: #FDECEB; color: #C9403A; }
+    .cj-add-dual {
+      position: fixed; left: 50%; transform: translateX(-50%); bottom: 92px; z-index: 5;
+      width: min(448px, calc(100% - 32px)); display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .cj-add-dual button { padding: 14px; border-radius: 999px; font-size: 15px; box-shadow: 0 10px 24px rgba(23,23,43,0.22); }
+    .cj-add-dual button svg { width: 18px; height: 18px; }
+    #cajaApp .cj-add-dual button:first-child { background: var(--cj-ink); color: #fff; }
+    #cajaApp .cj-add-dual button:last-child  { background: #fff; color: var(--cj-ink); border: 1.5px solid var(--cj-line); }
+    .cj-sheet-ov.noanim, .cj-sheet-ov.noanim .cj-sheet { animation: none; }
+    .cj-seg-lg { margin-bottom: 10px; }
+    .cj-seg-lg button { padding: 12px; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .cj-seg-lg button svg { width: 17px; height: 17px; }
+    .cj-sheet-trip { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--cj-ink2); margin: 0 2px 12px; }
+    .cj-sheet-trip svg { width: 14px; height: 14px; }
+    .cj-flash { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 12px; margin-bottom: 8px; background: #E6F6F3; color: #0B6E62; font-size: 13px; font-weight: 600; animation: cjIn 0.3s ease; }
+    .cj-flash svg { width: 16px; height: 16px; }
+    .cj-session { font-size: 12.5px; color: var(--cj-ink2); margin: 0 2px 12px; }
+    .cj-input-big { font-size: 20px; font-family: 'Space Grotesk', sans-serif; }
+    .cj-cats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .cj-cat {
+      border: 1.5px solid var(--cj-line); background: #fff; cursor: pointer; border-radius: 16px; padding: 10px 4px 8px;
+      display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0;
+    }
+    .cj-cat span { width: 38px; height: 38px; border-radius: 12px; background: #FDECEB; color: #C9403A; display: flex; align-items: center; justify-content: center; }
+    .cj-cat span svg { width: 19px; height: 19px; }
+    .cj-cat small { font-size: 11px; font-weight: 600; color: var(--cj-ink2); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 2px; }
+    .cj-cat.on { border-color: var(--cj-gastos); background: #FFF6F5; }
+    .cj-cat.on small { color: var(--cj-ink); }
+    .cj-cat.add span { background: #EFEFF6; color: var(--cj-ink2); }
+    .cj-cat.add.on { border-color: var(--cj-primary); background: var(--cj-soft); }
+    .cj-icon-row { display: flex; align-items: center; gap: 10px; }
+    .cj-icon-now { width: 42px; height: 42px; border-radius: 13px; background: #FDECEB; color: #C9403A; display: flex; align-items: center; justify-content: center; }
+    .cj-icon-now svg { width: 20px; height: 20px; }
+    .cj-icon-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px; padding: 10px; border-radius: 16px; background: #F6F6FB; }
+    .cj-icon-grid button { aspect-ratio: 1; border: none; border-radius: 11px; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .cj-icon-grid button svg { width: 18px; height: 18px; }
+    #cajaApp .cj-icon-grid button.on { background: var(--cj-gastos); color: #fff; }
+    .cj-hbar-ico { width: 15px; height: 15px; vertical-align: -2px; margin-right: 6px; color: var(--cj-ink2); }
+
+    .cj-hero-enc { background: linear-gradient(135deg, #22C9A0, #0E9F8E); box-shadow: 0 14px 30px rgba(14,159,142,0.28); }
+    .cj-enc-progress { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.25); overflow: hidden; margin: -4px 0 14px; position: relative; z-index: 1; }
+    .cj-enc-progress i { display: block; height: 100%; border-radius: 999px; background: #fff; transition: width 0.4s ease; }
+    .cj-search { position: relative; margin-bottom: 14px; }
+    .cj-search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--cj-ink3); }
+    .cj-search input {
+      width: 100%; padding: 13px 14px 13px 42px; border-radius: 999px; border: 1px solid var(--cj-line); background: var(--cj-card);
+      font-size: 15px; font-family: inherit; color: var(--cj-ink); outline: none; box-shadow: 0 3px 10px rgba(23,23,43,0.04);
+    }
+    .cj-search input:focus { border-color: var(--cj-primary); }
+    .cj-enc { display: flex; align-items: stretch; gap: 0; background: var(--cj-card); border: 1px solid var(--cj-line); border-radius: 20px; overflow: hidden; }
+    .cj-enc.done { background: #FAFAFD; }
+    .cj-check {
+      flex-shrink: 0; width: 64px; border: none; cursor: pointer; background: none;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cj-check svg { width: 30px; height: 30px; padding: 5px; border-radius: 50%; border: 2.5px solid #CFCFE0; color: transparent; transition: all 0.2s; }
+    #cajaApp .cj-check.on svg { background: var(--cj-queda); border-color: var(--cj-queda); color: #fff; }
+    .cj-check:active svg { transform: scale(0.88); }
+    .cj-enc-body { flex: 1; min-width: 0; border: none; background: none; cursor: pointer; text-align: left; padding: 13px 14px 13px 0; display: flex; flex-direction: column; gap: 3px; }
+    .cj-enc-name { font-weight: 700; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cj-enc.done .cj-enc-name { color: var(--cj-ink2); text-decoration: line-through; text-decoration-color: #B9B9CC; }
+    .cj-enc-meta { display: flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--cj-ink2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cj-enc-meta svg { width: 13px; height: 13px; flex-shrink: 0; }
+    .cj-enc-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+    .cj-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; padding: 4px 8px; border-radius: 8px; background: #F1F1F7; color: var(--cj-ink2); }
+    .cj-tag b { color: var(--cj-ink); font-weight: 700; }
+    .cj-tag svg { width: 12px; height: 12px; }
+    .cj-tag.prov { background: var(--cj-soft); color: var(--cj-prendas); font-weight: 700; }
+    .cj-tag.good { background: #E6F6F3; color: #0B6E62; }
+    .cj-tag.good b { color: #0B6E62; }
+    .cj-tag.bad { background: #FDECEC; color: #9E1F1F; }
+    .cj-tag.bad b { color: #9E1F1F; }
+
     /* Botón flotante IA (luminoso) */
     .fab-ai {
       position: fixed; bottom: 80px; right: 16px; z-index: 160;
       width: 60px; height: 60px; padding: 0; border: none; border-radius: 50%;
       background: transparent; cursor: pointer; -webkit-tap-highlight-color: transparent;
-      transition: bottom 0.3s cubic-bezier(.4,0,.2,1), transform 0.15s;
     }
-    .fab-ai.raised { bottom: 146px; }
-    .fab-ai:active { transform: scale(0.92); }
     .fab-ai::before {
       content: ''; position: absolute; inset: -10px; border-radius: 50%; pointer-events: none;
       background: radial-gradient(circle, rgba(108,99,255,0.65) 0%, rgba(56,189,248,0.30) 45%, transparent 70%);
@@ -960,8 +1295,27 @@
     @keyframes fabAiSpin    { to { transform: rotate(360deg); } }
     @keyframes fabAiPulse   { 0%,100% { opacity: 0.55; transform: scale(0.92); } 50% { opacity: 1; transform: scale(1.1); } }
     @keyframes fabAiTwinkle { 0%,100% { transform: scale(1) rotate(0); } 50% { transform: scale(1.12) rotate(12deg); } }
+    /* Botones flotantes de Inicio: entran subiendo con rebote, salen hacia abajo */
+    .fab-ai, .fab-caja {
+      transition:
+        transform 0.62s cubic-bezier(.34,1.56,.64,1),
+        opacity 0.32s ease-out,
+        visibility 0s linear 0s;
+    }
+    .fab-caja { transition-delay: 0.07s, 0.07s, 0s; }
+    .fab-ai:active, .fab-caja:active { transform: scale(0.92); transition-duration: 0.12s; transition-delay: 0s; }
+    .fab-ai.fab-out, .fab-caja.fab-out {
+      transform: translateY(150px) scale(0.55);
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition:
+        transform 0.42s cubic-bezier(.6,-0.28,.74,.05),
+        opacity 0.3s ease-in 0.08s,
+        visibility 0s linear 0.42s;
+    }
+    .fab-ai.fab-out { transition-delay: 0.05s, 0.13s, 0.47s; }
     @media (prefers-reduced-motion: reduce) {
       .fab-ai::before, .fab-ai-ring, .fab-ai-core svg { animation: none; }
+      .fab-ai, .fab-caja, .fab-ai.fab-out, .fab-caja.fab-out { transform: none; transition: opacity 0.2s, visibility 0s linear 0.2s; }
     }
 
     .scan-sheet { display: flex; flex-direction: column; max-height: 94dvh; padding-bottom: 0 !important; }
@@ -1443,6 +1797,8 @@
   <span class="fab-ai-core"><i data-lucide="sparkles"></i></span>
   <span class="fab-ai-tag">IA</span>
 </button>
+<button class="fab-caja" id="fabCaja" onclick="openCaja()" aria-label="Caja de viajes" title="Caja de viajes"><i data-lucide="wallet"></i></button>
+<div id="cajaApp" role="dialog" aria-label="Caja de viajes"><div class="cj-wrap" id="cjMain"></div><div id="cjSheetHost"></div><div id="cjTip"></div></div>
 <input type="file" id="scanQuickInput" accept="image/*,application/pdf,.pdf" multiple hidden onchange="scanOnFilesPicked(this)">
 <button class="fab-invoice" id="fabInvoice" onclick="openNewInvoiceSheet()" style="display:none;" aria-label="Nueva factura">
   <i data-lucide="plus"></i>
@@ -1483,8 +1839,9 @@ function switchPage(name, el) {
   if (name === 'invoices') { renderInvoices(); }
   const fab = document.getElementById('fabInvoice');
   if (fab) fab.style.display = name === 'invoices' ? 'flex' : 'none';
-  // En Facturas el botón de IA sube para no tapar el "+"
-  document.getElementById('fabAI')?.classList.toggle('raised', name === 'invoices');
+  // Botones de IA y Caja: solo en Inicio (salen hacia abajo al cambiar de panel)
+  document.getElementById('fabAI')?.classList.toggle('fab-out', name !== 'home');
+  document.getElementById('fabCaja')?.classList.toggle('fab-out', name !== 'home');
 }
 
 // ══════════════════════════════════════════
@@ -5166,6 +5523,1068 @@ function showOnboarding() {
 }
 
 // ══════════════════════════════════════════
+// CAJA DE VIAJES (módulo aparte, modo claro)
+// Cada viaje de compras tiene una base (saldo inicial), las prendas
+// compradas por proveedor (cantidad × valor) y los gastos del viaje.
+// Saldo final = base − prendas − gastos.
+// Datos: localStorage 'jahdiel_viajes' + Supabase tabla 'jahdiel_viajes'.
+// ══════════════════════════════════════════
+const CJ_KEY = 'jahdiel_viajes';
+const CJ_SYNCED_KEY = 'jahdiel_viajes_synced';    // ids que ya existen en la nube
+const CJ_DELETED_KEY = 'jahdiel_viajes_deleted';  // borrados pendientes de subir
+const CJ_TABLE = 'jahdiel_viajes';
+const CJ_MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const CJ_MES3 = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const CJ_TINTS = ['purple','coral','yellow','green'];
+const CJ_GASTO_CATS = [
+  { k:'PASAJES', i:'bus' }, { k:'TAXIS', i:'car-taxi-front' }, { k:'ALIMENTACIÓN', i:'utensils' },
+  { k:'HOSPEDAJE', i:'bed-double' }, { k:'ENVÍOS', i:'package' }, { k:'HERRAMIENTAS', i:'wrench' },
+  { k:'BOLSAS', i:'shopping-bag' }, { k:'COMBUSTIBLE', i:'fuel' }, { k:'OTROS', i:'receipt' },
+];
+const CJ_ICON_CHOICES = ['bus','car-taxi-front','car','bike','plane','truck','fuel','circle-parking','utensils','coffee','sandwich','bed-double','hotel','package','box','shopping-bag','wrench','hammer','scissors','paintbrush','printer','phone','smartphone','wifi','zap','droplet','heart','users','baby','gift','pill','shirt','tag','ticket','store','briefcase','map-pin','banknote','hand-coins','wallet','star','receipt'];
+const CJ_COLOR = { prendas:'#6C4CF1', gastos:'#F0605A', queda:'#0E9F8E' };
+
+let cjViajes = [];
+let cjEncargos = [];
+const CJ_ENC_KEY = 'jahdiel_encargos';
+let cj = { open:false, view:'home', tripId:null, year:new Date().getFullYear(), month:null, tab:'prendas' };
+let cjSyncState = 'local';
+let cjSyncTimer = null;
+const cjDirty = new Set();
+
+// ── Utilidades ──
+function cjEsc(v){ return String(v ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function cjMoney(n){ n = Math.round(Number(n) || 0); return (n < 0 ? '-$' : '$') + Math.abs(n).toLocaleString('es-CO'); }
+function cjShort(n){
+  const a = Math.abs(n), s = n < 0 ? '-' : '';
+  if(a >= 1e6) return s + '$' + (a/1e6).toFixed(a >= 1e7 ? 0 : 1).replace('.0','').replace('.',',') + 'M';
+  if(a >= 1e3) return s + '$' + Math.round(a/1e3) + 'K';
+  return s + '$' + Math.round(a);
+}
+function cjUid(p){ return p + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function cjParts(iso){ const [y,m,d] = String(iso||'').split('-').map(Number); return { y: y || new Date().getFullYear(), m: (m || 1) - 1, d: d || 1 }; }
+function cjToday(){ const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`; }
+function cjPct(a, b){ return b > 0 ? Math.round(a / b * 100) : 0; }
+function cjUp(v){ return String(v ?? '').toUpperCase().trim(); }
+function cjGetSet(key){ try{ return new Set(JSON.parse(localStorage.getItem(key) || '[]')); }catch{ return new Set(); } }
+function cjPutSet(key, set){ try{ localStorage.setItem(key, JSON.stringify([...set])); }catch{} }
+
+function cjTotals(v){
+  const prendas  = (v.productos || []).reduce((s, p) => s + (Number(p.total) || 0), 0);
+  const unidades = (v.productos || []).reduce((s, p) => s + (Number(p.cantidad) || 0), 0);
+  const gastos   = (v.gastos || []).reduce((s, g) => s + (Number(g.valor) || 0), 0);
+  const inicial  = Number(v.saldoInicial) || 0;
+  return { inicial, prendas, gastos, unidades, gastado: prendas + gastos, final: inicial - prendas - gastos };
+}
+function cjSum(list){
+  return list.reduce((a, v) => { const t = cjTotals(v); a.inicial += t.inicial; a.prendas += t.prendas; a.gastos += t.gastos; a.unidades += t.unidades; a.gastado += t.gastado; return a; },
+    { inicial:0, prendas:0, gastos:0, unidades:0, gastado:0 });
+}
+function cjSorted(list){ return [...list].sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '') || (b.createdAt || '').localeCompare(a.createdAt || '')); }
+function cjTrip(){ return cjViajes.find(v => v.id === cj.tripId) || null; }
+
+// ── Guardado local + nube ──
+function cjLoadLocal(){
+  try{ cjViajes = JSON.parse(localStorage.getItem(CJ_KEY) || '[]'); }catch{ cjViajes = []; }
+  try{ cjEncargos = JSON.parse(localStorage.getItem(CJ_ENC_KEY) || '[]'); }catch{ cjEncargos = []; }
+  if(!Array.isArray(cjViajes)) cjViajes = [];
+  if(!Array.isArray(cjEncargos)) cjEncargos = [];
+}
+function cjSaveLocal(){
+  try{
+    localStorage.setItem(CJ_KEY, JSON.stringify(cjViajes));
+    localStorage.setItem(CJ_ENC_KEY, JSON.stringify(cjEncargos));
+  }catch{ showToast('Error','No se pudo guardar en el celular.','error'); }
+}
+// Todo lo que se sincroniza con la tabla jahdiel_viajes
+function cjDocs(){ return [...cjViajes, ...cjEncargos]; }
+function cjTouch(v){
+  v.updatedAt = new Date().toISOString();
+  cjSaveLocal();
+  cjDirty.add(v.id);
+  clearTimeout(cjSyncTimer);
+  cjSyncTimer = setTimeout(cjPush, 700);
+}
+function cjSetSync(state, err){
+  cjSyncState = state;
+  if(err) console.warn('Caja de viajes · Supabase:', err);
+  const el = document.getElementById('cjSync');
+  if(el){ el.outerHTML = cjSyncBadge(); lucide.createIcons({ nodes:[document.getElementById('cjSync')] }); }
+}
+async function cjPush(){
+  const db = getSupabaseDb();
+  if(!db || !cjDirty.size) return;
+  const ids = [...cjDirty]; cjDirty.clear();
+  const rows = cjDocs().filter(v => ids.includes(v.id)).map(v => ({ id:v.id, data:v, updated_at:v.updatedAt || new Date().toISOString() }));
+  if(!rows.length) return;
+  const { error } = await db.from(CJ_TABLE).upsert(rows, { onConflict:'id' });
+  if(error){ ids.forEach(id => cjDirty.add(id)); cjSetSync('local', error); return; }
+  const synced = cjGetSet(CJ_SYNCED_KEY); ids.forEach(id => synced.add(id)); cjPutSet(CJ_SYNCED_KEY, synced);
+  cjSetSync('ok');
+}
+async function cjDeleteRemote(id){
+  cjDirty.delete(id);
+  const deleted = cjGetSet(CJ_DELETED_KEY); deleted.add(id); cjPutSet(CJ_DELETED_KEY, deleted);
+  const db = getSupabaseDb(); if(!db) return;
+  const { error } = await db.from(CJ_TABLE).delete().eq('id', id);
+  if(error){ cjSetSync('local', error); return; }
+  deleted.delete(id); cjPutSet(CJ_DELETED_KEY, deleted);
+  const synced = cjGetSet(CJ_SYNCED_KEY); synced.delete(id); cjPutSet(CJ_SYNCED_KEY, synced);
+}
+// Trae la nube y mezcla: gana la versión más reciente de cada viaje
+async function cjPull(){
+  const db = getSupabaseDb();
+  if(!db){ cjSetSync('local'); return; }
+  const { data, error } = await db.from(CJ_TABLE).select('id,data,updated_at');
+  if(error){ cjSetSync('local', error); return; }
+  const deleted = cjGetSet(CJ_DELETED_KEY), synced = cjGetSet(CJ_SYNCED_KEY);
+  for(const id of [...deleted]){
+    const r = await db.from(CJ_TABLE).delete().eq('id', id);
+    if(!r.error){ deleted.delete(id); synced.delete(id); }
+  }
+  const remote = new Map((data || []).filter(r => !deleted.has(r.id)).map(r => [r.id, { ...(r.data || {}), id:r.id }]));
+  const merged = [];
+  cjDocs().forEach(local => {
+    const rem = remote.get(local.id);
+    if(rem){
+      if((local.updatedAt || '') > (rem.updatedAt || '')){ merged.push(local); cjDirty.add(local.id); }
+      else merged.push(rem);
+      remote.delete(local.id);
+    } else if(!synced.has(local.id)){
+      merged.push(local); cjDirty.add(local.id);   // creado aquí, aún no subido
+    } // si ya estaba sincronizado y no viene → se borró en otro dispositivo
+  });
+  remote.forEach(r => merged.push(r));
+  (data || []).forEach(r => { if(!deleted.has(r.id)) synced.add(r.id); });
+  cjPutSet(CJ_DELETED_KEY, deleted); cjPutSet(CJ_SYNCED_KEY, synced);
+  cjViajes = merged.filter(d => d.tipo !== 'encargo');
+  cjEncargos = merged.filter(d => d.tipo === 'encargo');
+  cjSaveLocal();
+  cjSetSync('ok');
+  if(cjDirty.size) cjPush();
+  if(cj.open && !document.querySelector('#cjSheetHost .cj-sheet-ov')) cjRender();
+}
+
+function initCaja(){
+  cjLoadLocal();
+  cjPull();
+  window.addEventListener('popstate', cjOnBack);
+}
+
+// ── Abrir / cerrar / navegar (con botón atrás del celular) ──
+function openCaja(){
+  cj.open = true; cj.view = 'home'; cj.month = null;
+  document.getElementById('cajaApp').classList.add('open');
+  document.body.classList.add('cj-lock');
+  history.pushState({ caja:1 }, '');
+  cjRender();
+  cjPull();
+}
+function cjCloseApp(){
+  cj.open = false;
+  cjCloseSheet();
+  cjHideTip();
+  document.getElementById('cajaApp').classList.remove('open');
+  document.body.classList.remove('cj-lock');
+}
+function cjExit(){ if(history.state && history.state.caja) history.back(); else cjCloseApp(); }
+function cjOnBack(){
+  if(!cj.open) return;
+  if(document.querySelector('#cjSheetHost .cj-sheet-ov')){ cjCloseSheet(); history.pushState({ caja:1 }, ''); return; }
+  if(cj.view !== 'home'){ cj.view = 'home'; cjRender(); history.pushState({ caja:1 }, ''); return; }
+  cjCloseApp();
+}
+function cjGo(view){
+  cj.view = view;
+  cjRender();
+  document.getElementById('cajaApp').scrollTop = 0;
+}
+function cjOpenTrip(id){ cj.tripId = id; cj.tab = 'prendas'; cjGo('trip'); }
+function cjSetYear(y){ cj.year = y; cj.month = null; cjRender(); }
+function cjSetMonth(m){ cj.month = cj.month === m ? null : m; cjRender(); }
+function cjSetTab(t){ cj.tab = t; cjRender(); }
+
+// ── Render ──
+function cjSyncBadge(){
+  return cjSyncState === 'ok'
+    ? `<span id="cjSync" class="cj-sync ok" title="Guardado en la nube"><i data-lucide="cloud"></i> Nube</span>`
+    : `<span id="cjSync" class="cj-sync local" title="Guardado solo en este celular. Se subirá cuando la tabla jahdiel_viajes exista en Supabase."><i data-lucide="cloud-off"></i> Celular</span>`;
+}
+function cjNav(){
+  const b = (v, ico, label, fn) => `<button class="${cj.view===v?'active':''}" onclick="${fn}"><i data-lucide="${ico}"></i>${label}</button>`;
+  return `<nav class="cj-nav">
+    ${b('home','plane','Viajes',"cjGo('home')")}
+    ${b('enc','clipboard-list','Encargos',"cjGo('enc')")}
+    ${b('stats','bar-chart-3','Resumen',"cjGo('stats')")}
+    ${b('exit','store','Tienda','cjExit()')}
+  </nav>`;
+}
+function cjYears(){
+  const ys = new Set(cjViajes.map(v => cjParts(v.fecha).y));
+  ys.add(new Date().getFullYear()); ys.add(cj.year);
+  return [...ys].sort((a, b) => b - a);
+}
+function cjYearChips(){
+  return `<div class="cj-chips">${cjYears().map(y => `<button class="cj-chip ${y===cj.year?'active':''}" onclick="cjSetYear(${y})">${y}</button>`).join('')}</div>`;
+}
+function cjGreeting(){ const h = new Date().getHours(); return h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches'; }
+
+function cjRender(){
+  const main = document.getElementById('cjMain');
+  if(!main) return;
+  if(cj.view === 'trip' && !cjTrip()) cj.view = 'home';
+  main.innerHTML = cj.view === 'trip' ? cjTripHTML() : cj.view === 'stats' ? cjStatsHTML() : cj.view === 'enc' ? cjEncargosHTML() : cjHomeHTML();
+  lucide.createIcons({ nodes:[main] });
+  if(cj.view === 'home') cjScrollMonths();
+}
+// Muestra el mes elegido o el último mes con viajes (si no, el mes actual)
+function cjScrollMonths(){
+  const row = document.querySelector('#cjMain .cj-months'); if(!row) return;
+  const withTrips = [...new Set(cjViajes.filter(v => cjParts(v.fecha).y === cj.year).map(v => cjParts(v.fecha).m))];
+  const m = cj.month != null ? cj.month : withTrips.length ? Math.max(...withTrips) : (cj.year === new Date().getFullYear() ? new Date().getMonth() : 0);
+  const card = row.children[m]; if(!card) return;
+  row.style.scrollBehavior = 'auto';
+  row.scrollLeft = Math.max(0, card.offsetLeft - row.offsetLeft - row.clientWidth + card.offsetWidth + 16);
+  row.style.scrollBehavior = '';
+}
+
+function cjHomeHTML(){
+  const ofYear = cjViajes.filter(v => cjParts(v.fecha).y === cj.year);
+  const shown = cjSorted(cj.month == null ? ofYear : ofYear.filter(v => cjParts(v.fecha).m === cj.month));
+  const sum = cjSum(shown);
+  const scope = cj.month == null ? `en ${cj.year}` : `en ${CJ_MESES[cj.month]} ${cj.year}`;
+
+  const months = CJ_MESES.map((name, m) => {
+    const list = ofYear.filter(v => cjParts(v.fecha).m === m);
+    const s = cjSum(list);
+    const tint = list.length ? 'tint-' + CJ_TINTS[m % 4] : 'empty';
+    return `<button class="cj-month ${tint} ${cj.month===m?'sel':''}" onclick="cjSetMonth(${m})" aria-pressed="${cj.month===m}">
+      <span class="cj-month-ico"><i data-lucide="${list.length?'plane':'calendar'}"></i></span>
+      <span><b>${name}</b><small>${list.length ? `${list.length} viaje${list.length!==1?'s':''} · ${cjShort(s.gastado)}` : 'Sin viajes'}</small></span>
+    </button>`;
+  }).join('');
+
+  const trips = shown.map((v, i) => {
+    const t = cjTotals(v), p = cjParts(v.fecha);
+    const base = Math.max(t.inicial, t.gastado) || 1;
+    return `<div class="cj-trip-wrap"><button class="cj-trip" onclick="cjOpenTrip('${v.id}')">
+      <div class="cj-date tint-${CJ_TINTS[p.m % 4]}"><b>${p.d}</b><span>${CJ_MES3[p.m]}</span></div>
+      <div class="cj-trip-body">
+        <div class="cj-trip-name">${cjEsc(v.nombre)}</div>
+        <div class="cj-trip-meta">${(v.productos||[]).length} proveedor${(v.productos||[]).length!==1?'es':''} · ${t.unidades} uds · Gastos ${cjShort(t.gastos)}</div>
+        <div class="cj-progress" aria-hidden="true">
+          <i style="width:${t.prendas/base*100}%;background:${CJ_COLOR.prendas}"></i>
+          <i style="width:${t.gastos/base*100}%;background:${CJ_COLOR.gastos}"></i>
+        </div>
+      </div>
+      <div class="cj-trip-right"><div class="cj-k">${t.final < 0 ? 'Faltó' : 'Quedó'}</div><div class="cj-v ${t.final<0?'cj-neg':''}">${cjMoney(t.final)}</div></div>
+    </button>
+    <div class="cj-quick">
+      <button onclick="cjAddSheet('prenda', null, '${v.id}')"><i data-lucide="shirt"></i> Prenda</button>
+      <button onclick="cjAddSheet('gasto', null, '${v.id}')"><i data-lucide="receipt"></i> Gasto</button>
+    </div></div>`;
+  }).join('');
+
+  const empty = `<div class="cj-empty">
+    <div class="cj-empty-ico"><i data-lucide="plane"></i></div>
+    <b>${cj.month == null ? `No hay viajes en ${cj.year}` : `No hay viajes en ${CJ_MESES[cj.month]}`}</b>
+    <p>Crea un viaje con la base que llevas, y ve agregando las prendas por proveedor y los gastos del camino.</p>
+  </div>`;
+
+  return `
+    <header class="cj-top">
+      <div><div class="cj-hello">${cjGreeting()},</div><div class="cj-title">Mi Caja de Viajes</div></div>
+      <div class="cj-top-actions">${cjSyncBadge()}<button class="cj-round" onclick="cjExit()" aria-label="Volver a la tienda"><i data-lucide="x"></i></button></div>
+    </header>
+    ${cjYearChips()}
+    <section class="cj-hero">
+      <div class="cj-hero-k">Invertido ${scope}</div>
+      <div class="cj-hero-v">${cjMoney(sum.gastado)}</div>
+      <div class="cj-hero-row">
+        <div><span>Prendas</span><b>${cjShort(sum.prendas)}</b></div>
+        <div><span>Gastos</span><b>${cjShort(sum.gastos)}</b></div>
+        <div><span>Viajes</span><b>${shown.length}</b></div>
+        <div><span>Unidades</span><b>${sum.unidades}</b></div>
+      </div>
+    </section>
+    <div class="cj-sec-head"><h3>Meses</h3>${cj.month != null ? `<button class="cj-link" onclick="cjSetMonth(null)">Ver todo el año</button>` : ''}</div>
+    <div class="cj-months">${months}</div>
+    <div class="cj-sec-head"><h3>Viajes ${cj.month != null ? 'de ' + CJ_MESES[cj.month] : ''}</h3><span class="cj-k">${shown.length}</span></div>
+    <div class="cj-list">${trips || empty}</div>
+    <button class="cj-add" onclick="cjTripSheet()"><i data-lucide="plus"></i> Nuevo viaje</button>
+    ${cjNav()}`;
+}
+
+function cjTripHTML(){
+  const v = cjTrip(), t = cjTotals(v), p = cjParts(v.fecha);
+  const fechaLarga = new Date(p.y, p.m, p.d).toLocaleDateString('es-CO', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  const base = Math.max(t.inicial, t.gastado);
+  const segs = [
+    { k:'Prendas', v:t.prendas, c:CJ_COLOR.prendas },
+    { k:'Gastos',  v:t.gastos,  c:CJ_COLOR.gastos },
+    { k:'Queda',   v:Math.max(t.final, 0), c:CJ_COLOR.queda },
+  ];
+  const stack = base > 0 ? segs.filter(s => s.v > 0).map(s =>
+    `<i style="flex:${s.v} 1 0;background:${s.c}" data-tip="${s.k}: ${cjMoney(s.v)} (${cjPct(s.v, base)}%)"></i>`).join('') : '';
+  const legend = segs.map(s => `<div class="cj-legend-row"><i style="background:${s.c}"></i><span>${s.k}</span><b>${cjMoney(s.v)}</b><em>${cjPct(s.v, base)}%</em></div>`).join('');
+  const prom = t.unidades ? t.prendas / t.unidades : 0;
+  const real = t.unidades ? t.gastado / t.unidades : 0;
+
+  const prods = (v.productos || []);
+  const gastos = (v.gastos || []);
+  const list = cj.tab === 'prendas'
+    ? (prods.length ? prods.map(x => `
+        <button class="cj-row" onclick="cjProdSheet('${x.id}')">
+          <span class="cj-row-ico p"><i data-lucide="shirt"></i></span>
+          <span class="cj-row-body"><span class="cj-row-name">${cjEsc(x.proveedor)}</span>
+            <span class="cj-row-meta">${x.cantidad} ud${x.cantidad!==1?'s':''} × ${cjMoney(x.total / (x.cantidad || 1))}</span></span>
+          <span class="cj-row-val">${cjMoney(x.total)}</span>
+        </button>`).join('') + `<div class="cj-total-row"><span>${t.unidades} unidades</span><b>Total prendas ${cjMoney(t.prendas)}</b></div>`
+      : `<div class="cj-empty"><div class="cj-empty-ico"><i data-lucide="shirt"></i></div><b>Sin prendas todavía</b><p>Agrega lo que compraste: proveedor, cantidad y valor.</p></div>`)
+    : (gastos.length ? gastos.map(g => `
+        <button class="cj-row" onclick="cjGastoSheet('${g.id}')">
+          <span class="cj-row-ico g"><i data-lucide="${cjGastoIcon(g)}"></i></span>
+          <span class="cj-row-body"><span class="cj-row-name">${cjEsc(g.descripcion)}</span>${g.nota ? `<span class="cj-row-meta">${cjEsc(g.nota)}</span>` : ''}</span>
+          <span class="cj-row-val">${cjMoney(g.valor)}</span>
+        </button>`).join('') + `<div class="cj-total-row"><span>${gastos.length} gasto${gastos.length!==1?'s':''}</span><b>Total gastos ${cjMoney(t.gastos)}</b></div>`
+      : `<div class="cj-empty"><div class="cj-empty-ico"><i data-lucide="receipt"></i></div><b>Sin gastos todavía</b><p>Pasajes, taxis, alimentación… todo lo que salga en el viaje.</p></div>`);
+
+  return `
+    <header class="cj-top">
+      <button class="cj-round" onclick="cjGo('home')" aria-label="Volver"><i data-lucide="chevron-left"></i></button>
+      <div class="cj-top-mid"><div class="cj-hello" style="text-transform:capitalize;">${fechaLarga}</div><div class="cj-title sm">${cjEsc(v.nombre)}</div></div>
+      <button class="cj-round" onclick="cjTripSheet('${v.id}')" aria-label="Editar viaje"><i data-lucide="pencil"></i></button>
+    </header>
+    <div class="cj-tiles">
+      <button class="cj-tile base" onclick="cjTripSheet('${v.id}')"><span><i style="background:#9C9CB4"></i>Saldo inicial</span><b>${cjMoney(t.inicial)}</b><small>Toca para cambiar</small></button>
+      <div class="cj-tile"><span><i style="background:${CJ_COLOR.prendas}"></i>Prendas</span><b>${cjMoney(t.prendas)}</b><small>${t.unidades} unidades</small></div>
+      <div class="cj-tile"><span><i style="background:${CJ_COLOR.gastos}"></i>Gastos</span><b>${cjMoney(t.gastos)}</b><small>${gastos.length} gasto${gastos.length!==1?'s':''}</small></div>
+      <div class="cj-tile"><span><i style="background:${CJ_COLOR.queda}"></i>Total gastado</span><b>${cjMoney(t.gastado)}</b><small>${cjPct(t.gastado, t.inicial)}% de la base</small></div>
+      <div class="cj-tile final ${t.final<0?'short':''}"><div><span>${t.final<0?'Faltante':'Saldo final'}</span><small>${t.final<0?'Gastaste más que la base':'Lo que te queda'}</small></div><b>${cjMoney(t.final)}</b></div>
+    </div>
+    <div class="cj-card">
+      <div class="cj-card-title">¿En qué se fue la base?</div>
+      ${base > 0 ? `<div class="cj-stack" role="img" aria-label="Prendas ${cjMoney(t.prendas)}, gastos ${cjMoney(t.gastos)}, queda ${cjMoney(Math.max(t.final,0))}">${stack}</div><div class="cj-legend">${legend}</div>` : `<div class="cj-k">Agrega la base y las compras para ver la distribución.</div>`}
+      ${t.final < 0 ? `<div class="cj-alert"><i data-lucide="alert-triangle"></i><div><b>Faltaron ${cjMoney(-t.final)}</b>. Lo gastado supera el saldo inicial.</div></div>` : ''}
+    </div>
+    <div class="cj-card"><div class="cj-metrics">
+      <div><span>Costo promedio por prenda</span><b>${cjMoney(prom)}</b></div>
+      <div><span>Costo real por prenda (con gastos)</span><b>${cjMoney(real)}</b></div>
+    </div></div>
+    <div class="cj-tabs">
+      <button class="${cj.tab==='prendas'?'active':''}" onclick="cjSetTab('prendas')">Prendas · ${prods.length}</button>
+      <button class="${cj.tab==='gastos'?'active':''}" onclick="cjSetTab('gastos')">Gastos · ${gastos.length}</button>
+    </div>
+    <div class="cj-list">${list}</div>
+    <button class="cj-danger-link" onclick="cjDeleteTrip('${v.id}')">Eliminar este viaje</button>
+    <div class="cj-add-dual">
+      <button onclick="cjAddSheet('prenda')"><i data-lucide="shirt"></i> + Prenda</button>
+      <button onclick="cjAddSheet('gasto')"><i data-lucide="receipt"></i> + Gasto</button>
+    </div>
+    ${cjNav()}`;
+}
+
+function cjStatsHTML(){
+  const ofYear = cjViajes.filter(v => cjParts(v.fecha).y === cj.year);
+  const sum = cjSum(ofYear);
+  const byMonth = CJ_MESES.map((_, m) => cjSum(ofYear.filter(v => cjParts(v.fecha).m === m)));
+  const max = Math.max(...byMonth.map(s => s.gastado), 0);
+
+  let chart;
+  if(max > 0){
+    const cols = byMonth.map((s, m) => {
+      const tip = `<b>${CJ_MESES[m]}</b><br>Prendas ${cjMoney(s.prendas)}<br>Gastos ${cjMoney(s.gastos)}<br>Total ${cjMoney(s.gastado)}`;
+      return `<div class="cj-col" data-tip="${cjEsc(tip)}">
+        ${s.gastos ? `<i style="height:${s.gastos/max*100}%;background:${CJ_COLOR.gastos}"></i>` : ''}
+        ${s.prendas ? `<i style="height:${s.prendas/max*100}%;background:${CJ_COLOR.prendas}"></i>` : ''}
+      </div>`;
+    }).join('');
+    chart = `
+      <div class="cj-legend-inline"><span><i style="background:${CJ_COLOR.prendas}"></i>Prendas</span><span><i style="background:${CJ_COLOR.gastos}"></i>Gastos</span></div>
+      <div class="cj-chart" role="img" aria-label="Gasto por mes en ${cj.year}">
+        <div class="cj-grid-line" style="top:6px"><span>${cjShort(max)}</span></div>
+        <div class="cj-grid-line" style="top:calc(6px + (100% - 6px) / 2)"><span>${cjShort(max/2)}</span></div>
+        ${cols}
+      </div>
+      <div class="cj-xlabels">${CJ_MES3.map(m => `<span>${m[0]}</span>`).join('')}</div>
+      <details class="cj-table-toggle"><summary>Ver tabla</summary>
+        <table class="cj-table"><thead><tr><th>Mes</th><th>Prendas</th><th>Gastos</th><th>Total</th></tr></thead><tbody>
+        ${byMonth.map((s, m) => s.gastado ? `<tr><td>${CJ_MESES[m]}</td><td>${cjMoney(s.prendas)}</td><td>${cjMoney(s.gastos)}</td><td>${cjMoney(s.gastado)}</td></tr>` : '').join('')}
+        </tbody></table>
+      </details>`;
+  } else {
+    chart = `<div class="cj-k">Aún no hay viajes en ${cj.year}.</div>`;
+  }
+
+  const hbars = (rows, color, unit) => {
+    if(!rows.length) return `<div class="cj-k">Sin datos en ${cj.year}.</div>`;
+    const top = rows[0].v || 1;
+    return `<div class="cj-hbars">${rows.map(r => `
+      <div data-tip="${cjEsc(`<b>${cjEsc(r.k)}</b><br>${cjMoney(r.v)}${r.u ? ` · ${r.u} uds` : ''} · ${cjPct(r.v, unit)}%`)}">
+        <div class="cj-hbar-top"><span>${r.i ? `<i data-lucide="${r.i}" class="cj-hbar-ico"></i>` : ''}${cjEsc(r.k)}${r.u ? `<small>${r.u} uds</small>` : ''}</span><b>${cjMoney(r.v)}</b></div>
+        <div class="cj-hbar-track"><i style="width:${r.v/top*100}%;background:${color}"></i></div>
+      </div>`).join('')}</div>`;
+  };
+  const provMap = {}, gasMap = {};
+  ofYear.forEach(v => {
+    (v.productos || []).forEach(p => { const k = cjUp(p.proveedor) || 'SIN NOMBRE'; provMap[k] = provMap[k] || { v:0, u:0 }; provMap[k].v += Number(p.total)||0; provMap[k].u += Number(p.cantidad)||0; });
+    (v.gastos || []).forEach(g => { const k = cjUp(g.descripcion) || 'OTROS'; gasMap[k] = (gasMap[k] || 0) + (Number(g.valor)||0); });
+  });
+  const provRows = Object.entries(provMap).map(([k, o]) => ({ k, v:o.v, u:o.u })).sort((a, b) => b.v - a.v).slice(0, 10);
+  const catIcons = new Map(cjCategorias().map(c => [c.k, c.i]));
+  const gasRows = Object.entries(gasMap).map(([k, v]) => ({ k, v, i: catIcons.get(k) || 'receipt' })).sort((a, b) => b.v - a.v).slice(0, 10);
+
+  return `
+    <header class="cj-top">
+      <div><div class="cj-hello">Resumen del año</div><div class="cj-title">Mis números</div></div>
+      <div class="cj-top-actions">${cjSyncBadge()}<button class="cj-round" onclick="cjExit()" aria-label="Volver a la tienda"><i data-lucide="x"></i></button></div>
+    </header>
+    ${cjYearChips()}
+    <div class="cj-kpis">
+      <div class="cj-tile"><span>Total invertido</span><b>${cjMoney(sum.gastado)}</b><small>${ofYear.length} viaje${ofYear.length!==1?'s':''}</small></div>
+      <div class="cj-tile"><span>Bases llevadas</span><b>${cjMoney(sum.inicial)}</b><small>Suma de saldos iniciales</small></div>
+      <div class="cj-tile"><span><i style="background:${CJ_COLOR.prendas}"></i>Prendas</span><b>${cjMoney(sum.prendas)}</b><small>${sum.unidades} unidades · ${cjPct(sum.prendas, sum.gastado)}%</small></div>
+      <div class="cj-tile"><span><i style="background:${CJ_COLOR.gastos}"></i>Gastos</span><b>${cjMoney(sum.gastos)}</b><small>${cjPct(sum.gastos, sum.gastado)}% de lo invertido</small></div>
+      <div class="cj-tile"><span>Costo prom. por prenda</span><b>${cjMoney(sum.unidades ? sum.prendas / sum.unidades : 0)}</b><small>Solo prendas</small></div>
+      <div class="cj-tile"><span>Costo real por prenda</span><b>${cjMoney(sum.unidades ? sum.gastado / sum.unidades : 0)}</b><small>Prendas + gastos</small></div>
+    </div>
+    <div class="cj-card"><div class="cj-card-title">Gasto por mes · ${cj.year}</div>${chart}</div>
+    <div class="cj-card"><div class="cj-card-title">Proveedores donde más compré</div>${hbars(provRows, CJ_COLOR.prendas, sum.prendas)}</div>
+    <div class="cj-card"><div class="cj-card-title">Gastos por concepto</div>${hbars(gasRows, CJ_COLOR.gastos, sum.gastos)}</div>
+    ${cjNav()}`;
+}
+
+// ── Tooltip para gráficas (hover en PC, toque en celular) ──
+function cjShowTip(el, x, y){
+  const tip = document.getElementById('cjTip');
+  if(!tip) return;
+  tip.innerHTML = el.dataset.tip;
+  tip.style.display = 'block';
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, x - w / 2)) + 'px';
+  tip.style.top = Math.max(8, y - h - 14) + 'px';
+  document.querySelectorAll('#cajaApp .cj-col.hl').forEach(c => c.classList.remove('hl'));
+  if(el.classList.contains('cj-col')) el.classList.add('hl');
+}
+function cjHideTip(){
+  const tip = document.getElementById('cjTip');
+  if(tip) tip.style.display = 'none';
+  document.querySelectorAll('#cajaApp .cj-col.hl').forEach(c => c.classList.remove('hl'));
+}
+document.addEventListener('pointerover', e => {
+  const el = e.target.closest && e.target.closest('#cajaApp [data-tip]');
+  if(el && e.pointerType === 'mouse') cjShowTip(el, e.clientX, e.clientY);
+});
+document.addEventListener('pointerout', e => {
+  if(e.pointerType === 'mouse' && e.target.closest && e.target.closest('#cajaApp [data-tip]')) cjHideTip();
+});
+document.addEventListener('click', e => {
+  if(!cj.open) return;
+  const el = e.target.closest && e.target.closest('#cajaApp [data-tip]');
+  if(el){ const r = el.getBoundingClientRect(); cjShowTip(el, r.left + r.width / 2, r.top); }
+  else cjHideTip();
+});
+document.addEventListener('scroll', cjHideTip, true);
+
+// ── Hojas (formularios) ──
+function cjOpenSheet(html, opts={}){
+  const host = document.getElementById('cjSheetHost');
+  host.innerHTML = `<div class="cj-sheet-ov ${opts.noAnim?'noanim':''}"><div class="cj-sheet ${opts.center?'center':''}">${opts.center?'':'<div class="cj-handle"></div>'}${html}</div></div>`;
+  const ov = host.firstElementChild;
+  if(opts.center) ov.style.alignItems = 'center';
+  ov.addEventListener('click', e => { if(e.target === ov) cjCloseSheet(); });
+  lucide.createIcons({ nodes:[ov] });
+  const first = ov.querySelector('[data-autofocus]');
+  if(first) setTimeout(() => first.focus(), 250);
+  return ov;
+}
+function cjCloseSheet(){ const host = document.getElementById('cjSheetHost'); if(host) host.innerHTML = ''; }
+function cjConfirm(title, msg, onOk, okLabel='Eliminar'){
+  cjOpenSheet(`<h4>${title}</h4><p style="font-size:14px;color:var(--cj-ink2);line-height:1.5;">${msg}</p>
+    <div class="cj-actions"><button class="cj-btn ghost" onclick="cjCloseSheet()">Cancelar</button><button class="cj-btn danger" id="cjOk">${okLabel}</button></div>`, { center:true });
+  document.getElementById('cjOk').onclick = () => { cjCloseSheet(); onOk(); };
+}
+function cjMoneyInput(id, value, ph='0'){
+  return `<input class="cj-input" id="${id}" inputmode="numeric" placeholder="${ph}" autocomplete="off"
+    value="${value ? Math.round(value).toLocaleString('es-CO') : ''}" oninput="formatPriceInput(this);cjLiveCalc()">`;
+}
+function cjVal(id){ return parsePriceInput(document.getElementById(id)) || 0; }
+function cjMark(id, bad){ document.getElementById(id)?.classList.toggle('err', !!bad); return !!bad; }
+
+// Viaje (crear / editar)
+function cjTripSheet(id){
+  const v = id ? cjViajes.find(x => x.id === id) : null;
+  cjOpenSheet(`
+    <h4>${v ? 'Editar viaje' : 'Nuevo viaje'}</h4>
+    <div class="cj-field"><label>Fecha del viaje</label><input class="cj-input" type="date" id="cjF-fecha" value="${v ? v.fecha : cjToday()}"></div>
+    <div class="cj-field"><label>Nombre <span style="font-weight:500;color:var(--cj-ink3)">(opcional)</span></label>
+      <input class="cj-input" id="cjF-nombre" placeholder="Ej: Viaje 1 · Octubre" value="${v ? cjEsc(v.nombre) : ''}"></div>
+    <div class="cj-field"><label>Saldo inicial (la base que llevas)</label>${cjMoneyInput('cjF-base', v?.saldoInicial, '$ 0')}</div>
+    <div class="cj-field"><label>Notas <span style="font-weight:500;color:var(--cj-ink3)">(opcional)</span></label>
+      <input class="cj-input" id="cjF-notas" placeholder="Ej: Medellín, centro" value="${v ? cjEsc(v.notas || '') : ''}"></div>
+    <div class="cj-actions">
+      <button class="cj-btn ghost" onclick="cjCloseSheet()">Cancelar</button>
+      <button class="cj-btn primary" onclick="cjSaveTrip(${v ? `'${v.id}'` : ''})"><i data-lucide="check"></i> ${v ? 'Guardar' : 'Crear viaje'}</button>
+    </div>`);
+}
+function cjSaveTrip(id){
+  const fecha = document.getElementById('cjF-fecha').value;
+  const base = cjVal('cjF-base');
+  if(cjMark('cjF-fecha', !fecha)) return;
+  if(cjMark('cjF-base', !(base > 0))){ showToast('Falta la base','Escribe el saldo inicial que llevas al viaje.','warning'); return; }
+  const p = cjParts(fecha);
+  let nombre = document.getElementById('cjF-nombre').value.trim();
+  const notas = document.getElementById('cjF-notas').value.trim();
+  if(id){
+    const v = cjViajes.find(x => x.id === id); if(!v) return;
+    Object.assign(v, { fecha, saldoInicial:base, notas, nombre: nombre || v.nombre });
+    cjTouch(v);
+  } else {
+    if(!nombre){
+      const n = cjViajes.filter(x => { const q = cjParts(x.fecha); return q.y === p.y && q.m === p.m; }).length + 1;
+      nombre = `Viaje ${n} · ${CJ_MESES[p.m]}`;
+    }
+    const v = { id:cjUid('VJ'), nombre, fecha, saldoInicial:base, notas, productos:[], gastos:[], createdAt:new Date().toISOString() };
+    cjViajes.push(v);
+    cjTouch(v);
+    cj.year = p.y; cj.tripId = v.id; cj.tab = 'prendas'; cj.view = 'trip';
+  }
+  cjCloseSheet();
+  cjRender();
+  SFX.create();
+}
+function cjDeleteTrip(id){
+  const v = cjViajes.find(x => x.id === id); if(!v) return;
+  cjConfirm('Eliminar viaje', `Se borrará <b>${cjEsc(v.nombre)}</b> con sus ${(v.productos||[]).length} prendas y ${(v.gastos||[]).length} gastos. No se puede deshacer.`, () => {
+    cjViajes = cjViajes.filter(x => x.id !== id);
+    cjSaveLocal();
+    cjDeleteRemote(id);
+    cj.view = 'home';
+    cjRender();
+    SFX.deleteProduct();
+  });
+}
+
+// Proveedores ya usados (más frecuentes primero) para autocompletar
+function cjProveedores(){
+  const count = {};
+  cjViajes.forEach(v => (v.productos || []).forEach(p => { const k = cjUp(p.proveedor); if(k) count[k] = (count[k] || 0) + 1; }));
+  return Object.entries(count).sort((a, b) => b[1] - a[1]).map(([k]) => k);
+}
+
+// ── Conceptos de gasto con ícono ──
+// Los fijos + los que se han usado (el ícono viaja guardado en cada gasto,
+// así un concepto nuevo con su ícono aparece en todos los dispositivos).
+function cjCategorias(){
+  const map = new Map(CJ_GASTO_CATS.map(c => [c.k, c.i]));
+  const used = {};
+  cjViajes.forEach(v => (v.gastos || []).forEach(g => {
+    const k = cjUp(g.descripcion); if(!k) return;
+    used[k] = (used[k] || 0) + 1;
+    if(g.icono) map.set(k, g.icono);
+    else if(!map.has(k)) map.set(k, 'receipt');
+  }));
+  // Más usados primero; los fijos que no se han usado van después en su orden
+  const fixed = CJ_GASTO_CATS.map(c => c.k);
+  return [...map.entries()]
+    .map(([k, i]) => ({ k, i, n: used[k] || 0, f: fixed.indexOf(k) }))
+    .sort((a, b) => (b.n - a.n) || ((a.f < 0 ? 99 : a.f) - (b.f < 0 ? 99 : b.f)))
+    .map(({ k, i }) => ({ k, i }));
+}
+function cjGastoIcon(g){
+  if(g.icono) return g.icono;
+  const k = cjUp(g.descripcion);
+  return (cjCategorias().find(c => c.k === k) || {}).i || 'receipt';
+}
+
+// ── Hoja para agregar / editar (prenda o gasto) ──
+// Al crear, la hoja se queda abierta ("Guardar y otra") para cargar rápido.
+let cjAdd = { type:'prenda', editId:null, count:0, sum:0, last:'', cat:'', icon:'', picker:false };
+let cjValMode = (() => { try{ return localStorage.getItem('jahdiel_cj_valmode') || 'unit'; }catch{ return 'unit'; } })();
+
+function cjProdSheet(pid){ cjAddSheet('prenda', pid); }
+function cjGastoSheet(gid){ cjAddSheet('gasto', gid); }
+function cjAddSheet(type, editId, tripId){
+  if(tripId) cj.tripId = tripId;
+  if(!cjTrip()) return;
+  cjAdd = { type, editId: editId || null, count:0, sum:0, last:'', cat:'', icon:'', picker:false };
+  if(type === 'gasto' && editId){
+    const g = (cjTrip().gastos || []).find(x => x.id === editId);
+    if(g){ cjAdd.cat = cjUp(g.descripcion); cjAdd.icon = cjGastoIcon(g); }
+  }
+  cjRenderAddSheet(true);
+}
+function cjSwitchAdd(type){
+  if(cjAdd.type === type) return;
+  cjAdd.type = type; cjAdd.cat = ''; cjAdd.icon = ''; cjAdd.picker = false;
+  cjRenderAddSheet(false);
+}
+
+function cjRenderAddSheet(animate){
+  const v = cjTrip(); if(!v) return;
+  const { type, editId } = cjAdd;
+  const editing = !!editId;
+  const head = editing
+    ? `<h4>${type === 'prenda' ? 'Editar prenda' : 'Editar gasto'}</h4>`
+    : `<div class="cj-seg cj-seg-lg">
+         <button type="button" class="${type==='prenda'?'on':''}" onclick="cjSwitchAdd('prenda')"><i data-lucide="shirt"></i> Prenda</button>
+         <button type="button" class="${type==='gasto'?'on':''}" onclick="cjSwitchAdd('gasto')"><i data-lucide="receipt"></i> Gasto</button>
+       </div>`;
+  const trip = `<div class="cj-sheet-trip"><i data-lucide="plane"></i> ${cjEsc(v.nombre)}</div>`;
+  const flash = cjAdd.last ? `<div class="cj-flash"><i data-lucide="check-circle-2"></i> ${cjAdd.last}</div>` : '';
+  const session = !editing && cjAdd.count
+    ? `<div class="cj-session">Agregaste <b>${cjAdd.count}</b> · ${cjMoney(cjAdd.sum)}</div>` : '';
+  const body = type === 'prenda' ? cjProdBody(v) : cjGastoBody(v);
+  const actions = editing
+    ? `<button class="cj-btn danger" onclick="${type==='prenda'?`cjDeleteProd('${editId}')`:`cjDeleteGasto('${editId}')`}"><i data-lucide="trash-2"></i> Eliminar</button>
+       <button class="cj-btn primary" onclick="cjSaveAdd(false)"><i data-lucide="check"></i> Guardar</button>`
+    : `<button class="cj-btn ghost" onclick="cjCloseSheet()">Listo</button>
+       <button class="cj-btn primary" onclick="cjSaveAdd(true)"><i data-lucide="plus"></i> Guardar y otra</button>`;
+  const ov = cjOpenSheet(`${head}${trip}${flash}${session}${body}<div class="cj-actions">${actions}</div>`, { noAnim: !animate });
+  if(type === 'prenda'){ cjSyncChips('cjP-prov','cjP-chips'); cjLiveCalc(); }
+  // Foco: prenda → proveedor; gasto → valor si ya hay concepto
+  const focusId = type === 'prenda' ? (editing ? null : 'cjP-prov') : (cjAdd.cat ? 'cjG-val' : null);
+  if(focusId) setTimeout(() => document.getElementById(focusId)?.focus(), animate ? 260 : 30);
+  return ov;
+}
+
+function cjProdBody(v){
+  const x = cjAdd.editId ? (v.productos || []).find(p => p.id === cjAdd.editId) : null;
+  const provs = cjProveedores();
+  const unitVal = x ? x.total / (x.cantidad || 1) : 0;
+  const shownVal = x ? (cjValMode === 'unit' ? unitVal : x.total) : 0;
+  return `
+    <div class="cj-field"><label>Proveedor / marca</label>
+      <input class="cj-input" id="cjP-prov" list="cjProvList" placeholder="Ej: EVEREST" autocomplete="off" enterkeyhint="next" style="text-transform:uppercase"
+        value="${x ? cjEsc(x.proveedor) : ''}" oninput="cjSyncChips('cjP-prov','cjP-chips')" onkeydown="cjEnter(event,'cjP-cant')">
+      <datalist id="cjProvList">${provs.map(p => `<option value="${cjEsc(p)}">`).join('')}</datalist>
+      ${provs.length ? `<div class="cj-qchips" id="cjP-chips">${provs.slice(0, 10).map(p => `<button type="button" class="cj-qchip" data-v="${cjEsc(p)}" onclick="cjPick('cjP-prov','cjP-chips',this.dataset.v);document.getElementById('cjP-cant').select()">${cjEsc(p)}</button>`).join('')}</div>` : ''}
+    </div>
+    <div class="cj-row2">
+      <div class="cj-field"><label>Cantidad</label>
+        <div class="cj-stepper">
+          <button type="button" onclick="cjStep(-1)" aria-label="Menos"><i data-lucide="minus"></i></button>
+          <input class="cj-input" id="cjP-cant" type="number" inputmode="numeric" min="1" enterkeyhint="next" value="${x ? x.cantidad : 1}"
+            oninput="cjLiveCalc()" onfocus="this.select()" onkeydown="cjEnter(event,'cjP-val')">
+          <button type="button" onclick="cjStep(1)" aria-label="Más"><i data-lucide="plus"></i></button>
+        </div>
+      </div>
+      <div class="cj-field"><label>El valor es</label>
+        <div class="cj-seg" style="margin:0;height:48px;"><button type="button" id="cjSeg-unit" class="${cjValMode==='unit'?'on':''}" onclick="cjSetValMode('unit')">Por unidad</button><button type="button" id="cjSeg-total" class="${cjValMode==='total'?'on':''}" onclick="cjSetValMode('total')">Total</button></div>
+      </div>
+    </div>
+    <div class="cj-field"><label id="cjP-val-label">${cjValMode === 'unit' ? 'Valor de una prenda' : 'Valor total'}</label>
+      <input class="cj-input cj-input-big" id="cjP-val" inputmode="numeric" placeholder="$ 0" autocomplete="off" enterkeyhint="done"
+        value="${shownVal ? Math.round(shownVal).toLocaleString('es-CO') : ''}" oninput="formatPriceInput(this);cjLiveCalc()" onkeydown="cjEnter(event,null)">
+      <div class="cj-calc" id="cjP-calc"></div>
+    </div>`;
+}
+
+function cjGastoBody(v){
+  const g = cjAdd.editId ? (v.gastos || []).find(x => x.id === cjAdd.editId) : null;
+  const cats = cjCategorias();
+  const isNew = cjAdd.cat === '__new__';
+  const tiles = cats.map(c => `
+    <button type="button" class="cj-cat ${cjAdd.cat===c.k?'on':''}" data-k="${cjEsc(c.k)}" onclick="cjPickCat(this.dataset.k)">
+      <span><i data-lucide="${c.i}"></i></span><small>${cjEsc(c.k.charAt(0) + c.k.slice(1).toLowerCase())}</small>
+    </button>`).join('');
+  const icon = cjAdd.icon || 'receipt';
+  const picker = (cjAdd.picker || isNew) ? `
+    <div class="cj-icon-grid">${CJ_ICON_CHOICES.map(i => `<button type="button" class="${icon===i?'on':''}" onclick="cjPickIcon('${i}')" aria-label="${i}"><i data-lucide="${i}"></i></button>`).join('')}</div>` : '';
+  return `
+    <div class="cj-field"><label>Concepto</label>
+      <div class="cj-cats">${tiles}
+        <button type="button" class="cj-cat add ${isNew?'on':''}" onclick="cjPickCat('__new__')"><span><i data-lucide="plus"></i></span><small>Nuevo</small></button>
+      </div>
+    </div>
+    ${isNew ? `<div class="cj-field"><label>Nombre del concepto nuevo</label>
+      <input class="cj-input" id="cjG-new" placeholder="Ej: HERRAMIENTAS, BOLSAS…" style="text-transform:uppercase" autocomplete="off" enterkeyhint="next" onkeydown="cjEnter(event,'cjG-val')"></div>` : ''}
+    ${cjAdd.cat ? `<div class="cj-field"><label>Ícono</label>
+      <div class="cj-icon-row"><span class="cj-icon-now"><i data-lucide="${icon}"></i></span>
+        <span style="flex:1;font-size:13px;color:var(--cj-ink2);">${isNew ? 'Elige el ícono de este concepto' : 'Así se verá este gasto'}</span>
+        ${isNew ? '' : `<button type="button" class="cj-link" onclick="cjTogglePicker()">${cjAdd.picker ? 'Cerrar' : 'Cambiar'}</button>`}
+      </div>${picker}</div>` : ''}
+    <div class="cj-row2">
+      <div class="cj-field"><label>Valor</label>
+        <input class="cj-input cj-input-big" id="cjG-val" inputmode="numeric" placeholder="$ 0" autocomplete="off" enterkeyhint="next"
+          value="${g ? Math.round(g.valor).toLocaleString('es-CO') : ''}" oninput="formatPriceInput(this)" onkeydown="cjEnter(event,'cjG-nota')"></div>
+      <div class="cj-field"><label>Nota <span style="font-weight:500;color:var(--cj-ink3)">(opcional)</span></label>
+        <input class="cj-input" id="cjG-nota" placeholder="Ej: Bus ida" autocomplete="off" enterkeyhint="done"
+          value="${g ? cjEsc(g.nota || '') : ''}" onkeydown="cjEnter(event,null)"></div>
+    </div>`;
+}
+
+// Conserva lo escrito al redibujar la hoja (al elegir concepto o ícono)
+function cjKeepInputs(ids){ const o = {}; ids.forEach(id => { const el = document.getElementById(id); if(el) o[id] = el.value; }); return o; }
+function cjRestoreInputs(o){ Object.entries(o).forEach(([id, val]) => { const el = document.getElementById(id); if(el && val) el.value = val; }); }
+function cjPickCat(k){
+  const keep = cjKeepInputs(['cjG-val','cjG-nota','cjG-new']);
+  cjAdd.cat = k;
+  cjAdd.picker = false;
+  cjAdd.icon = k === '__new__' ? (cjAdd.icon || 'tag') : ((cjCategorias().find(c => c.k === k) || {}).i || 'receipt');
+  cjRenderAddSheet(false);
+  cjRestoreInputs(keep);
+  if(k === '__new__') setTimeout(() => document.getElementById('cjG-new')?.focus(), 30);
+}
+function cjPickIcon(i){
+  const keep = cjKeepInputs(['cjG-val','cjG-nota','cjG-new']);
+  cjAdd.icon = i;
+  if(cjAdd.cat !== '__new__') cjAdd.picker = false;
+  cjRenderAddSheet(false);
+  cjRestoreInputs(keep);
+}
+function cjTogglePicker(){
+  const keep = cjKeepInputs(['cjG-val','cjG-nota']);
+  cjAdd.picker = !cjAdd.picker;
+  cjRenderAddSheet(false);
+  cjRestoreInputs(keep);
+}
+
+// Enter: pasa al siguiente campo; en el último, guarda
+function cjEnter(e, nextId){
+  if(e.key !== 'Enter') return;
+  e.preventDefault();
+  if(nextId){ const n = document.getElementById(nextId); if(n){ n.focus(); if(n.select) n.select(); return; } }
+  cjSaveAdd(!cjAdd.editId);
+}
+
+function cjStep(d){ const i = document.getElementById('cjP-cant'); i.value = Math.max(1, (parseInt(i.value) || 0) + d); cjLiveCalc(); }
+function cjSetValMode(mode){
+  if(mode === cjValMode) return;
+  // Convierte lo escrito para no perder el valor al cambiar de modo
+  const cant = Math.max(1, parseInt(document.getElementById('cjP-cant').value) || 1);
+  const val = cjVal('cjP-val');
+  const inp = document.getElementById('cjP-val');
+  if(val) inp.value = Math.round(mode === 'total' ? val * cant : val / cant).toLocaleString('es-CO');
+  cjValMode = mode;
+  try{ localStorage.setItem('jahdiel_cj_valmode', mode); }catch{}
+  document.getElementById('cjSeg-unit').classList.toggle('on', mode === 'unit');
+  document.getElementById('cjSeg-total').classList.toggle('on', mode === 'total');
+  document.getElementById('cjP-val-label').textContent = mode === 'unit' ? 'Valor de una prenda' : 'Valor total';
+  cjLiveCalc();
+  inp.focus();
+}
+function cjProdTotal(){
+  const cant = parseInt(document.getElementById('cjP-cant')?.value) || 0;
+  const val = cjVal('cjP-val');
+  return { cant, total: cjValMode === 'unit' ? val * cant : val };
+}
+function cjLiveCalc(){
+  const out = document.getElementById('cjP-calc'); if(!out) return;
+  const { cant, total } = cjProdTotal();
+  if(!cant || !total){ out.innerHTML = cjValMode === 'unit' ? 'Escribe el valor de <b>una</b> prenda; yo calculo el total.' : 'Escribe el valor <b>total</b>; yo calculo cuánto sale cada una.'; return; }
+  out.innerHTML = cjValMode === 'unit'
+    ? `${cant} × ${cjMoney(total / cant)} = <b>${cjMoney(total)}</b> en total`
+    : `${cjMoney(total)} ÷ ${cant} = <b>${cjMoney(total / cant)}</b> cada una`;
+}
+
+function cjSaveAdd(andNext){
+  const ok = cjAdd.type === 'prenda' ? cjSaveProd() : cjSaveGasto();
+  if(!ok) return;
+  cjRender();   // actualiza los totales del viaje detrás de la hoja
+  if(andNext && !cjAdd.editId){
+    cjAdd.cat = ''; cjAdd.icon = ''; cjAdd.picker = false;
+    cjRenderAddSheet(false);
+  } else {
+    cjCloseSheet();
+  }
+}
+function cjSaveProd(){
+  const v = cjTrip(); if(!v) return false;
+  const proveedor = cjUp(document.getElementById('cjP-prov').value);
+  const { cant, total } = cjProdTotal();
+  const bad = [cjMark('cjP-prov', !proveedor), cjMark('cjP-cant', !(cant > 0)), cjMark('cjP-val', !(total > 0))].some(Boolean);
+  if(bad){ showToast('Faltan datos','Completa proveedor, cantidad y valor.','warning'); return false; }
+  v.productos = v.productos || [];
+  const data = { proveedor, cantidad:cant, total:Math.round(total) };
+  if(cjAdd.editId) Object.assign(v.productos.find(p => p.id === cjAdd.editId) || {}, data);
+  else v.productos.push({ id:cjUid('P'), ...data });
+  cjTouch(v);
+  cjAdd.count++; cjAdd.sum += data.total;
+  cjAdd.last = `${cjEsc(proveedor)} · ${cant} ud${cant!==1?'s':''} · ${cjMoney(data.total)}`;
+  SFX.addInventory();
+  return true;
+}
+function cjSaveGasto(){
+  const v = cjTrip(); if(!v) return false;
+  const isNew = cjAdd.cat === '__new__';
+  const descripcion = isNew ? cjUp(document.getElementById('cjG-new')?.value) : cjAdd.cat;
+  const valor = cjVal('cjG-val');
+  const nota = (document.getElementById('cjG-nota')?.value || '').trim();
+  if(!descripcion){
+    if(isNew) cjMark('cjG-new', true);
+    showToast('Elige el concepto', isNew ? 'Escribe el nombre del concepto nuevo.' : 'Toca un concepto: Pasajes, Taxis, Alimentación…', 'warning');
+    return false;
+  }
+  if(cjMark('cjG-val', !(valor > 0))){ showToast('Falta el valor','Escribe cuánto costó.','warning'); return false; }
+  v.gastos = v.gastos || [];
+  const data = { descripcion, valor:Math.round(valor), icono: cjAdd.icon || 'receipt', nota };
+  if(cjAdd.editId) Object.assign(v.gastos.find(x => x.id === cjAdd.editId) || {}, data);
+  else v.gastos.push({ id:cjUid('G'), ...data });
+  cjTouch(v);
+  cjAdd.count++; cjAdd.sum += data.valor;
+  cjAdd.last = `${cjEsc(descripcion)} · ${cjMoney(data.valor)}`;
+  SFX.addAbono();
+  return true;
+}
+function cjDeleteProd(pid){
+  const v = cjTrip(); if(!v) return;
+  v.productos = (v.productos || []).filter(p => p.id !== pid);
+  cjTouch(v); cjCloseSheet(); cjRender(); SFX.delete();
+}
+function cjDeleteGasto(gid){
+  const v = cjTrip(); if(!v) return;
+  v.gastos = (v.gastos || []).filter(x => x.id !== gid);
+  cjTouch(v); cjCloseSheet(); cjRender(); SFX.delete();
+}
+
+// Chips de selección rápida
+function cjPick(inputId, chipsId, value){
+  const inp = document.getElementById(inputId);
+  inp.value = value; inp.classList.remove('err');
+  cjSyncChips(inputId, chipsId);
+}
+function cjSyncChips(inputId, chipsId){
+  const val = cjUp(document.getElementById(inputId)?.value);
+  document.querySelectorAll(`#${chipsId} .cj-qchip`).forEach(c => c.classList.toggle('on', c.dataset.v === val));
+}
+
+// ══════════════════════════════════════════
+// ENCARGOS (dentro de la Caja de viajes)
+// Prendas que la gente pide: para quién, si se consiguió, cuánto valió,
+// en qué proveedor y (opcional) a cuánto se vende.
+// Se guardan en la misma tabla jahdiel_viajes con tipo: 'encargo'.
+// ══════════════════════════════════════════
+let cjEncFilter = 'pend';
+let cjEncQuery = '';
+let cjEnc = { editId:null, count:0, last:'', done:false };
+
+function cjEncStats(){
+  const pend = cjEncargos.filter(e => !e.conseguido);
+  const ok = cjEncargos.filter(e => e.conseguido);
+  const invertido = ok.reduce((s, e) => s + (Number(e.valor) || 0), 0);
+  const conVenta = ok.filter(e => e.precioVenta > 0 && e.valor > 0);
+  const ganancia = conVenta.reduce((s, e) => s + (e.precioVenta - e.valor), 0);
+  return { pend, ok, invertido, ganancia, conVenta: conVenta.length };
+}
+function cjPersonas(){
+  const count = {};
+  cjEncargos.forEach(e => { const k = cjUp(e.persona); if(k) count[k] = (count[k] || 0) + 1; });
+  return Object.entries(count).sort((a, b) => b[1] - a[1]).map(([k]) => k);
+}
+function cjProveedoresAll(){
+  const list = cjProveedores();
+  cjEncargos.forEach(e => { const k = cjUp(e.proveedor); if(k && !list.includes(k)) list.push(k); });
+  return list;
+}
+function cjSetEncFilter(f){ cjEncFilter = f; cjRender(); }
+// Buscar: solo se redibuja la lista (el teclado no se cierra)
+function cjSearchEnc(input){
+  cjEncQuery = input.value;
+  const box = document.getElementById('cjEncList');
+  if(box){ box.innerHTML = cjEncListHTML(); lucide.createIcons({ nodes:[box] }); }
+}
+
+function cjEncListHTML(){
+  const st = cjEncStats();
+  const total = cjEncargos.length;
+  const q = cjUp(cjEncQuery);
+  let list = cjEncFilter === 'pend' ? st.pend : cjEncFilter === 'ok' ? st.ok : [...cjEncargos];
+  if(q) list = list.filter(e => [e.prenda, e.persona, e.detalle, e.proveedor].some(x => cjUp(x).includes(q)));
+  list.sort((a, b) => cjEncFilter === 'ok'
+    ? (b.fechaConseguido || b.updatedAt || '').localeCompare(a.fechaConseguido || a.updatedAt || '')
+    : (Number(!!a.conseguido) - Number(!!b.conseguido)) || (b.createdAt || '').localeCompare(a.createdAt || ''));
+
+  const cards = list.map(e => {
+    const ok = !!e.conseguido;
+    const gana = ok && e.precioVenta > 0 && e.valor > 0 ? e.precioVenta - e.valor : null;
+    const tags = [];
+    if(ok && e.proveedor) tags.push(`<span class="cj-tag prov"><i data-lucide="store"></i>${cjEsc(e.proveedor)}</span>`);
+    if(ok && e.valor) tags.push(`<span class="cj-tag">Costó <b>${cjMoney(e.valor)}</b></span>`);
+    if(e.precioVenta) tags.push(`<span class="cj-tag">Venta <b>${cjMoney(e.precioVenta)}</b></span>`);
+    if(gana != null) tags.push(`<span class="cj-tag ${gana < 0 ? 'bad' : 'good'}">${gana < 0 ? 'Pierde' : 'Gana'} <b>${cjMoney(Math.abs(gana))}</b></span>`);
+    return `<div class="cj-enc ${ok ? 'done' : ''}">
+      <button class="cj-check ${ok ? 'on' : ''}" onclick="cjToggleEnc('${e.id}')" aria-label="${ok ? 'Marcar como pendiente' : 'Marcar como conseguido'}" aria-pressed="${ok}"><i data-lucide="check"></i></button>
+      <button class="cj-enc-body" onclick="cjEncSheet('${e.id}')">
+        <span class="cj-enc-name">${cjEsc(e.prenda)}</span>
+        <span class="cj-enc-meta"><i data-lucide="user"></i>${cjEsc(e.persona)}${e.detalle ? ` · ${cjEsc(e.detalle)}` : ''}</span>
+        ${tags.length ? `<span class="cj-enc-tags">${tags.join('')}</span>` : ''}
+      </button>
+    </div>`;
+  }).join('');
+
+  const emptyMsg = q ? `No hay encargos que coincidan con “${cjEsc(cjEncQuery)}”.`
+    : cjEncFilter === 'pend' ? (total ? '¡Todo conseguido! No hay encargos pendientes.' : 'Anota aquí lo que te piden: la prenda y para quién.')
+    : cjEncFilter === 'ok' ? 'Aún no has marcado encargos como conseguidos.' : 'Todavía no hay encargos.';
+  return cards || `<div class="cj-empty"><div class="cj-empty-ico"><i data-lucide="clipboard-list"></i></div><b>${q ? 'Sin resultados' : 'Nada por aquí'}</b><p>${emptyMsg}</p></div>`;
+}
+
+function cjEncargosHTML(){
+  const st = cjEncStats();
+  const total = cjEncargos.length;
+  const chip = (f, label, n) => `<button class="cj-chip ${cjEncFilter===f?'active':''}" onclick="cjSetEncFilter('${f}')">${label} · ${n}</button>`;
+
+  return `
+    <header class="cj-top">
+      <div><div class="cj-hello">Lo que me pidieron</div><div class="cj-title">Encargos</div></div>
+      <div class="cj-top-actions">${cjSyncBadge()}<button class="cj-round" onclick="cjExit()" aria-label="Volver a la tienda"><i data-lucide="x"></i></button></div>
+    </header>
+    <section class="cj-hero cj-hero-enc">
+      <div class="cj-hero-k">Encargos conseguidos</div>
+      <div class="cj-hero-v">${st.ok.length} <span style="font-size:20px;opacity:.75;">de ${total}</span></div>
+      <div class="cj-enc-progress" aria-hidden="true"><i style="width:${total ? st.ok.length / total * 100 : 0}%"></i></div>
+      <div class="cj-hero-row">
+        <div><span>Pendientes</span><b>${st.pend.length}</b></div>
+        <div><span>Conseguidos</span><b>${st.ok.length}</b></div>
+        <div><span>Invertido</span><b>${cjShort(st.invertido)}</b></div>
+        <div><span>Ganancia</span><b>${st.conVenta ? cjShort(st.ganancia) : '—'}</b></div>
+      </div>
+    </section>
+    <div class="cj-chips">${chip('pend','Pendientes',st.pend.length)}${chip('ok','Conseguidos',st.ok.length)}${chip('all','Todos',total)}</div>
+    <div class="cj-search"><i data-lucide="search"></i><input id="cjEncSearch" placeholder="Buscar persona, prenda o proveedor" value="${cjEsc(cjEncQuery)}" oninput="cjSearchEnc(this)" autocomplete="off"></div>
+    <div class="cj-list" id="cjEncList">${cjEncListHTML()}</div>
+    <button class="cj-add" onclick="cjEncSheet()"><i data-lucide="plus"></i> Nuevo encargo</button>
+    ${cjNav()}`;
+}
+
+// Chulo: marcar conseguido pide costo y proveedor si faltan
+function cjToggleEnc(id){
+  const e = cjEncargos.find(x => x.id === id); if(!e) return;
+  if(!e.conseguido && (!e.valor || !e.proveedor)){ cjEncSheet(id, true); return; }
+  e.conseguido = !e.conseguido;
+  e.fechaConseguido = e.conseguido ? new Date().toISOString() : '';
+  cjTouch(e);
+  cjRender();
+  if(e.conseguido) SFX.addInventory(); else SFX.delete();
+}
+
+function cjEncSheet(id, markDone){
+  const e = id ? cjEncargos.find(x => x.id === id) : null;
+  cjEnc = { editId: e ? e.id : null, count:0, last:'', done: e ? (markDone || !!e.conseguido) : false };
+  cjRenderEncSheet(true, markDone);
+}
+function cjRenderEncSheet(animate, focusCost){
+  const e = cjEnc.editId ? cjEncargos.find(x => x.id === cjEnc.editId) : null;
+  const personas = cjPersonas(), provs = cjProveedoresAll();
+  const money = (id, val, next) => `<input class="cj-input" id="${id}" inputmode="numeric" placeholder="$ 0" autocomplete="off" enterkeyhint="${next ? 'next' : 'done'}"
+      value="${val ? Math.round(val).toLocaleString('es-CO') : ''}" oninput="formatPriceInput(this);cjEncCalc()" onkeydown="cjEncEnter(event,${next ? `'${next}'` : 'null'})">`;
+  const editing = !!e;
+  const html = `
+    <h4>${editing ? 'Editar encargo' : 'Nuevo encargo'}</h4>
+    ${cjEnc.last ? `<div class="cj-flash"><i data-lucide="check-circle-2"></i> ${cjEnc.last}</div>` : ''}
+    ${!editing && cjEnc.count ? `<div class="cj-session">Agregaste <b>${cjEnc.count}</b> encargo${cjEnc.count!==1?'s':''}</div>` : ''}
+    <div class="cj-field"><label>Prenda</label>
+      <input class="cj-input" id="cjE-prenda" placeholder="Ej: JEAN SKINNY AZUL" style="text-transform:uppercase" autocomplete="off" enterkeyhint="next"
+        value="${e ? cjEsc(e.prenda) : ''}" onkeydown="cjEncEnter(event,'cjE-persona')"></div>
+    <div class="cj-field"><label>Para quién</label>
+      <input class="cj-input" id="cjE-persona" list="cjPersonaList" placeholder="Ej: MARÍA" style="text-transform:uppercase" autocomplete="off" enterkeyhint="next"
+        value="${e ? cjEsc(e.persona) : ''}" oninput="cjSyncChips('cjE-persona','cjE-pchips')" onkeydown="cjEncEnter(event,'cjE-detalle')">
+      <datalist id="cjPersonaList">${personas.map(p => `<option value="${cjEsc(p)}">`).join('')}</datalist>
+      ${personas.length ? `<div class="cj-qchips" id="cjE-pchips">${personas.slice(0, 8).map(p => `<button type="button" class="cj-qchip" data-v="${cjEsc(p)}" onclick="cjPick('cjE-persona','cjE-pchips',this.dataset.v)">${cjEsc(p)}</button>`).join('')}</div>` : ''}
+    </div>
+    <div class="cj-field"><label>Detalle <span style="font-weight:500;color:var(--cj-ink3)">(opcional: talla, color…)</span></label>
+      <input class="cj-input" id="cjE-detalle" placeholder="Ej: TALLA 10, NEGRO" style="text-transform:uppercase" autocomplete="off" enterkeyhint="${cjEnc.done ? 'next' : 'done'}"
+        value="${e ? cjEsc(e.detalle || '') : ''}" onkeydown="cjEncEnter(event, cjEnc.done ? 'cjE-valor' : 'cjE-venta')"></div>
+    <div class="cj-field"><label>¿Se consiguió?</label>
+      <div class="cj-seg cj-seg-lg" style="margin:0;">
+        <button type="button" id="cjE-no" class="${cjEnc.done?'':'on'}" onclick="cjEncSetDone(false)"><i data-lucide="clock"></i> Pendiente</button>
+        <button type="button" id="cjE-si" class="${cjEnc.done?'on':''}" onclick="cjEncSetDone(true)"><i data-lucide="check"></i> Conseguido</button>
+      </div>
+    </div>
+    <div id="cjE-donebox" style="${cjEnc.done ? '' : 'display:none'}">
+      <div class="cj-field"><label>¿Cuánto valió?</label>${money('cjE-valor', e?.valor, 'cjE-prov')}</div>
+      <div class="cj-field"><label>¿En qué proveedor?</label>
+        <input class="cj-input" id="cjE-prov" list="cjEProvList" placeholder="Ej: XEROS" style="text-transform:uppercase" autocomplete="off" enterkeyhint="next"
+          value="${e ? cjEsc(e.proveedor || '') : ''}" oninput="cjSyncChips('cjE-prov','cjE-provchips')" onkeydown="cjEncEnter(event,'cjE-venta')">
+        <datalist id="cjEProvList">${provs.map(p => `<option value="${cjEsc(p)}">`).join('')}</datalist>
+        ${provs.length ? `<div class="cj-qchips" id="cjE-provchips">${provs.slice(0, 8).map(p => `<button type="button" class="cj-qchip" data-v="${cjEsc(p)}" onclick="cjPick('cjE-prov','cjE-provchips',this.dataset.v)">${cjEsc(p)}</button>`).join('')}</div>` : ''}
+      </div>
+    </div>
+    <div class="cj-field"><label>Precio de venta <span style="font-weight:500;color:var(--cj-ink3)">(opcional)</span></label>${money('cjE-venta', e?.precioVenta, null)}
+      <div class="cj-calc" id="cjE-calc"></div></div>
+    <div class="cj-actions">
+      ${editing
+        ? `<button class="cj-btn danger" onclick="cjDeleteEnc('${e.id}')"><i data-lucide="trash-2"></i> Eliminar</button>
+           <button class="cj-btn primary" onclick="cjSaveEnc(false)"><i data-lucide="check"></i> Guardar</button>`
+        : `<button class="cj-btn ghost" onclick="cjCloseSheet()">Listo</button>
+           <button class="cj-btn primary" onclick="cjSaveEnc(true)"><i data-lucide="plus"></i> Guardar y otro</button>`}
+    </div>`;
+  cjOpenSheet(html, { noAnim: !animate });
+  cjSyncChips('cjE-persona','cjE-pchips'); cjSyncChips('cjE-prov','cjE-provchips');
+  cjEncCalc();
+  const focusId = focusCost ? 'cjE-valor' : (editing ? null : 'cjE-prenda');
+  if(focusId) setTimeout(() => document.getElementById(focusId)?.focus(), animate ? 260 : 30);
+}
+function cjEncSetDone(done){
+  cjEnc.done = done;
+  document.getElementById('cjE-si').classList.toggle('on', done);
+  document.getElementById('cjE-no').classList.toggle('on', !done);
+  document.getElementById('cjE-donebox').style.display = done ? '' : 'none';
+  cjEncCalc();
+  if(done) document.getElementById('cjE-valor')?.focus();
+}
+function cjEncCalc(){
+  const out = document.getElementById('cjE-calc'); if(!out) return;
+  const venta = cjVal('cjE-venta'), costo = cjEnc.done ? cjVal('cjE-valor') : 0;
+  if(!venta){ out.innerHTML = ''; return; }
+  if(!costo){ out.innerHTML = cjEnc.done ? 'Escribe cuánto valió para ver la ganancia.' : 'Cuando lo consigas, verás la ganancia.'; return; }
+  const g = venta - costo;
+  out.innerHTML = `${cjMoney(venta)} − ${cjMoney(costo)} = <b style="color:${g < 0 ? 'var(--cj-bad)' : 'var(--cj-queda)'}">${g < 0 ? 'pierdes' : 'ganas'} ${cjMoney(Math.abs(g))}</b> (${cjPct(Math.abs(g), costo)}%)`;
+}
+function cjEncEnter(ev, nextId){
+  if(ev.key !== 'Enter') return;
+  ev.preventDefault();
+  const next = nextId && document.getElementById(nextId);
+  if(next && next.offsetParent !== null){ next.focus(); return; }
+  cjSaveEnc(!cjEnc.editId);
+}
+function cjSaveEnc(andNext){
+  const prenda = cjUp(document.getElementById('cjE-prenda').value);
+  const persona = cjUp(document.getElementById('cjE-persona').value);
+  const bad = [cjMark('cjE-prenda', !prenda), cjMark('cjE-persona', !persona)].some(Boolean);
+  if(bad){ showToast('Faltan datos','Escribe la prenda y para quién es.','warning'); return; }
+  const data = {
+    prenda, persona,
+    detalle: cjUp(document.getElementById('cjE-detalle').value),
+    conseguido: cjEnc.done,
+    valor: cjEnc.done ? Math.round(cjVal('cjE-valor')) : 0,
+    proveedor: cjEnc.done ? cjUp(document.getElementById('cjE-prov').value) : '',
+    precioVenta: Math.round(cjVal('cjE-venta')),
+  };
+  let e;
+  if(cjEnc.editId){
+    e = cjEncargos.find(x => x.id === cjEnc.editId); if(!e) return;
+    if(data.conseguido && !e.conseguido) data.fechaConseguido = new Date().toISOString();
+    if(!data.conseguido) data.fechaConseguido = '';
+    Object.assign(e, data);
+  } else {
+    e = { id:cjUid('EN'), tipo:'encargo', ...data, fechaConseguido: data.conseguido ? new Date().toISOString() : '', createdAt:new Date().toISOString() };
+    cjEncargos.push(e);
+  }
+  cjTouch(e);
+  cjRender();
+  SFX.addInventory();
+  if(andNext && !cjEnc.editId){
+    cjEnc.count++;
+    cjEnc.last = `${cjEsc(prenda)} · ${cjEsc(persona)}`;
+    cjEnc.done = false;
+    cjRenderEncSheet(false);
+  } else {
+    cjCloseSheet();
+  }
+}
+function cjDeleteEnc(id){
+  const e = cjEncargos.find(x => x.id === id); if(!e) return;
+  cjConfirm('Eliminar encargo', `Se borrará <b>${cjEsc(e.prenda)}</b> de ${cjEsc(e.persona)}.`, () => {
+    cjEncargos = cjEncargos.filter(x => x.id !== id);
+    cjSaveLocal();
+    cjDeleteRemote(id);
+    cjRender();
+    SFX.delete();
+  });
+}
+
+// ══════════════════════════════════════════
 // ESCÁNER DE FACTURAS CON IA
 // Flujo: subir foto/imagen/PDF → la IA (Supabase Edge Function
 // "escanear-factura" + OpenAI) extrae los productos → revisión editable
@@ -5782,6 +7201,7 @@ async function init(){
     lucide.createIcons();
     updateStats();
     initFormDraft();
+    initCaja();
     setInterval(refreshFromSupabase, 8000);
   }catch(err){
     supabaseSyncPaused = false;
