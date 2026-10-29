@@ -293,15 +293,29 @@ Aparece en Inicio y Agregar como `.active-invoice-bar`:
 Renderiza cada factura como `.invoice-card` con:
 - Número, nombre, fecha, estado (badge Pendiente/Enviada)
 - Total en verde
-- Botones: **Ver detalle** / **Enviar** / **Eliminar**
+- Botones (`.inv-actions`), dos filas:
+  - Fila 1: **Ver detalle** · **Enviar** (o **Re-enviar** si ya se envió).
+  - Fila 2: toggle **Con / Sin cantidad** (`toggleInvoiceQty`) · toggle **Zapatos: Sí / No** (`toggleShoeStatus`) ·
+    eliminar (ícono). Cada estado tiene su color: Con cantidad verde / **Sin cantidad naranja**;
+    Zapatos Sí amarillo / **Zapatos No lila**.
 
-### Modal Ver Detalle (`openInvoiceDetail`, línea 4204)
-Bottom sheet con estructura flex en 3 secciones:
+### Vista mensual (`setInvoiceView`, `renderInvoicesMonthly`)
+Interruptor arriba de Facturas: **Lista** (la vista de siempre, `renderInvoicesList`) ↔ **Vista mensual**.
+Se recuerda en `localStorage` `jahdiel_inv_view`. La vista mensual agrupa por **año** y muestra una **cuadrícula de
+meses** (total, facturas, unidades, enviadas/pendientes, barra relativa). Al tocar un mes se despliega su detalle
+(`toggleInvMonth`) con pestañas **Por nombre** (cliente/proveedor/pedido), **Por factura** (toca para abrirla) y
+**Por marca**. Animaciones: al cambiar de vista lo actual se recoge (`invOut`) y lo nuevo entra escalonado (`invIn`);
+el detalle del mes se despliega y se recoge suavemente; respeta "reducir movimiento".
+
+### Modal Ver Detalle (`openInvoiceDetail` → `renderInvoiceDetailContent`)
+Bottom sheet (`.inv-sheet`) en 3 secciones:
 ```
-.modal-sheet (flex column, max-height:92dvh)
-├── Cabecera fija    — #XXXX, nombre, fecha, estado
-├── Lista scrollable — ítems (marca, attrs, qty, precio · btn-icon ×)
-└── Footer fijo      — "N ítems · M uds." + total grande + [Enviar a Sheets] [Cerrar]
+├── Cabecera fija    — #XXXX, nombre, fecha, estado, Con/Sin cantidad, Zapatos Sí/No
+├── Lista scrollable — resumen (N simples · N grupos · N variaciones · uds) y bloques en el orden de la factura:
+│     · SIMPLE: código, marca — descripción, color/talla/estilo, Cant · Compra c/u · Venta c/u · Subtotal
+│     · VARIACIONES · N: agrupadas por marca + descripción + género (producto con tipo 'variation'),
+│       precios del grupo y una fila por variación (color, talla, código, cantidad, subtotal, ×)
+└── Footer fijo      — "N ítems · M uds." + total + [Cerrar] [Enviar / Re-enviar a Sheets]
 ```
 El ID del overlay es `#invoiceDetailOverlay` — se reutiliza para refrescar sin cerrar.
 
@@ -312,7 +326,13 @@ Sheet para ingresar nombre y fecha → crea el objeto → lo setea como activa.
 Sheet con lista de todas las facturas. Clic en una → `setActiveInvoice(id)`.
 
 ### Enviar a Sheets (`confirmSendInvoice`, líneas 3421+)
-Envía la factura a Google Sheets via API. Cambia `status` a `'sent'`.
+Envía la factura a Google Sheets via API (`apiCall('create_products', { products, fechaEnvio })`).
+Cambia `status` a `'sent'` y guarda `sentAt`. `fechaEnvio` (`YYYY-MM-DD`) es la fecha del envío: el Apps Script
+la escribe en la hoja **NUEVOS**, celda **B1** (combinada B1:F1).
+
+Sincronización: `refreshFromSupabase()` (cada 8 s) descarta lo que trae de la nube si mientras llegaba hubo
+cambios locales, una subida en curso o un envío a Sheets (`supabaseEditSeq`, `supabaseSyncing`, `invoiceSending`).
+Antes, esa revisión podía pisar la factura recién enviada y dejarla otra vez en "Pendiente".
 
 ---
 

@@ -920,6 +920,240 @@
     }
     .ac-expanded-label span { color: var(--red); }
     /* ══════════ ESCÁNER IA ══════════ */
+    /* ══════════ FACTURAS: botones y detalle ══════════ */
+    .inv-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+    .inv-actions-main { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .inv-actions-opts { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr) 44px; gap: 8px; }
+    .inv-btn, .inv-tg {
+      min-height: 44px; border-radius: 12px; border: 1px solid transparent; cursor: pointer; font-family: inherit;
+      display: flex; align-items: center; justify-content: center; gap: 7px; padding: 8px 10px;
+      font-size: 13.5px; font-weight: 700; line-height: 1.15; text-align: center; -webkit-tap-highlight-color: transparent;
+      transition: transform .12s, background .15s, border-color .15s, color .15s;
+    }
+    .inv-btn:active, .inv-tg:active { transform: scale(.97); }
+    .inv-btn svg, .inv-tg svg { width: 17px; height: 17px; flex-shrink: 0; }
+    .inv-btn.ghost { background: var(--surface2); border-color: var(--border); color: var(--text); }
+    .inv-btn.send { background: linear-gradient(135deg, #0fba8a, var(--green2)); color: #fff; box-shadow: 0 4px 14px rgba(16,217,160,.28); }
+    .inv-btn.sent { background: rgba(16,217,160,.10); border-color: rgba(16,217,160,.35); color: var(--green); }
+    .inv-btn.danger { background: rgba(255,87,87,.12); border-color: rgba(255,87,87,.32); color: var(--red); padding: 0; }
+    .inv-tg { background: var(--surface); border-color: var(--border); color: var(--text2); font-size: 12.5px; font-weight: 600; }
+    .inv-tg.on { background: rgba(16,217,160,.10); border-color: rgba(16,217,160,.35); color: var(--green); }
+    .inv-tg.shoe.on { background: rgba(255,181,71,.12); border-color: rgba(255,181,71,.38); color: var(--yellow); }
+    .inv-tg b { font-weight: 800; }
+    @media (max-width: 350px) {
+      .inv-actions-opts { grid-template-columns: minmax(0,1fr) minmax(0,1fr) 40px; gap: 6px; }
+      .inv-btn, .inv-tg { font-size: 12px; padding: 8px 5px; gap: 5px; }
+      .inv-tg svg { width: 15px; height: 15px; }
+    }
+
+    .inv-sheet { max-height: 92dvh; display: flex; flex-direction: column; padding: 0 !important; overflow: hidden; }
+    .inv-sheet-head { padding: 14px 16px 10px; flex-shrink: 0; border-bottom: 1px solid var(--border); }
+    .inv-sheet-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .inv-sheet-num { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--accent); }
+    .inv-sheet-name { font-family: 'Space Grotesk', sans-serif; font-size: 19px; font-weight: 800; line-height: 1.2; margin-top: 2px; overflow-wrap: anywhere; }
+    .inv-sheet-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; font-size: 11.5px; color: var(--text2); }
+    .inv-sheet-meta > span:first-child { display: inline-flex; align-items: center; gap: 4px; margin-right: 2px; }
+    .inv-sheet-meta svg { width: 12px; height: 12px; }
+    .inv-flag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 999px; background: var(--surface2); border: 1px solid var(--border); font-weight: 600; }
+    .inv-flag.on { color: var(--green); border-color: rgba(16,217,160,.3); background: rgba(16,217,160,.08); }
+    .inv-sheet-body { overflow-y: auto; flex: 1; padding: 12px 16px; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 10px; }
+    .inv-summary { display: flex; flex-wrap: wrap; gap: 6px; }
+    .inv-summary span { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--text2); padding: 6px 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); }
+    .inv-summary svg { width: 13px; height: 13px; }
+    .inv-block { border-radius: 14px; padding: 12px; background: var(--surface); border: 1px solid var(--border); }
+    .inv-block.var { border-color: rgba(255,181,71,.28); background: rgba(255,181,71,.04); }
+    .inv-block-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .inv-type { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; padding: 4px 8px; border-radius: 8px; flex-shrink: 0; }
+    .inv-type svg { width: 12px; height: 12px; }
+    .inv-type.simple { background: rgba(56,189,248,.12); color: var(--blue); }
+    .inv-type.var { background: rgba(255,181,71,.14); color: var(--yellow); }
+    .inv-block-sum { margin-left: auto; font-size: 12px; color: var(--text2); }
+    .inv-block-sum b { color: var(--text); }
+    .inv-block .inv-block-head .inv-del { margin-left: auto; }
+    .inv-code { font-size: 10.5px; font-weight: 700; color: var(--text3); padding: 2px 7px; border-radius: 6px; background: var(--surface2); }
+    .inv-block-title { font-weight: 700; font-size: 14.5px; line-height: 1.3; overflow-wrap: anywhere; }
+    .inv-block-title small { font-size: 11px; font-weight: 700; color: var(--text3); margin-left: 4px; }
+    .inv-block-prices { font-size: 12px; color: var(--text2); margin-top: 4px; }
+    .inv-block-prices b { color: var(--text); }
+    .inv-block-prices b.green, .inv-nums b.green { color: var(--green); }
+    .inv-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+    .inv-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 600; padding: 3px 8px; border-radius: 7px; background: var(--surface2); color: var(--text); }
+    .inv-chip svg { width: 11px; height: 11px; color: var(--text3); }
+    .inv-nums { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 6px; margin-top: 10px; }
+    .inv-nums span { display: flex; flex-direction: column; gap: 2px; padding: 7px 8px; border-radius: 10px; background: var(--surface2); min-width: 0; }
+    .inv-nums small { font-size: 10px; color: var(--text3); font-weight: 600; }
+    .inv-nums b { font-size: 13px; overflow-wrap: anywhere; }
+    .inv-nums .sub { background: rgba(108,99,255,.12); }
+    .inv-vars { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+    .inv-var { display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 10px; border-radius: 11px; background: var(--bg2); border: 1px solid var(--border); }
+    .inv-var-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+    .inv-var-main .inv-chips { margin-top: 0; }
+    .inv-var-main .inv-code { align-self: flex-start; }
+    .inv-var-prices { font-size: 11px; color: var(--text3); }
+    .inv-var-qty { display: flex; flex-direction: column; align-items: center; line-height: 1; flex-shrink: 0; }
+    .inv-var-qty b { font-size: 16px; }
+    .inv-var-qty small { font-size: 10px; color: var(--text3); }
+    .inv-var-sub { font-weight: 700; font-size: 13px; flex-shrink: 0; min-width: 64px; text-align: right; }
+    .inv-del { width: 30px; height: 30px; border-radius: 9px; border: 1px solid rgba(255,87,87,.3); background: rgba(255,87,87,.08); color: var(--red); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+    .inv-del svg { width: 15px; height: 15px; }
+    .inv-empty { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; padding: 36px 16px; color: var(--text3); font-size: 13px; }
+    .inv-empty svg { width: 30px; height: 30px; }
+    .inv-empty b { color: var(--text2); }
+    .inv-sheet-foot { flex-shrink: 0; padding: 12px 16px calc(14px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); background: var(--bg2); }
+    .inv-total { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .inv-total span { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--text3); }
+    .inv-total b { font-family: 'Space Grotesk', sans-serif; font-size: 21px; font-weight: 800; color: var(--green); }
+    @media (max-width: 360px) {
+      .inv-nums { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .inv-var-sub { min-width: 0; }
+    }
+
+    /* Toggles: cada estado con su color */
+    .inv-tg.qty:not(.on)  { background: rgba(255,138,61,.12); border-color: rgba(255,138,61,.42); color: #FF9A52; }
+    .inv-tg.shoe:not(.on) { background: rgba(167,139,250,.13); border-color: rgba(167,139,250,.45); color: #BBA6FF; }
+    .inv-flag.qty:not(.on)  { color: #FF9A52; border-color: rgba(255,138,61,.4); background: rgba(255,138,61,.10); }
+    .inv-flag.shoe.on       { color: var(--yellow); border-color: rgba(255,181,71,.4); background: rgba(255,181,71,.10); }
+    .inv-flag.shoe:not(.on) { color: #BBA6FF; border-color: rgba(167,139,250,.42); background: rgba(167,139,250,.10); }
+
+    /* Interruptor Lista ↔ Vista mensual */
+    .inv-viewbar { margin: 10px 0 14px; }
+    .inv-switch { position: relative; display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); }
+    .inv-switch-thumb {
+      position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 4px); border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2)); box-shadow: 0 4px 14px rgba(108,99,255,.35);
+      transition: transform .45s cubic-bezier(.2,.9,.3,1.15);
+    }
+    .inv-switch.month .inv-switch-thumb { transform: translateX(100%); }
+    .inv-switch button {
+      position: relative; z-index: 1; border: none; background: none; cursor: pointer; font-family: inherit;
+      display: flex; align-items: center; justify-content: center; gap: 7px; min-height: 42px; padding: 6px 8px;
+      font-size: 13.5px; font-weight: 700; color: var(--text2); transition: color .3s; -webkit-tap-highlight-color: transparent;
+    }
+    .inv-switch button svg { width: 16px; height: 16px; }
+    .inv-switch button[aria-selected="true"] { color: #fff; }
+
+    /* Brillo dorado en "Vista mensual" (mientras se está en Lista) */
+    .inv-sw-month { border-radius: 10px; white-space: nowrap; }
+    .inv-sw-shine { position: absolute; inset: 0; border-radius: 10px; overflow: hidden; pointer-events: none; }
+    .inv-switch:not(.month) .inv-sw-month {
+      background: linear-gradient(135deg, rgba(255,197,66,.12), rgba(167,139,250,.12));
+      box-shadow: inset 0 0 0 1px rgba(255,197,66,.38), 0 0 18px rgba(255,197,66,.16);
+      animation: invGlow 2.8s ease-in-out infinite;
+    }
+    .inv-switch:not(.month) .inv-sw-month svg { color: #FFC542; filter: drop-shadow(0 0 5px rgba(255,197,66,.7)); }
+    .inv-switch:not(.month) .inv-sw-txt {
+      background: linear-gradient(100deg, #FFD978 0%, #FFB547 35%, #FFF1C2 50%, #C9A6FF 75%, #FFD978 100%);
+      background-size: 220% 100%;
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      animation: invGoldText 3.2s linear infinite;
+    }
+    .inv-switch:not(.month) .inv-sw-shine::after {
+      content: ''; position: absolute; top: -20%; bottom: -20%; width: 38%; left: -60%; pointer-events: none;
+      background: linear-gradient(105deg, transparent 0%, rgba(255,240,200,.0) 20%, rgba(255,236,180,.55) 50%, rgba(255,240,200,0) 80%, transparent 100%);
+      transform: skewX(-18deg);
+      animation: invShine 3.6s cubic-bezier(.45,0,.2,1) infinite;
+    }
+    .inv-sw-new {
+      position: absolute; top: -12px; right: 6px; z-index: 3;
+      font-size: 9px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; line-height: 1;
+      padding: 3px 6px; border-radius: 999px; color: #3B2A00;
+      background: linear-gradient(135deg, #FFE08A, #FFB547); box-shadow: 0 0 10px rgba(255,197,66,.55);
+    }
+    .inv-switch.seen .inv-sw-new, .inv-switch.month .inv-sw-new { display: none; }
+    @keyframes invShine { 0% { left: -60%; } 55%, 100% { left: 130%; } }
+    @keyframes invGoldText { to { background-position: -220% 0; } }
+    @keyframes invGlow { 0%, 100% { box-shadow: inset 0 0 0 1px rgba(255,197,66,.32), 0 0 12px rgba(255,197,66,.10); } 50% { box-shadow: inset 0 0 0 1px rgba(255,197,66,.6), 0 0 22px rgba(255,197,66,.28); } }
+    @media (prefers-reduced-motion: reduce) {
+      .inv-switch:not(.month) .inv-sw-month, .inv-switch:not(.month) .inv-sw-txt { animation: none; }
+      .inv-switch:not(.month) .inv-sw-shine::after { display: none; }
+    }
+
+    /* Animaciones de agrupar / desagrupar */
+    @keyframes invOut { to { opacity: 0; transform: translateY(-10px) scale(.94); filter: blur(2px); } }
+    @keyframes invIn  { from { opacity: 0; transform: translateY(16px) scale(.9); } to { opacity: 1; transform: none; } }
+
+    /* Vista mensual */
+    .inv-year { margin-bottom: 18px; }
+    .inv-year-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin: 0 2px 10px; }
+    .inv-year-head > span:first-child { font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 800; }
+    .inv-year-meta { font-size: 12.5px; color: var(--text2); }
+    .inv-year-meta b { color: var(--green); }
+    .inv-mgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-flow: row dense; gap: 10px; }
+    .inv-mtile {
+      text-align: left; cursor: pointer; font-family: inherit; color: var(--text); min-width: 0;
+      display: flex; flex-direction: column; gap: 5px; padding: 13px; border-radius: 16px;
+      background: var(--surface); border: 1px solid var(--border);
+      transition: border-color .25s, background .25s, transform .15s, box-shadow .25s; -webkit-tap-highlight-color: transparent;
+    }
+    .inv-mtile:active { transform: scale(.97); }
+    .inv-mtile.sel { border-color: var(--accent); background: rgba(108,99,255,.12); box-shadow: 0 6px 18px rgba(108,99,255,.22); }
+    .inv-mtile-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .inv-mtile-top b { font-size: 14.5px; }
+    .inv-mtile-chev { width: 16px; height: 16px; color: var(--text3); transition: transform .35s cubic-bezier(.2,.9,.3,1.15); }
+    .inv-mtile.sel .inv-mtile-chev { transform: rotate(180deg); color: var(--accent); }
+    .inv-mtile-v { font-family: 'Space Grotesk', sans-serif; font-size: clamp(17px, 5vw, 20px); font-weight: 800; color: var(--green); line-height: 1.1; overflow-wrap: anywhere; }
+    .inv-mtile-meta { font-size: 11.5px; color: var(--text2); }
+    .inv-mtile-bar { height: 5px; border-radius: 999px; background: var(--surface2); overflow: hidden; }
+    .inv-mtile-bar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+    .inv-mtile-st { display: flex; flex-wrap: wrap; gap: 4px; }
+    .inv-mtile-st em { font-style: normal; font-size: 10.5px; font-weight: 700; padding: 2px 6px; border-radius: 6px; }
+    .inv-mtile-st em.ok { color: var(--green); background: rgba(16,217,160,.12); }
+    .inv-mtile-st em.pend { color: var(--yellow); background: rgba(255,181,71,.12); }
+
+    .inv-mdetail { grid-column: 1 / -1; border-radius: 16px; padding: 14px; background: var(--bg2); border: 1px solid rgba(108,99,255,.35); overflow: hidden; transform-origin: top center; }
+    .inv-mdetail.opening { animation: invDetailIn .45s cubic-bezier(.2,.9,.3,1.05) both; }
+    .inv-mdetail.closing { animation: invDetailOut .26s cubic-bezier(.4,0,1,1) both; }
+    @keyframes invDetailIn  { from { opacity: 0; max-height: 0; transform: translateY(-10px) scaleY(.96); padding-top: 0; padding-bottom: 0; } to { opacity: 1; max-height: 1600px; transform: none; } }
+    @keyframes invDetailOut { from { opacity: 1; max-height: 1600px; } to { opacity: 0; max-height: 0; transform: translateY(-8px) scaleY(.97); padding-top: 0; padding-bottom: 0; } }
+    .inv-mdetail-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+    .inv-mdetail-k { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); }
+    .inv-mdetail-v { font-family: 'Space Grotesk', sans-serif; font-size: clamp(24px, 7.5vw, 30px); font-weight: 800; color: var(--green); line-height: 1.15; overflow-wrap: anywhere; }
+    .inv-mdetail-meta { font-size: 12px; color: var(--text2); margin-top: 2px; }
+    .inv-mtabs { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 4px; padding: 4px; border-radius: 12px; background: var(--surface); margin-bottom: 12px; }
+    .inv-mtabs button { border: none; background: none; cursor: pointer; font-family: inherit; color: var(--text2); border-radius: 9px; padding: 8px 4px; font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 5px; transition: background .2s, color .2s; }
+    .inv-mtabs button svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .inv-mtabs button.on { background: var(--surface3); color: var(--text); }
+    .inv-mdetail-body { display: flex; flex-direction: column; gap: 8px; transition: opacity .18s ease; }
+    .inv-mrow { padding: 10px 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); }
+    .inv-mrow[role="button"] { cursor: pointer; }
+    .inv-mrow[role="button"]:active { transform: scale(.98); }
+    .inv-mrow-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .inv-mrow-name { font-weight: 700; font-size: 13.5px; min-width: 0; overflow-wrap: anywhere; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+    .inv-mrow-top b { font-size: 14px; flex-shrink: 0; }
+    .inv-mrow-meta { font-size: 11.5px; color: var(--text3); margin: 2px 0 7px; }
+    .inv-mbar { height: 6px; border-radius: 999px; background: var(--surface2); overflow: hidden; }
+    .inv-mbar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+    .inv-mnum { font-size: 11px; color: var(--accent); font-weight: 800; }
+    .inv-mcards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .inv-mcards .inv-mempty { grid-column: 1 / -1; }
+    .inv-mcard {
+      min-width: 0; display: flex; flex-direction: column; gap: 3px; padding: 10px 11px 11px;
+      border-radius: 13px; background: var(--surface); border: 1px solid var(--border);
+      transition: transform .15s, border-color .2s;
+    }
+    .inv-mcard.top { border-color: rgba(108,99,255,.45); background: rgba(108,99,255,.10); }
+    .inv-mcard[role="button"] { cursor: pointer; }
+    .inv-mcard[role="button"]:active { transform: scale(.97); }
+    .inv-mcard-head { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; }
+    .inv-mcard-rank { width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; background: var(--surface2); color: var(--text2); }
+    .inv-mcard.top .inv-mcard-rank { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; }
+    .inv-mcard-pct { margin-left: auto; font-size: 11px; font-weight: 700; color: var(--text3); }
+    .inv-mcard-st { font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; padding: 2px 6px; border-radius: 6px; }
+    .inv-mcard-st.ok { color: var(--green); background: rgba(16,217,160,.12); }
+    .inv-mcard-st.pend { color: var(--yellow); background: rgba(255,181,71,.12); }
+    .inv-mcard-name { font-weight: 700; font-size: 13px; line-height: 1.25; overflow-wrap: anywhere; }
+    .inv-mcard-v { font-family: 'Space Grotesk', sans-serif; font-size: clamp(15px, 4.4vw, 17px); font-weight: 800; color: var(--green); line-height: 1.15; overflow-wrap: anywhere; }
+    .inv-mcard-meta { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+    .inv-mcard .inv-mbar { margin-top: auto; height: 5px; }
+    @media (max-width: 300px) { .inv-mcards { grid-template-columns: 1fr; } }
+    .inv-mempty { text-align: center; color: var(--text3); font-size: 13px; padding: 16px; }
+    @media (max-width: 400px) { .inv-mtabs button svg { display: none; } }
+    @media (max-width: 340px) { .inv-mgrid { grid-template-columns: 1fr; } }
+    @media (prefers-reduced-motion: reduce) {
+      .inv-switch-thumb, .inv-mtile-chev { transition: none; }
+      .inv-mdetail.opening, .inv-mdetail.closing { animation: none; }
+    }
+
     /* ══════════ CAJA DE VIAJES (módulo en modo claro) ══════════ */
     .fab-caja {
       position: fixed; bottom: 152px; right: 20px; z-index: 160;
@@ -1948,6 +2182,15 @@
   <!-- PAGE: Facturas -->
   <div class="page" id="page-invoices">
 
+    <!-- Lista ↔ Vista mensual -->
+    <div class="inv-viewbar" id="invViewBar" style="display:none;">
+      <div class="inv-switch" role="tablist" aria-label="Cómo ver las facturas">
+        <span class="inv-switch-thumb" aria-hidden="true"></span>
+        <button type="button" role="tab" data-v="list" onclick="setInvoiceView('list')"><i data-lucide="list"></i>Lista</button>
+        <button type="button" role="tab" data-v="month" class="inv-sw-month" onclick="setInvoiceView('month')"><i data-lucide="calendar-days"></i><span class="inv-sw-shine" aria-hidden="true"></span><span class="inv-sw-txt">Vista mensual</span><span class="inv-sw-new">Nuevo</span></button>
+      </div>
+    </div>
+
     <!-- Lista de facturas -->
     <div id="invoiceEmpty" class="invoice-empty">
       <div class="empty-icon"><i data-lucide="receipt"></i></div>
@@ -2047,6 +2290,10 @@ let supabaseDb = null;
 let supabaseSyncTimer = null;
 let supabasePendingScopes = new Set();
 let supabaseSyncPaused = false;
+// Cuenta cada cambio local y cada subida; si cambia mientras se trae la nube,
+// lo que llegó es viejo y se descarta (evita que una factura enviada vuelva a "Pendiente").
+let supabaseEditSeq = 0;
+let supabaseSyncing = 0;
 let supabaseErrorShown = false;
 const supabaseSnapshots = {
   products: new Map(),
@@ -2137,6 +2384,7 @@ async function deleteFromSupabase(tableName, id, scope) {
 }
 
 async function syncSupabaseData(scope='all') {
+  supabaseSyncing++;
   try {
     if (scope === 'all' || scope === 'products') {
       await saveCollectionToSupabase(SUPABASE_TABLES.products, currentProducts, 'products');
@@ -2146,10 +2394,14 @@ async function syncSupabaseData(scope='all') {
     }
   } catch (error) {
     showSupabaseError(error);
+  } finally {
+    supabaseSyncing--;
+    supabaseEditSeq++;
   }
 }
 
 function queueSupabaseSync(scope='all') {
+  supabaseEditSeq++;
   if (supabaseSyncPaused) return;
   supabasePendingScopes.add(scope);
   clearTimeout(supabaseSyncTimer);
@@ -2165,7 +2417,7 @@ function queueSupabaseSync(scope='all') {
   }, 450);
 }
 
-async function loadFromSupabase() {
+async function loadFromSupabase(isStale) {
   try {
     const db = getSupabaseDb();
     if (!db) return false;
@@ -2174,6 +2426,7 @@ async function loadFromSupabase() {
       loadCollectionFromSupabase(SUPABASE_TABLES.products),
       loadCollectionFromSupabase(SUPABASE_TABLES.invoices)
     ]);
+    if (isStale && isStale()) return false;   // hubo cambios locales mientras llegaba: se descarta
 
     if (Array.isArray(remoteProducts)) {
       currentProducts = remoteProducts;
@@ -2216,8 +2469,10 @@ function applyDataAfterSupabaseRefresh() {
 }
 
 async function refreshFromSupabase() {
-  if (supabasePendingScopes.size || supabaseSyncTimer) return;
-  const loaded = await loadFromSupabase();
+  if (supabasePendingScopes.size || supabaseSyncTimer || supabaseSyncing || invoiceSending) return;
+  const seq = supabaseEditSeq;
+  const loaded = await loadFromSupabase(() =>
+    seq !== supabaseEditSeq || supabasePendingScopes.size || supabaseSyncTimer || supabaseSyncing || invoiceSending);
   if (loaded) applyDataAfterSupabaseRefresh();
 }
 
@@ -4913,7 +5168,9 @@ function toggleShoeStatus(invId) {
   saveInvoices();
   const btn = document.getElementById('btn-shoe-' + invId);
   if (!btn) return;
-  btn.className = 'btn-shoe-toggle ' + (inv.shoeDelivered ? 'shoe-on' : 'shoe-off');
+  btn.classList.toggle('on', !!inv.shoeDelivered);
+  btn.setAttribute('aria-pressed', !!inv.shoeDelivered);
+  btn.querySelector('.inv-tg-state').textContent = inv.shoeDelivered ? 'Sí' : 'No';
 }
 
 // ── Toggle cantidad en factura ──
@@ -4925,12 +5182,9 @@ function toggleInvoiceQty(invId) {
   const btn = document.getElementById('btn-qty-' + invId);
   if (!btn) return;
   const isCon = inv.withQty !== false;
-  btn.className = 'btn-qty-toggle ' + (isCon ? 'con' : 'sin');
-  btn.querySelector('.btn-qty-label').textContent = isCon ? 'con' : 'sin';
-  btn.querySelector('.btn-qty-label').style.animation = 'none';
-  requestAnimationFrame(() => {
-    btn.querySelector('.btn-qty-label').style.animation = '';
-  });
+  btn.classList.toggle('on', isCon);
+  btn.setAttribute('aria-pressed', isCon);
+  btn.querySelector('.inv-tg-label').textContent = isCon ? 'Con cantidad' : 'Sin cantidad';
 }
 
 // ── Render lista agrupada por día ──
@@ -4946,7 +5200,204 @@ function toggleInvoiceDayGroup(dateKey) {
   if (chevron) chevron.classList.toggle('collapsed', !!_invoiceDayCollapsed[dateKey]);
 }
 
-function renderInvoices() {
+// ══════════════════════════════════════════
+// FACTURAS: VISTA MENSUAL
+// Interruptor Lista ↔ Vista mensual. La vista mensual agrupa las facturas por
+// año y mes (cuadrícula); al tocar un mes se despliega su detalle por nombre
+// (cliente/proveedor/pedido), por factura y por marca.
+// ══════════════════════════════════════════
+const INV_MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+let invView = (() => { try{ return localStorage.getItem('jahdiel_inv_view') === 'month' ? 'month' : 'list'; }catch{ return 'list'; } })();
+let invMonthSel = null;        // 'YYYY-MM'
+let invMonthTab = 'nombre';    // nombre | factura | marca
+let invMonthAnimOpen = false;  // solo anima el detalle cuando se acaba de abrir
+let invSwapping = false;
+
+function invEsc(v){ return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function invMoney(n){ return '$' + Math.round(n || 0).toLocaleString('es-CO'); }
+function invShort(n){ const a = Math.abs(n); return a >= 1e6 ? '$' + (n/1e6).toFixed(1).replace('.0','').replace('.',',') + 'M' : a >= 1e3 ? '$' + Math.round(n/1e3) + 'K' : '$' + Math.round(n); }
+function invUds(inv){ return inv.items.reduce((s, it) => s + (it.qty || 0), 0); }
+
+function renderInvoices(){
+  const empty = document.getElementById('invoiceEmpty');
+  const container = document.getElementById('invoicesContainer');
+  updateInvViewBar();
+  if(!invoices.length){ empty.style.display = 'block'; container.innerHTML = ''; return; }
+  empty.style.display = 'none';
+  if(invView === 'month') renderInvoicesMonthly(container);
+  else renderInvoicesList();
+}
+
+function updateInvViewBar(){
+  const bar = document.getElementById('invViewBar'); if(!bar) return;
+  bar.style.display = invoices.length ? '' : 'none';
+  const sw = bar.querySelector('.inv-switch');
+  sw.classList.toggle('month', invView === 'month');
+  sw.querySelectorAll('button').forEach(b => b.setAttribute('aria-selected', b.dataset.v === invView));
+  let seen = false;
+  try{ seen = localStorage.getItem('jahdiel_inv_month_seen') === '1'; }catch{}
+  if(invView === 'month' && !seen){ try{ localStorage.setItem('jahdiel_inv_month_seen', '1'); }catch{} seen = true; }
+  sw.classList.toggle('seen', seen);
+}
+
+// Cambio de vista con animación: lo actual se recoge y lo nuevo entra escalonado
+function setInvoiceView(v){
+  if(v === invView || invSwapping) return;
+  invView = v;
+  try{ localStorage.setItem('jahdiel_inv_view', v); }catch{}
+  updateInvViewBar();
+  const c = document.getElementById('invoicesContainer');
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const sel = '.invoice-day-group, .inv-year, .inv-mtile, .inv-mdetail';
+  if(reduce || !c.children.length){ renderInvoices(); return; }
+  invSwapping = true;
+  const old = [...c.querySelectorAll(sel)];
+  c.style.minHeight = c.offsetHeight + 'px';
+  old.forEach((el, i) => { el.style.animation = `invOut .24s cubic-bezier(.4,0,1,1) ${Math.min(i, 10) * 22}ms both`; });
+  const outMs = 240 + Math.min(old.length, 10) * 22;
+  setTimeout(() => {
+    renderInvoices();
+    const nu = [...c.querySelectorAll(sel)];
+    nu.forEach((el, i) => { el.style.animation = `invIn .5s cubic-bezier(.2,.9,.3,1.12) ${Math.min(i, 14) * 38}ms both`; });
+    setTimeout(() => {
+      nu.forEach(el => { el.style.animation = ''; });
+      c.style.minHeight = '';
+      invSwapping = false;
+    }, 520 + Math.min(nu.length, 14) * 38);
+  }, outMs);
+}
+
+// Abrir / cerrar un mes (el detalle se despliega y se recoge suavemente)
+function toggleInvMonth(key){
+  const c = document.getElementById('invoicesContainer');
+  const open = c.querySelector('.inv-mdetail');
+  if(invMonthSel === key){
+    if(open){
+      open.classList.add('closing');
+      setTimeout(() => { invMonthSel = null; renderInvoices(); }, 260);
+    } else { invMonthSel = null; renderInvoices(); }
+    return;
+  }
+  invMonthSel = key; invMonthTab = 'nombre'; invMonthAnimOpen = true;
+  renderInvoices();
+  invMonthAnimOpen = false;
+  const d = c.querySelector('.inv-mdetail');
+  if(d) setTimeout(() => d.scrollIntoView({ behavior:'smooth', block:'nearest' }), 120);
+}
+function setInvMonthTab(t){
+  invMonthTab = t;
+  const d = document.querySelector('#invoicesContainer .inv-mdetail .inv-mdetail-body');
+  if(!d){ renderInvoices(); return; }
+  d.style.opacity = '0';
+  setTimeout(() => { renderInvoices(); const n = document.querySelector('#invoicesContainer .inv-mdetail .inv-mdetail-body'); if(n){ n.style.opacity = '0'; requestAnimationFrame(() => { n.style.opacity = '1'; }); } }, 120);
+}
+
+function invMonthDetailHTML(key, list){
+  const [y, m] = key.split('-').map(Number);
+  const total = list.reduce((s, inv) => s + invoiceCost(inv), 0);
+  const uds = list.reduce((s, inv) => s + invUds(inv), 0);
+  const enviadas = list.filter(inv => inv.status === 'sent').length;
+  const bars = (rows, unit) => {
+    if(!rows.length) return '<div class="inv-mempty">Sin datos</div>';
+    const top = rows[0].v || 1;
+    return rows.map((r, i) => `
+      <div class="inv-mcard ${i === 0 ? 'top' : ''}" ${r.open ? `onclick="openInvoiceDetail('${r.open}')" role="button" tabindex="0"` : ''}>
+        <div class="inv-mcard-head">
+          <span class="inv-mcard-rank">${i + 1}</span>
+          ${r.tag || ''}
+          <span class="inv-mcard-pct">${unit ? Math.round(r.v / unit * 100) : 0}%</span>
+        </div>
+        <div class="inv-mcard-name">${r.label}</div>
+        <div class="inv-mcard-v">${invMoney(r.v)}</div>
+        <div class="inv-mcard-meta">${r.meta}</div>
+        <div class="inv-mbar"><i style="width:${r.v / top * 100}%"></i></div>
+      </div>`).join('');
+  };
+  let rows = [];
+  if(invMonthTab === 'nombre'){
+    const g = {};
+    list.forEach(inv => {
+      const k = (inv.name || 'SIN NOMBRE').toUpperCase();
+      g[k] = g[k] || { v:0, n:0, u:0 };
+      g[k].v += invoiceCost(inv); g[k].n++; g[k].u += invUds(inv);
+    });
+    rows = Object.entries(g).map(([k, o]) => ({ label: invEsc(k), v: o.v, meta: `${o.n} factura${o.n!==1?'s':''} · ${o.u} uds` })).sort((a, b) => b.v - a.v);
+  } else if(invMonthTab === 'factura'){
+    rows = [...list].sort((a, b) => invoiceCost(b) - invoiceCost(a)).map(inv => ({
+      label: `<span class="inv-mnum">#${String(inv.number).padStart(4,'0')}</span> ${invEsc(inv.name || 'Sin nombre')}`,
+      tag: `<span class="inv-mcard-st ${inv.status==='sent'?'ok':'pend'}">${inv.status==='sent'?'Enviada':'Pendiente'}</span>`,
+      v: invoiceCost(inv),
+      meta: `${inv.date ? new Date(inv.date + 'T12:00:00').toLocaleDateString('es-ES', { day:'2-digit', month:'short' }) : '—'} · ${invUds(inv)} uds · ${inv.items.length} ítem${inv.items.length!==1?'s':''}`,
+      open: inv.id,
+    }));
+  } else {
+    const g = {};
+    list.forEach(inv => inv.items.forEach(it => {
+      const k = (it.marca || 'SIN MARCA').toUpperCase();
+      g[k] = g[k] || { v:0, u:0 };
+      g[k].v += invoiceItemCost(it) * (it.qty || 0); g[k].u += (it.qty || 0);
+    }));
+    rows = Object.entries(g).map(([k, o]) => ({ label: invEsc(k), v: o.v, meta: `${o.u} uds` })).sort((a, b) => b.v - a.v);
+  }
+  const tab = (t, ico, txt) => `<button type="button" class="${invMonthTab===t?'on':''}" onclick="setInvMonthTab('${t}')"><i data-lucide="${ico}"></i>${txt}</button>`;
+  return `
+    <div class="inv-mdetail ${invMonthAnimOpen ? 'opening' : ''}">
+      <div class="inv-mdetail-head">
+        <div style="min-width:0;">
+          <div class="inv-mdetail-k">${INV_MESES[m - 1]} ${y}</div>
+          <div class="inv-mdetail-v">${invMoney(total)}</div>
+          <div class="inv-mdetail-meta">${list.length} factura${list.length!==1?'s':''} · ${uds} uds · ${enviadas} enviada${enviadas!==1?'s':''}${list.length - enviadas ? ` · ${list.length - enviadas} pendiente${list.length - enviadas!==1?'s':''}` : ''}</div>
+        </div>
+        <button class="btn-icon" onclick="toggleInvMonth('${key}')" aria-label="Cerrar mes"><i data-lucide="x"></i></button>
+      </div>
+      <div class="inv-mtabs">${tab('nombre','users','Por nombre')}${tab('factura','receipt','Por factura')}${tab('marca','tag','Por marca')}</div>
+      <div class="inv-mdetail-body inv-mcards">${bars(rows, total)}</div>
+    </div>`;
+}
+
+function renderInvoicesMonthly(container){
+  const byYear = {};
+  const sinFecha = [];
+  invoices.forEach(inv => {
+    if(!inv.date || !/^\d{4}-\d{2}/.test(inv.date)){ sinFecha.push(inv); return; }
+    const y = inv.date.slice(0, 4), key = inv.date.slice(0, 7);
+    byYear[y] = byYear[y] || {};
+    (byYear[y][key] = byYear[y][key] || []).push(inv);
+  });
+  const years = Object.keys(byYear).sort((a, b) => b.localeCompare(a));
+  const allKeys = years.flatMap(y => Object.keys(byYear[y]));
+  if(invMonthSel && !allKeys.includes(invMonthSel)) invMonthSel = null;
+
+  container.innerHTML = years.map(y => {
+    const months = Object.keys(byYear[y]).sort((a, b) => b.localeCompare(a));
+    const totals = Object.fromEntries(months.map(k => [k, byYear[y][k].reduce((s, inv) => s + invoiceCost(inv), 0)]));
+    const yTotal = Object.values(totals).reduce((s, v) => s + v, 0);
+    const yCount = months.reduce((s, k) => s + byYear[y][k].length, 0);
+    const max = Math.max(...Object.values(totals), 1);
+    const tiles = months.map(k => {
+      const list = byYear[y][k], m = Number(k.slice(5, 7));
+      const sent = list.filter(inv => inv.status === 'sent').length;
+      const uds = list.reduce((s, inv) => s + invUds(inv), 0);
+      const tile = `
+        <button type="button" class="inv-mtile ${invMonthSel === k ? 'sel' : ''}" onclick="toggleInvMonth('${k}')" aria-expanded="${invMonthSel === k}">
+          <span class="inv-mtile-top"><b>${INV_MESES[m - 1]}</b><i data-lucide="chevron-down" class="inv-mtile-chev"></i></span>
+          <span class="inv-mtile-v">${invMoney(totals[k])}</span>
+          <span class="inv-mtile-meta">${list.length} factura${list.length!==1?'s':''} · ${uds} uds</span>
+          <span class="inv-mtile-bar"><i style="width:${totals[k] / max * 100}%"></i></span>
+          <span class="inv-mtile-st">${sent ? `<em class="ok">${sent} enviada${sent!==1?'s':''}</em>` : ''}${list.length - sent ? `<em class="pend">${list.length - sent} pendiente${list.length - sent!==1?'s':''}</em>` : ''}</span>
+        </button>`;
+      return tile + (invMonthSel === k ? invMonthDetailHTML(k, list) : '');
+    }).join('');
+    return `
+      <section class="inv-year">
+        <div class="inv-year-head"><span>${y}</span><span class="inv-year-meta">${yCount} factura${yCount!==1?'s':''} · <b>${invMoney(yTotal)}</b></span></div>
+        <div class="inv-mgrid">${tiles}</div>
+      </section>`;
+  }).join('') + (sinFecha.length ? `<section class="inv-year"><div class="inv-year-head"><span>Sin fecha</span><span class="inv-year-meta">${sinFecha.length} factura${sinFecha.length!==1?'s':''} · <b>${invMoney(sinFecha.reduce((s, inv) => s + invoiceCost(inv), 0))}</b></span></div></section>` : '');
+  lucide.createIcons({ nodes: [container] });
+}
+
+function renderInvoicesList() {
   const empty = document.getElementById('invoiceEmpty');
   const container = document.getElementById('invoicesContainer');
   if (!invoices.length) { empty.style.display='block'; container.innerHTML=''; return; }
@@ -5011,23 +5462,26 @@ function renderInvoices() {
             <span style="font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:800;color:var(--green);">$${total.toLocaleString('es-CO')}</span>
           </div>
         </div>
-        <div class="invoice-actions">
-          <button class="btn btn-ghost btn-sm" onclick="openInvoiceDetail('${inv.id}')">
-            <i data-lucide="eye"></i> Ver detalle
-          </button>
-          <button class="btn btn-green btn-sm" onclick="confirmSendInvoice('${inv.id}')" ${inv.status==='sent'?'style="opacity:.5;"':''}>
-            <i data-lucide="upload-cloud"></i> ${inv.status==='sent'?'Re-enviar':'Enviar'}
-          </button>
-          <button class="btn btn-qty-toggle ${inv.withQty !== false ? 'con' : 'sin'}" onclick="toggleInvoiceQty('${inv.id}')" id="btn-qty-${inv.id}">
-            <i data-lucide="package" class="btn-qty-icon"></i>
-            <span class="btn-qty-label">${inv.withQty !== false ? 'con' : 'sin'}</span>
-          </button>
-          <button class="btn-shoe-toggle ${inv.shoeDelivered ? 'shoe-on' : 'shoe-off'}" onclick="toggleShoeStatus('${inv.id}')" id="btn-shoe-${inv.id}">
-            <i data-lucide="footprints"></i>
-          </button>
-          <button class="btn btn-red btn-sm" onclick="deleteInvoice('${inv.id}')">
-            <i data-lucide="trash-2"></i>
-          </button>
+        <div class="inv-actions">
+          <div class="inv-actions-main">
+            <button class="inv-btn ghost" onclick="openInvoiceDetail('${inv.id}')">
+              <i data-lucide="list"></i><span>Ver detalle</span>
+            </button>
+            <button class="inv-btn ${inv.status==='sent' ? 'sent' : 'send'}" onclick="confirmSendInvoice('${inv.id}')">
+              <i data-lucide="${inv.status==='sent' ? 'refresh-cw' : 'upload-cloud'}"></i><span>${inv.status==='sent' ? 'Re-enviar' : 'Enviar'}</span>
+            </button>
+          </div>
+          <div class="inv-actions-opts">
+            <button class="inv-tg qty ${inv.withQty !== false ? 'on' : ''}" id="btn-qty-${inv.id}" onclick="toggleInvoiceQty('${inv.id}')" aria-pressed="${inv.withQty !== false}" title="Enviar con cantidad o con 0">
+              <i data-lucide="package"></i><span class="inv-tg-label">${inv.withQty !== false ? 'Con cantidad' : 'Sin cantidad'}</span>
+            </button>
+            <button class="inv-tg shoe ${inv.shoeDelivered ? 'on' : ''}" id="btn-shoe-${inv.id}" onclick="toggleShoeStatus('${inv.id}')" aria-pressed="${!!inv.shoeDelivered}" title="¿Se entregaron los zapatos?">
+              <i data-lucide="footprints"></i><span>Zapatos: <b class="inv-tg-state">${inv.shoeDelivered ? 'Sí' : 'No'}</b></span>
+            </button>
+            <button class="inv-btn danger" onclick="deleteInvoice('${inv.id}')" aria-label="Eliminar factura" title="Eliminar factura">
+              <i data-lucide="trash-2"></i>
+            </button>
+          </div>
         </div>`;
       body.appendChild(card);
     });
@@ -5101,59 +5555,127 @@ function openInvoiceDetail(invId) {
 }
 
 function renderInvoiceDetailContent(overlay, inv) {
+  const money = n => '$' + Math.round(n || 0).toLocaleString('es-CO');
+  const esc = v => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const total = inv.items.reduce((s,it) => s + invoiceItemCost(it) * it.qty, 0);
+  const uds = inv.items.reduce((s,it) => s + (it.qty || 0), 0);
   const dateStr = inv.date ? new Date(inv.date+'T12:00:00').toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'}) : '—';
-  const itemsHTML = inv.items.length ? inv.items.map((it,idx) => {
-    const pc = invoiceItemCost(it);
-    const attrs = [it.color,it.talla,it.estilo].filter(Boolean).join(' · ');
+  const sent = inv.status === 'sent';
+
+  // Agrupar: variaciones por marca + descripción + género; simples cada una sola (en el orden de la factura)
+  const blocks = [], byKey = {};
+  inv.items.forEach((it, idx) => {
+    const prod = findProductForInvoiceItem(it);
+    const genero = it.genero || prod?.genero || '';
+    const row = { it, idx, prod, genero, pc: invoiceItemCost(it), pv: it.precioVenta ?? prod?.precioVenta ?? 0, codigo: it.codigo || prod?.codigo || '' };
+    if (prod?.tipo === 'variation') {
+      const key = `${it.marca}_${it.descripcion}_${genero}`;
+      if (!byKey[key]) { byKey[key] = { type:'var', rows:[] }; blocks.push(byKey[key]); }
+      byKey[key].rows.push(row);
+    } else {
+      blocks.push({ type:'simple', rows:[row] });
+    }
+  });
+  const nSimples = blocks.filter(b => b.type === 'simple').length;
+  const nGrupos = blocks.filter(b => b.type === 'var').length;
+  const nVars = blocks.filter(b => b.type === 'var').reduce((s, b) => s + b.rows.length, 0);
+
+  const chips = r => [
+    r.it.color ? `<span class="inv-chip"><i data-lucide="palette"></i>${esc(r.it.color)}</span>` : '',
+    r.it.talla ? `<span class="inv-chip"><i data-lucide="ruler"></i>${esc(r.it.talla)}</span>` : '',
+    r.it.estilo ? `<span class="inv-chip">${esc(r.it.estilo)}</span>` : '',
+  ].join('');
+  const removeBtn = r => `<button class="inv-del" onclick="removeInvoiceItem('${inv.id}',${r.idx})" aria-label="Quitar de la factura"><i data-lucide="x"></i></button>`;
+
+  const blocksHTML = blocks.map(b => {
+    if (b.type === 'simple') {
+      const r = b.rows[0];
+      return `
+      <div class="inv-block simple">
+        <div class="inv-block-head">
+          <span class="inv-type simple"><i data-lucide="box"></i>Simple</span>
+          ${r.codigo ? `<span class="inv-code">${esc(r.codigo)}</span>` : ''}
+          ${removeBtn(r)}
+        </div>
+        <div class="inv-block-title">${esc(r.it.marca)} — ${esc(r.it.descripcion)}${r.genero && !String(r.it.descripcion).toUpperCase().includes(String(r.genero).toUpperCase()) ? ` <small>${esc(r.genero)}</small>` : ''}</div>
+        ${chips(r) ? `<div class="inv-chips">${chips(r)}</div>` : ''}
+        <div class="inv-nums">
+          <span><small>Cant.</small><b>${r.it.qty}</b></span>
+          <span><small>Compra c/u</small><b>${money(r.pc)}</b></span>
+          <span><small>Venta c/u</small><b class="green">${r.pv ? money(r.pv) : '—'}</b></span>
+          <span class="sub"><small>Subtotal</small><b>${money(r.pc * r.it.qty)}</b></span>
+        </div>
+      </div>`;
+    }
+    const f = b.rows[0];
+    const gUds = b.rows.reduce((s, r) => s + (r.it.qty || 0), 0);
+    const gTotal = b.rows.reduce((s, r) => s + r.pc * r.it.qty, 0);
+    const mismoPrecio = b.rows.every(r => r.pc === f.pc && r.pv === f.pv);
     return `
-    <div class="invoice-item-row">
-      <div class="invoice-item-info" style="flex:1;min-width:0;">
-        <div class="invoice-item-name">${it.marca} — ${it.descripcion}</div>
-        <div class="invoice-item-sub">${attrs ? attrs+' · ' : ''}${it.qty} ud${it.qty!==1?'s':''}</div>
+      <div class="inv-block var">
+        <div class="inv-block-head">
+          <span class="inv-type var"><i data-lucide="layers"></i>Variaciones · ${b.rows.length}</span>
+          <span class="inv-block-sum">${gUds} ud${gUds!==1?'s':''} · <b>${money(gTotal)}</b></span>
+        </div>
+        <div class="inv-block-title">${esc(f.it.marca)} — ${esc(f.it.descripcion)}${f.genero && !String(f.it.descripcion).toUpperCase().includes(String(f.genero).toUpperCase()) ? ` <small>${esc(f.genero)}</small>` : ''}</div>
+        ${mismoPrecio ? `<div class="inv-block-prices">Compra <b>${money(f.pc)}</b> c/u · Venta <b class="green">${f.pv ? money(f.pv) : '—'}</b> c/u</div>` : ''}
+        <div class="inv-vars">
+          ${b.rows.map(r => `
+          <div class="inv-var">
+            <div class="inv-var-main">
+              <div class="inv-chips">${chips(r) || '<span class="inv-chip">Sin color / talla</span>'}</div>
+              ${r.codigo ? `<span class="inv-code">${esc(r.codigo)}</span>` : ''}
+              ${mismoPrecio ? '' : `<div class="inv-var-prices">Compra ${money(r.pc)} · Venta ${r.pv ? money(r.pv) : '—'}</div>`}
+            </div>
+            <div class="inv-var-qty"><b>${r.it.qty}</b><small>ud${r.it.qty!==1?'s':''}</small></div>
+            <div class="inv-var-sub">${money(r.pc * r.it.qty)}</div>
+            ${removeBtn(r)}
+          </div>`).join('')}
+        </div>
+      </div>`;
+  }).join('');
+
+  const itemsHTML = inv.items.length ? `
+      <div class="inv-summary">
+        <span><i data-lucide="box"></i>${nSimples} simple${nSimples!==1?'s':''}</span>
+        <span><i data-lucide="layers"></i>${nGrupos} grupo${nGrupos!==1?'s':''} · ${nVars} variaci${nVars!==1?'ones':'ón'}</span>
+        <span><i data-lucide="package"></i>${uds} ud${uds!==1?'s':''}</span>
       </div>
-      <div class="invoice-item-right" style="gap:8px;">
-        <span class="invoice-item-price">$${(pc*it.qty).toLocaleString('es-CO')}</span>
-        <button class="btn-icon danger" onclick="removeInvoiceItem('${inv.id}',${idx})"><i data-lucide="x"></i></button>
-      </div>
-    </div>`;
-  }).join('')
-  : `<div style="text-align:center;padding:32px 24px;color:var(--text3);font-size:13px;">Sin productos en esta factura</div>`;
+      ${blocksHTML}`
+    : `<div class="inv-empty"><i data-lucide="inbox"></i><b>Sin productos en esta factura</b><span>Agrégalos desde la pestaña "Agregar".</span></div>`;
 
   overlay.innerHTML = `
-    <div class="modal-sheet" style="max-height:92dvh;display:flex;flex-direction:column;padding:0;overflow:hidden;">
-
-      <!-- Cabecera fija -->
-      <div style="padding:16px 16px 0;flex-shrink:0;">
+    <div class="modal-sheet inv-sheet">
+      <div class="inv-sheet-head">
         <div class="modal-handle"></div>
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
-          <div>
-            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);">Factura #${String(inv.number).padStart(4,'0')}</div>
-            <div style="font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:800;line-height:1.2;margin-top:2px;">${inv.name||'Sin nombre'}</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:3px;">${dateStr} · <span style="color:${inv.status==='sent'?'var(--green)':'var(--yellow)'};">${inv.status==='sent'?'Enviada':'Pendiente'}</span></div>
+        <div class="inv-sheet-top">
+          <div style="min-width:0;">
+            <div class="inv-sheet-num">Factura #${String(inv.number).padStart(4,'0')}</div>
+            <div class="inv-sheet-name">${esc(inv.name || 'Sin nombre')}</div>
+            <div class="inv-sheet-meta">
+              <span><i data-lucide="calendar"></i>${dateStr}</span>
+              <span class="invoice-badge ${sent ? 'sent' : 'pending'}">${sent ? 'Enviada' : 'Pendiente'}</span>
+              <span class="inv-flag qty ${inv.withQty !== false ? 'on' : ''}"><i data-lucide="package"></i>${inv.withQty !== false ? 'Con cantidad' : 'Sin cantidad'}</span>
+              <span class="inv-flag shoe ${inv.shoeDelivered ? 'on' : ''}"><i data-lucide="footprints"></i>Zapatos: ${inv.shoeDelivered ? 'Sí' : 'No'}</span>
+            </div>
           </div>
-          <button class="btn-icon" onclick="this.closest('.modal-overlay').remove()"><i data-lucide="x"></i></button>
+          <button class="btn-icon" onclick="this.closest('.modal-overlay').remove()" aria-label="Cerrar"><i data-lucide="x"></i></button>
         </div>
-        <hr style="border:none;border-top:1px solid var(--border);margin:0 0 10px;">
       </div>
 
-      <!-- Lista scrollable -->
-      <div id="invoiceItemsList" style="overflow-y:auto;flex:1;padding:0 16px;-webkit-overflow-scrolling:touch;">
-        ${itemsHTML}
-      </div>
+      <div id="invoiceItemsList" class="inv-sheet-body">${itemsHTML}</div>
 
-      <!-- Footer fijo -->
-      <div style="flex-shrink:0;padding:10px 16px 16px;border-top:1px solid var(--border);">
+      <div class="inv-sheet-foot">
         ${inv.items.length ? `
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);">${inv.items.length} ítem${inv.items.length!==1?'s':''} · ${inv.items.reduce((s,it)=>s+(it.qty||0),0)} uds.</span>
-          <span style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--green);">$${total.toLocaleString('es-CO')}</span>
+        <div class="inv-total">
+          <span>${inv.items.length} ítem${inv.items.length!==1?'s':''} · ${uds} uds.</span>
+          <b>${money(total)}</b>
         </div>` : ''}
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <button class="btn btn-green" onclick="confirmSendInvoice('${inv.id}')">
-            <i data-lucide="upload-cloud"></i> Enviar a Sheets
+        <div class="inv-actions-main">
+          <button class="inv-btn ghost" onclick="this.closest('.modal-overlay').remove()"><span>Cerrar</span></button>
+          <button class="inv-btn ${sent ? 'sent' : 'send'}" onclick="confirmSendInvoice('${inv.id}')">
+            <i data-lucide="${sent ? 'refresh-cw' : 'upload-cloud'}"></i><span>${sent ? 'Re-enviar a Sheets' : 'Enviar a Sheets'}</span>
           </button>
-          <button class="btn btn-ghost" onclick="this.closest('.modal-overlay').remove()">Cerrar</button>
         </div>
       </div>
     </div>`;
@@ -5329,6 +5851,7 @@ async function recordEnvioToSupabase(cantidadProductos, nombreFactura='', numero
   }
 }
 
+let invoiceSending = false;   // mientras se envía una factura no se trae la nube
 async function sendInvoiceToSheets(invId) {
   const inv = invoices.find(i => i.id === invId); if (!inv) return;
   if (!inv.items.length) { showToast('Factura vacía','Agrega productos antes de enviar.','warning'); return; }
@@ -5351,6 +5874,7 @@ async function sendInvoiceToSheets(invId) {
     </div>
   `;
   document.body.appendChild(loadingOverlay);
+  invoiceSending = true;
 
   try {
     const totalFactura = invoiceCost(inv);
@@ -5380,24 +5904,33 @@ async function sendInvoiceToSheets(invId) {
       };
     });
 
-    await apiCall('create_products', { products });
+    // Fecha del envío: la hoja NUEVOS la escribe en B1:F1
+    const hoy = new Date();
+    const fechaEnvio = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`;
+    await apiCall('create_products', { products, fechaEnvio });
 
-    inv.status = 'sent';
+    // Marcar enviada sobre la factura vigente (la lista pudo recargarse durante el envío)
+    const target = invoices.find(i => i.id === invId) || inv;
+    target.status = 'sent';
+    target.sentAt = hoy.toISOString();
 
     // Registrar el costo del envío (no bloquea el estado si falla)
     const totalProductos = inv.items.reduce((sum, item) => sum + (item.qty || 0), 0);
     recordEnvioToSupabase(totalProductos, inv.name || '', numFactura).catch(e => console.warn('Error registrando envío:', e));
     saveInvoices();
     renderInvoices();
+    refreshAllInvoiceBars();
     SFX.sheets();
 
     loadingOverlay.remove();
     showToast('Factura enviada', `${numFactura} ${nombre} → Sheets`, 'success');
     const detailOverlay = document.getElementById('invoiceDetailOverlay');
-    if (detailOverlay) renderInvoiceDetailContent(detailOverlay, inv);
+    if (detailOverlay) renderInvoiceDetailContent(detailOverlay, target);
   } catch(err) {
     loadingOverlay.remove();
     showToast('Error de conexión', err.message || 'No se pudo enviar a Google Sheets.', 'error');
+  } finally {
+    invoiceSending = false;
   }
 }
 
