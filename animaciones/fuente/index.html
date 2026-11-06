@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="es" data-composition-variables='[{"id":"tipo","type":"string","label":"Tipo (enviar | ver | borrar)","default":"enviar"}]'>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=720, height=960" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --ink: #f0f4ff;
+        --muted: #8892a4;
+        --a1: #34e7b4;
+        --a2: #0fba8a;
+        --glow: rgba(16, 217, 160, 0.38);
+        --pink: #ff86b0;
+        --lav: #b9a6ff;
+      }
+      [data-tipo="ver"] { --a1: #5ccbfa; --a2: #0284c7; --glow: rgba(56, 189, 248, 0.38); }
+      [data-tipo="borrar"] { --a1: #ff8585; --a2: #e5484d; --glow: rgba(255, 87, 87, 0.38); }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 720px; height: 960px; overflow: hidden; background: #0a0e1a; }
+      #root { position: relative; width: 720px; height: 960px; overflow: hidden; font-family: "Inter", sans-serif; color: var(--ink); }
+      #scene { position: absolute; inset: 0; }
+
+      .bg { position: absolute; inset: 0; background: radial-gradient(120% 70% at 50% 0%, #141b35 0%, #0b1020 55%, #070a14 100%); }
+      .aura { position: absolute; left: 360px; top: 350px; width: 760px; height: 760px; margin: -380px 0 0 -380px; border-radius: 50%; background: radial-gradient(circle, var(--glow), transparent 64%); }
+      .vig { position: absolute; inset: 0; background: radial-gradient(90% 80% at 50% 45%, transparent 55%, rgba(0, 0, 0, 0.45) 100%); }
+
+      .heart { position: absolute; left: 0; top: 0; }
+      .heart svg { display: block; width: 100%; height: 100%; }
+
+      .chip {
+        position: absolute; left: 50%; top: 58px; transform: translateX(-50%);
+        display: flex; align-items: center; gap: 12px; padding: 13px 26px; border-radius: 999px; white-space: nowrap;
+        background: rgba(255, 255, 255, 0.06); border: 1.5px solid rgba(255, 255, 255, 0.13);
+        font: 600 21px "Inter", sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: var(--a1);
+      }
+      .chip .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--a1); box-shadow: 0 0 14px var(--a1); }
+
+      #stage { position: absolute; left: 160px; top: 128px; width: 400px; height: 400px; transform: scale(1.14); transform-origin: 50% 0; }
+      .st { position: absolute; inset: 0; display: none; }
+      [data-tipo="enviar"] #st-enviar, [data-tipo="ver"] #st-ver, [data-tipo="borrar"] #st-borrar { display: block; }
+
+      /* ── Enviar ── */
+      #cloud { position: absolute; left: 40px; top: 10px; width: 320px; height: 200px; }
+      #cloud svg { width: 320px; height: 200px; overflow: visible; filter: drop-shadow(0 12px 28px var(--glow)); }
+      #arrow { position: absolute; left: 40px; top: 10px; width: 320px; height: 200px; }
+      #arrow svg { width: 320px; height: 200px; }
+      .sheet {
+        position: absolute; left: 154px; top: 100px; width: 92px; height: 120px; border-radius: 12px; padding: 14px 12px;
+        background: #f7f9ff; box-shadow: 0 14px 30px rgba(0, 0, 0, 0.4);
+      }
+      .sheet .l1 { height: 10px; width: 46%; border-radius: 5px; background: var(--a2); margin-bottom: 11px; }
+      .sheet .l { height: 7px; border-radius: 4px; background: #cdd5e6; margin-bottom: 8px; }
+      .sheet .l.s { width: 70%; }
+      .sheet .hrt { position: absolute; right: 10px; bottom: 9px; width: 20px; height: 20px; }
+      .ring { position: absolute; left: 140px; top: 62px; width: 120px; height: 120px; border-radius: 50%; border: 5px solid var(--a1); opacity: 0; }
+      .spark { position: absolute; width: 26px; height: 26px; opacity: 0; }
+      .spark svg { width: 100%; height: 100%; display: block; }
+
+      /* ── Ver / Borrar (hoja de cálculo) ── */
+      .panel { position: absolute; left: 10px; top: 50px; width: 380px; height: 300px; border-radius: 24px; background: rgba(255, 255, 255, 0.05); border: 1.5px solid rgba(255, 255, 255, 0.15); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35); }
+      .grid { position: absolute; left: 26px; top: 66px; width: 348px; height: 268px; display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); gap: 8px; }
+      .cell { border-radius: 9px; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; padding: 0 9px; }
+      .cell i { display: block; height: 7px; border-radius: 4px; background: rgba(255, 255, 255, 0.3); }
+      .cell.head { background: linear-gradient(135deg, var(--a1), var(--a2)); }
+      .cell.head i { background: rgba(255, 255, 255, 0.85); }
+      .band { position: absolute; left: 10px; top: 0; width: 380px; height: 50px; border-radius: 12px; background: linear-gradient(90deg, transparent, var(--glow), transparent); opacity: 0; }
+      #lens { position: absolute; left: 0; top: 0; width: 120px; height: 120px; opacity: 0; filter: drop-shadow(0 6px 16px var(--glow)); }
+      #lens svg { width: 120px; height: 120px; display: block; overflow: visible; }
+      #sweep { position: absolute; left: 0; top: 56px; width: 92px; height: 288px; border-radius: 30px; background: linear-gradient(90deg, transparent, var(--glow) 50%, transparent); opacity: 0; }
+      #broom { position: absolute; left: 0; top: 0; width: 100px; height: 120px; opacity: 0; transform-origin: 60% 8%; filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.4)); }
+      #broom svg { width: 100px; height: 120px; display: block; }
+      .dust { position: absolute; left: 0; top: 0; width: 16px; height: 16px; border-radius: 50%; background: var(--a1); opacity: 0; }
+
+      /* ── Éxito ── */
+      #ok { position: absolute; left: 282px; top: 232px; width: 112px; height: 112px; border-radius: 50%; background: linear-gradient(135deg, var(--a1), var(--a2)); border: 7px solid #0b1020; box-shadow: 0 10px 30px var(--glow); display: flex; align-items: center; justify-content: center; opacity: 0; }
+      #ok svg { width: 56px; height: 56px; display: block; }
+      .burst { position: absolute; left: 0; top: 0; width: 30px; height: 30px; opacity: 0; }
+      .burst svg { width: 100%; height: 100%; display: block; }
+
+      /* ── Mensajes ── */
+      #msgs { position: absolute; left: 50px; top: 600px; width: 620px; height: 150px; }
+      .m { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; font: 700 47px/1.16 "Space Grotesk", sans-serif; letter-spacing: -0.01em; text-wrap: balance; opacity: 0; }
+      .m span { display: block; }
+      .m em { font-style: normal; background: linear-gradient(90deg, var(--pink), var(--lav)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .m svg.h { display: inline-block; width: 0.78em; height: 0.78em; vertical-align: -0.08em; margin-left: 0.14em; }
+
+      /* ── Progreso ── */
+      #prog { position: absolute; left: 80px; top: 786px; width: 560px; }
+      .prow { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; }
+      #plabel { font: 600 20px "Inter", sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); padding-bottom: 6px; }
+      #pct { font: 700 46px/1 "Space Grotesk", sans-serif; color: var(--ink); }
+      .track { position: relative; height: 22px; border-radius: 11px; background: rgba(255, 255, 255, 0.11); }
+      #fill { height: 100%; width: 0%; border-radius: 11px; background: linear-gradient(90deg, var(--a2), var(--a1)); box-shadow: 0 0 24px var(--glow); }
+      #knob { position: absolute; top: -9px; left: 0%; width: 40px; height: 40px; margin-left: -20px; filter: drop-shadow(0 0 10px rgba(255, 134, 176, 0.8)); }
+      #knob svg { width: 100%; height: 100%; display: block; }
+
+      .brand { position: absolute; left: 0; right: 0; top: 892px; text-align: center; font: 600 19px "Inter", sans-serif; letter-spacing: 0.16em; text-transform: uppercase; color: #8a94a8; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="4" data-width="720" data-height="960" data-fps="30">
+      <div id="scene" class="clip" data-start="0" data-duration="4" data-track-index="0">
+        <div class="bg"></div>
+        <div class="aura" id="aura"></div>
+        <div class="vig"></div>
+        <div id="hearts"></div>
+
+        <div class="chip" id="chip"><span class="dot" id="chipDot"></span><span id="chipText"></span></div>
+
+        <div id="stage">
+          <!-- ENVIAR -->
+          <div class="st" id="st-enviar">
+            <div class="ring" id="ring1"></div><div class="ring" id="ring2"></div><div class="ring" id="ring3"></div>
+            <div id="cloud">
+              <svg viewBox="0 0 320 200">
+                <defs>
+                  <linearGradient id="cg" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="var(--a1)" /><stop offset="1" stop-color="var(--a2)" />
+                  </linearGradient>
+                </defs>
+                <g fill="url(#cg)">
+                  <circle cx="105" cy="118" r="58" /><circle cx="172" cy="84" r="72" /><circle cx="242" cy="122" r="52" />
+                  <rect x="48" y="118" width="246" height="58" rx="29" />
+                </g>
+                <ellipse cx="150" cy="52" rx="62" ry="16" fill="#ffffff" opacity="0.16" />
+              </svg>
+            </div>
+            <div id="arrow">
+              <svg viewBox="0 0 320 200">
+                <path d="M170 160 V92 M142 118 L170 88 L198 118" stroke="#ffffff" stroke-width="15" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <div class="sheet" id="sheet1"><div class="l1"></div><div class="l"></div><div class="l s"></div><div class="l"></div><span class="hrt heart-src"></span></div>
+            <div class="sheet" id="sheet2"><div class="l1"></div><div class="l"></div><div class="l s"></div><div class="l"></div><span class="hrt heart-src"></span></div>
+            <div class="sheet" id="sheet3"><div class="l1"></div><div class="l"></div><div class="l s"></div><div class="l"></div><span class="hrt heart-src"></span></div>
+            <div id="sparks"></div>
+          </div>
+
+          <!-- VER -->
+          <div class="st" id="st-ver">
+            <div class="panel" id="panelV"></div>
+            <div class="band" id="bandV"></div>
+            <div class="grid" id="gridV"></div>
+            <div id="lens">
+              <svg viewBox="0 0 120 120">
+                <line x1="76" y1="76" x2="110" y2="110" stroke="var(--a1)" stroke-width="13" stroke-linecap="round" />
+                <circle cx="48" cy="48" r="36" fill="rgba(255,255,255,0.10)" stroke="var(--a1)" stroke-width="9" />
+                <path d="M30 40 A22 22 0 0 1 46 26" stroke="rgba(255,255,255,0.6)" stroke-width="5" fill="none" stroke-linecap="round" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- BORRAR -->
+          <div class="st" id="st-borrar">
+            <div class="panel" id="panelB"></div>
+            <div class="grid" id="gridB"></div>
+            <div id="sweep"></div>
+            <div id="dusts"></div>
+            <div id="broom">
+              <svg viewBox="0 0 100 120">
+                <line x1="64" y1="4" x2="48" y2="62" stroke="#f5c97a" stroke-width="9" stroke-linecap="round" />
+                <polygon points="24,62 74,62 90,114 10,114" fill="var(--a1)" />
+                <path d="M32 70 L24 112 M46 70 L44 112 M60 70 L64 112 M72 70 L82 112" stroke="rgba(255,255,255,0.45)" stroke-width="4" stroke-linecap="round" />
+                <rect x="22" y="58" width="54" height="10" rx="5" fill="#f5c97a" />
+              </svg>
+            </div>
+          </div>
+
+          <div id="bursts"></div>
+          <div id="ok">
+            <svg viewBox="0 0 56 56"><path d="M13 30 L24 41 L44 16" stroke="#fff" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </div>
+        </div>
+
+        <div id="msgs">
+          <div class="m" id="m1"></div><div class="m" id="m2"></div><div class="m" id="m3"></div>
+        </div>
+
+        <div id="prog">
+          <div class="prow"><span id="plabel"></span><span id="pct">0%</span></div>
+          <div class="track">
+            <div id="fill"></div>
+            <div id="knob"></div>
+          </div>
+        </div>
+
+        <div class="brand">Tienda Jahdiel</div>
+      </div>
+    </div>
+
+    <script>
+      const HEART_PATH = "M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z";
+      const heartSvg = (fill) => '<svg viewBox="0 0 24 24"><path fill="' + fill + '" d="' + HEART_PATH + '"/></svg>';
+      const heartInline = '<svg class="h" viewBox="0 0 24 24"><path fill="#ff86b0" d="' + HEART_PATH + '"/></svg>';
+      const SPARK_PATH = "M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4Z";
+
+      // ── Qué versión se dibuja ──
+      const vars = (window.__hyperframes && window.__hyperframes.getVariables) ? window.__hyperframes.getVariables() : {};
+      const tipo = ["enviar", "ver", "borrar"].indexOf(vars.tipo) >= 0 ? vars.tipo : "enviar";
+      const root = document.getElementById("root");
+      root.setAttribute("data-tipo", tipo);
+      document.documentElement.setAttribute("data-tipo", tipo);
+
+      const COPY = {
+        enviar: {
+          chip: "Subiendo factura", label: "Enviando",
+          msgs: ["Empacando con cariño", "Ya casi, <em>mi tinto</em>", "¡Listo, <em>mi querida</em>!"],
+        },
+        ver: {
+          chip: "Abriendo Sheets", label: "Consultando",
+          msgs: ["Abriendo con cariño", "Buscando todo, <em>mi consentida</em>", "¡Aquí está, <em>mi tinto</em>!"],
+        },
+        borrar: {
+          chip: "Limpiando Sheets", label: "Limpiando",
+          msgs: ["Limpiando con cuidado", "Ya casi, <em>mi consentida</em>", "¡Quedó limpiecita, <em>mi tinto</em>!"],
+        },
+      }[tipo];
+
+      document.getElementById("chipText").textContent = COPY.chip;
+      document.getElementById("plabel").textContent = COPY.label;
+      COPY.msgs.forEach((t, i) => { document.getElementById("m" + (i + 1)).innerHTML = "<span>" + t + (i === 2 ? heartInline : "") + "</span>"; });
+      document.getElementById("knob").innerHTML = heartSvg("#ff86b0");
+      document.querySelectorAll(".heart-src").forEach((el) => { el.innerHTML = heartSvg("#ff86b0"); });
+
+      // ── Corazoncitos que suben (posiciones fijas, sin azar) ──
+      const HEARTS = [
+        [40, 22, 900, 820, "#ff86b0", 0.42], [120, 34, 980, 900, "#b9a6ff", 0.34], [210, 18, 840, 760, "#ff86b0", 0.3],
+        [300, 26, 1010, 860, "#b9a6ff", 0.28], [380, 16, 760, 700, "#ff86b0", 0.3], [470, 30, 960, 880, "#ff86b0", 0.36],
+        [540, 20, 880, 800, "#b9a6ff", 0.34], [620, 36, 1000, 920, "#ff86b0", 0.4], [680, 18, 800, 740, "#b9a6ff", 0.3],
+        [80, 16, 700, 640, "#b9a6ff", 0.26], [590, 14, 720, 660, "#ff86b0", 0.28], [250, 24, 930, 840, "#ff86b0", 0.26],
+      ];
+      const heartsBox = document.getElementById("hearts");
+      const heartEls = HEARTS.map((h) => {
+        const d = document.createElement("div");
+        d.className = "heart";
+        d.style.width = h[1] + "px"; d.style.height = h[1] + "px";
+        d.innerHTML = heartSvg(h[4]);
+        heartsBox.appendChild(d);
+        return d;
+      });
+
+      // ── Hoja de cálculo (Ver y Borrar) ──
+      const GRID = { left: 26, top: 66, w: 348, h: 268, gap: 8, cols: 5, rows: 5 };
+      const cw = (GRID.w - GRID.gap * (GRID.cols - 1)) / GRID.cols;
+      const ch = (GRID.h - GRID.gap * (GRID.rows - 1)) / GRID.rows;
+      const cx = (c) => GRID.left + c * (cw + GRID.gap) + cw / 2;
+      const cy = (r) => GRID.top + r * (ch + GRID.gap) + ch / 2;
+      const BAR = [78, 52, 66, 40];
+      function buildGrid(id) {
+        const g = document.getElementById(id), cells = [];
+        for (let r = 0; r < GRID.rows; r++) {
+          for (let c = 0; c < GRID.cols; c++) {
+            const d = document.createElement("div");
+            d.className = "cell" + (r === 0 ? " head" : "");
+            d.innerHTML = '<i style="width:' + BAR[(r * 7 + c * 3) % 4] + '%"></i>';
+            g.appendChild(d);
+            cells.push({ el: d, r: r, c: c });
+          }
+        }
+        return cells;
+      }
+
+      // ═════════ Línea de tiempo (4 s) ═════════
+      const tl = gsap.timeline({ paused: true });
+      const ease = { out: "power3.out", back: "back.out(1.8)" };
+
+      // Estados de partida
+      gsap.set(heartEls, { opacity: 0 });
+
+      // Entrada de la tarjeta
+      tl.fromTo("#aura", { opacity: 0.4, scale: 0.85 }, { opacity: 1, scale: 1.05, duration: 3.6, ease: "sine.inOut" }, 0);
+      tl.to("#chipDot", { scale: 1.5, opacity: 0.55, duration: 0.5, ease: "sine.inOut", yoyo: true, repeat: 7 }, 0.2);
+
+      // Corazoncitos de fondo
+      heartEls.forEach((el, i) => {
+        const h = HEARTS[i];
+        tl.fromTo(el, { x: h[0], y: h[2] }, { y: h[2] - h[3], duration: 4, ease: "none" }, 0);
+        tl.to(el, { x: h[0] + (i % 2 ? 26 : -26), duration: 1.3, ease: "sine.inOut", yoyo: true, repeat: 3 }, 0);
+        tl.to(el, { opacity: h[5], duration: 0.7 }, 0.1);
+        tl.to(el, { opacity: 0, duration: 0.7 }, 3.3);
+      });
+
+      // Mensajes (3.5 → 3.8 aparece el final)
+      const showMsg = (id, tIn, tOut) => {
+        gsap.set(id, { y: 14 });
+        tl.to(id, { opacity: 1, y: 0, duration: 0.3, ease: ease.out }, tIn);
+        if (tOut != null) tl.to(id, { opacity: 0, y: -10, duration: 0.14, ease: "power2.in" }, tOut);
+      };
+      gsap.set("#m1", { opacity: 1 });
+      tl.to("#m1", { opacity: 0, y: -10, duration: 0.18, ease: "power2.in" }, 1.85);
+      showMsg("#m2", 2.0, 3.4);   // se queda quieto hasta 3.45 (punto de espera en la app: 3.3 s)
+      showMsg("#m3", 3.5, null);
+
+      // Progreso: 0 → 30 → 62 → 88 (pausa) → 100
+      const P = { v: 0 };
+      const fillEl = document.getElementById("fill");
+      const knobEl = document.getElementById("knob");
+      const pctEl = document.getElementById("pct");
+      const paint = () => {
+        fillEl.style.width = P.v + "%";
+        knobEl.style.left = P.v + "%";
+        pctEl.textContent = Math.round(P.v) + "%";
+      };
+      tl.to(P, { v: 28, duration: 0.85, ease: "power1.inOut", onUpdate: paint }, 0.15);
+      tl.to(P, { v: 60, duration: 1.1, ease: "sine.inOut", onUpdate: paint }, 1.0);
+      tl.to(P, { v: 88, duration: 1.1, ease: "sine.out", onUpdate: paint }, 2.1);
+      tl.to(P, { v: 100, duration: 0.4, ease: "power2.out", onUpdate: paint }, 3.45);
+      tl.to(knobEl, { scale: 1.25, duration: 0.18, yoyo: true, repeat: 1, ease: "power2.out" }, 3.85);
+      tl.fromTo("#fill", { filter: "brightness(1)" }, { filter: "brightness(1.35)", duration: 0.2, yoyo: true, repeat: 1 }, 3.85);
+
+      // Latido del corazón de la barra
+      tl.to(knobEl, { rotation: 8, duration: 0.3, ease: "sine.inOut", yoyo: true, repeat: 10 }, 0.3);
+
+      // Éxito: insignia con check + lluvia de corazones
+      const BURST = [
+        [-1, -0.2, "#ff86b0"], [-0.8, -0.8, "#b9a6ff"], [-0.3, -1, "#ff86b0"], [0.3, -1, "#b9a6ff"], [0.8, -0.8, "#ff86b0"], [1, -0.2, "#b9a6ff"],
+        [0.9, 0.5, "#ff86b0"], [0.4, 0.95, "#b9a6ff"], [-0.4, 0.95, "#ff86b0"], [-0.9, 0.5, "#b9a6ff"],
+      ];
+      const burstBox = document.getElementById("bursts");
+      const OKX = 282 + 56, OKY = 232 + 56;
+      BURST.forEach((b, i) => {
+        const d = document.createElement("div");
+        d.className = "burst";
+        d.innerHTML = heartSvg(b[2]);
+        burstBox.appendChild(d);
+        gsap.set(d, { x: OKX - 15, y: OKY - 15, scale: 0.3 });
+        tl.fromTo(d, { opacity: 1, scale: 0.3, x: OKX - 15, y: OKY - 15 }, { opacity: 0, scale: 1 + (i % 3) * 0.25, x: OKX - 15 + b[0] * (110 + (i % 3) * 22), y: OKY - 15 + b[1] * (110 + (i % 3) * 22), duration: 0.7, ease: "power2.out", immediateRender: false }, 3.5);
+      });
+      gsap.set("#ok", { scale: 0 });
+      tl.to("#ok", { opacity: 1, duration: 0.05 }, 3.5);
+      tl.to("#ok", { scale: 1, duration: 0.45, ease: "back.out(2.4)" }, 3.5);
+
+      // ═════════ ENVIAR ═════════
+      if (tipo === "enviar") {
+        gsap.set("#cloud", { transformOrigin: "50% 60%" });
+        tl.fromTo("#cloud", { scale: 0.92 }, { scale: 1, duration: 0.5, ease: ease.back }, 0.0);
+        tl.to("#arrow", { y: -10, duration: 0.45, ease: "sine.inOut", yoyo: true, repeat: 7 }, 0.7);
+        tl.to("#cloud", { y: -7, duration: 1.0, ease: "sine.inOut", yoyo: true, repeat: 3 }, 0.75);
+
+        const sheets = [
+          { id: "#sheet1", t: 0.5, x: -42, r: -9 },
+          { id: "#sheet2", t: 1.3, x: 36, r: 7 },
+          { id: "#sheet3", t: 2.1, x: -10, r: -4 },
+        ];
+        const sparkBox = document.getElementById("sparks");
+        const SP = [[70, 40], [300, 52], [330, 110], [40, 120], [150, 6], [250, 14]];
+        SP.forEach((p, i) => {
+          const s = document.createElement("div");
+          s.className = "spark";
+          s.innerHTML = '<svg viewBox="0 0 24 24"><path fill="' + (i % 2 ? "#ffe08a" : "#ffffff") + '" d="' + SPARK_PATH + '"/></svg>';
+          s.style.left = p[0] + "px"; s.style.top = p[1] + "px";
+          sparkBox.appendChild(s);
+        });
+        const sparks = sparkBox.children;
+        sheets.forEach((s, i) => {
+          gsap.set(s.id, { opacity: 0 });
+          tl.fromTo(s.id, { y: 250, x: s.x, rotation: s.r, scale: 0.95, opacity: 0 }, { y: 80, x: 0, rotation: 0, scale: 0.95, opacity: 1, duration: 0.55, ease: "power2.out" }, s.t);
+          tl.to(s.id, { y: 6, scale: 0.28, opacity: 0, duration: 0.3, ease: "power2.in" }, s.t + 0.55);
+          const hit = s.t + 0.8;
+          tl.fromTo("#ring" + (i + 1), { scale: 0.5, opacity: 0.85 }, { scale: 2, opacity: 0, duration: 0.7, ease: "power2.out", immediateRender: false }, hit);
+          tl.fromTo("#cloud svg", { scale: 1 }, { scale: 1.07, duration: 0.14, yoyo: true, repeat: 1, ease: "power2.out", transformOrigin: "50% 60%" }, hit);
+          for (let k = 0; k < 2; k++) {
+            const sp = sparks[(i * 2 + k) % sparks.length];
+            tl.fromTo(sp, { scale: 0, opacity: 1, rotation: 0 }, { scale: 1.2, opacity: 0, rotation: 80, duration: 0.55, ease: "power2.out", immediateRender: false }, hit + k * 0.06);
+          }
+        });
+        tl.to("#arrow", { opacity: 0.0, duration: 0.2 }, 3.45);
+        tl.to("#cloud", { scale: 1.04, duration: 0.3, ease: "back.out(2)" }, 3.5);
+      }
+
+      // ═════════ VER ═════════
+      if (tipo === "ver") {
+        const cells = buildGrid("gridV");
+        cells.filter((c) => c.r > 0).forEach((c) => {
+          tl.fromTo(c.el, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.35, ease: "back.out(1.6)" }, 0.06 + (c.r + c.c) * 0.06);
+        });
+        const LX = (c) => cx(c) - 48, LY = (r) => cy(r) - 48;   // el centro de la lupa está en (48,48)
+        gsap.set("#lens", { x: LX(0), y: LY(1), opacity: 0, scale: 0.4, transformOrigin: "48px 48px" });
+        gsap.set("#bandV", { y: cy(1) - 25, opacity: 0 });
+        tl.to("#lens", { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(1.8)" }, 0.6);
+        tl.to("#bandV", { opacity: 1, duration: 0.3 }, 0.7);
+        tl.to("#lens", { x: LX(4), y: LY(1), duration: 0.7, ease: "sine.inOut" }, 0.95);
+        tl.to("#lens", { x: LX(4), y: LY(2), duration: 0.25, ease: "sine.inOut" }, 1.65);
+        tl.to("#bandV", { y: cy(2) - 25, duration: 0.25, ease: "sine.inOut" }, 1.65);
+        tl.to("#lens", { x: LX(0), y: LY(2), duration: 0.7, ease: "sine.inOut" }, 1.9);
+        tl.to("#lens", { x: LX(0), y: LY(3), duration: 0.25, ease: "sine.inOut" }, 2.6);
+        tl.to("#bandV", { y: cy(3) - 25, duration: 0.25, ease: "sine.inOut" }, 2.6);
+        tl.to("#lens", { x: LX(2), y: LY(3), duration: 0.45, ease: "sine.inOut" }, 2.85);
+        tl.to("#lens", { y: LY(3) - 6, duration: 0.3, ease: "sine.inOut", yoyo: true, repeat: 1 }, 3.3);
+        // Las filas "saltan" cuando la luz pasa por ellas
+        [[1, 1.25], [2, 2.2], [3, 3.05]].forEach((rt) => {
+          const row = cells.filter((c) => c.r === rt[0]).map((c) => c.el);
+          tl.to(row, { scale: 1.1, duration: 0.16, yoyo: true, repeat: 1, ease: "power2.out", stagger: 0.04 }, rt[1]);
+        });
+        tl.to("#panelV", { scale: 1.03, duration: 0.3, ease: "back.out(2)", yoyo: true, repeat: 1 }, 3.5);
+        tl.to("#bandV", { opacity: 0, duration: 0.3 }, 3.45);
+      }
+
+      // ═════════ BORRAR ═════════
+      if (tipo === "borrar") {
+        const cells = buildGrid("gridB");
+        cells.filter((c) => c.r > 0).forEach((c) => {
+          tl.fromTo(c.el, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(1.6)" }, 0.04 + (c.r + c.c) * 0.045);
+        });
+        // La brocha barre de izquierda a derecha y va dejando todo limpio (el encabezado se queda)
+        const X0 = GRID.left - 30, X1 = GRID.left + GRID.w + 30, T0 = 1.0, T1 = 3.1;
+        const tAt = (x) => T0 + ((x - X0) / (X1 - X0)) * (T1 - T0);
+        gsap.set("#sweep", { x: X0 - 46, opacity: 0 });
+        gsap.set("#broom", { x: X0 - 50, y: cy(1) - 40, opacity: 0, rotation: 0 });
+        tl.to("#sweep", { opacity: 1, duration: 0.2 }, T0 - 0.15);
+        tl.to("#sweep", { x: X1 - 46, duration: T1 - T0, ease: "none" }, T0);
+        tl.to("#sweep", { opacity: 0, duration: 0.25 }, T1);
+        tl.to("#broom", { opacity: 1, duration: 0.2 }, T0 - 0.15);
+        tl.to("#broom", { x: X1 - 50, duration: T1 - T0, ease: "none" }, T0);
+        tl.fromTo("#broom", { rotation: -14 }, { rotation: 14, duration: 0.21, ease: "sine.inOut", yoyo: true, repeat: 9 }, T0);
+        tl.to("#broom", { opacity: 0, y: cy(1) - 70, duration: 0.3, ease: "power2.in" }, T1 + 0.05);
+        const dustBox = document.getElementById("dusts");
+        for (let c = 0; c < GRID.cols; c++) {
+          const tc = tAt(cx(c)) - 0.08;
+          const col = cells.filter((k) => k.c === c);
+          col.forEach((k) => {
+            if (k.r === 0) return;
+            tl.to(k.el, { scale: 0, opacity: 0, duration: 0.28, ease: "back.in(1.7)" }, tc + (k.r - 1) * 0.04);
+          });
+          [1, 3].forEach((r, j) => {
+            const d = document.createElement("div");
+            d.className = "dust";
+            d.style.left = cx(c) - 8 + "px"; d.style.top = cy(r) - 8 + "px";
+            dustBox.appendChild(d);
+            tl.fromTo(d, { scale: 0.3, opacity: 0.9, x: 0, y: 0 }, { scale: 2.2, opacity: 0, x: (j ? 16 : -16), y: (j ? 14 : -14), duration: 0.5, ease: "power2.out", immediateRender: false }, tc + 0.1 + j * 0.06);
+          });
+        }
+        tl.to(cells.filter((k) => k.r === 0).map((k) => k.el), { scale: 1.08, duration: 0.2, yoyo: true, repeat: 1, ease: "power2.out", stagger: 0.05 }, 3.3);
+        tl.to("#panelB", { scale: 1.03, duration: 0.3, ease: "back.out(2)", yoyo: true, repeat: 1 }, 3.5);
+      }
+
+      // Duración exacta
+      tl.set({}, {}, 4);
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

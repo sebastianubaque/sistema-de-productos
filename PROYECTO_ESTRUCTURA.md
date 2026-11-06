@@ -590,3 +590,35 @@ cajitas translúcidas Base / Prendas / Gastos / Unidades); en rojo si el viaje q
 Textos en celular: dentro de la Caja **ningún texto se corta con "…"**; pasan a la siguiente línea
 (`overflow-wrap: anywhere`) y los títulos y montos usan `clamp()` para ajustarse al ancho. En pantallas
 ≤ 370 px las filas de 4 datos pasan a 2×2 y los conceptos de gasto a 3 columnas; ≤ 330 px las tarjetas van en 1 columna.
+
+---
+
+## 17. ANIMACIÓN DE CARGA (HyperFrames)
+
+Al **enviar una factura**, **Ver Sheets** y **Borrar Sheets** se muestra una tarjeta con un video de 4 s
+(barra de progreso, corazoncitos y mensajes cariñosos).
+
+Archivos en `animaciones/` (se publican junto con `index.html`):
+- `carga-enviar.mp4` (verde), `carga-ver.mp4` (azul), `carga-borrar.mp4` (rojo) — 720×960, 30 fps, H.264, ~320 KB c/u.
+- `fuente/index.html` — la composición de HyperFrames (una sola, con la variable `tipo`). Los textos están en `COPY`.
+
+Volver a generar los videos (después de editar `fuente/index.html`):
+```
+npx hyperframes check animaciones/fuente
+npx hyperframes render animaciones/fuente --variables '{"tipo":"enviar"}' -o animaciones/carga-enviar.mp4 --fps 30 --crf 21
+npx hyperframes render animaciones/fuente --variables '{"tipo":"ver"}'    -o animaciones/carga-ver.mp4    --fps 30 --crf 21
+npx hyperframes render animaciones/fuente --variables '{"tipo":"borrar"}' -o animaciones/carga-borrar.mp4 --fps 30 --crf 21
+```
+
+En la app (`showLoader(kind)`, cerca de "SOUND ENGINE"):
+```
+const loader = showLoader('enviar' | 'ver' | 'borrar');
+try { await trabajo(); await loader.finish(); } catch { loader.cancel(); }
+```
+- Si el trabajo termina antes, el video sigue hasta el final y se cierra (`LOADER_LINGER` = 600 ms con el último cuadro).
+- Si tarda más, el video **espera en 3.3 s** (`LOADER_HOLD`, progreso 88 %) con un brillo en la barra, y continúa al terminar.
+  Si se cambian los tiempos del video, ajustar `LOADER_HOLD` (el cuadro debe ser estable entre 3.2 y 3.45 s).
+- Si hay error, se cierra al instante y sale el aviso de error.
+- Si el video no carga a los 2.5 s, o el celular tiene "reducir movimiento", se usa una tarjeta sencilla (`.loader-card.fallback`).
+- `preloadLoaderVideos()` descarga los 3 videos 3.5 s después de abrir la app (no si hay "ahorro de datos").
+- Usado en `sendInvoiceToSheets`, `viewSheetsProducts` y `clearSheetsProducts`.
