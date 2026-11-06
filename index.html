@@ -2356,15 +2356,33 @@ function showSupabaseError(error) {
   showToast('Supabase sin sincronizar', 'Revisa que las tablas jahdiel_productos y jahdiel_facturas existan.', 'warning', 7000);
 }
 
+// Supabase devuelve como máximo 1000 filas por consulta. Sin paginar, al pasar de 1000 productos
+// la app solo cargaba los más viejos y los nuevos (variaciones incluidas) "desaparecían".
+// Se pide por páginas, con orden fijo (updated_at + id) para no saltar ni repetir filas.
+async function fetchAllRows(db, tableName, columns = 'id,data,updated_at') {
+  const PAGE = 1000, MAX_PAGES = 100;
+  const rows = [], seen = new Set();
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const from = page * PAGE;
+    const { data, error } = await db
+      .from(tableName)
+      .select(columns)
+      .order('updated_at', { ascending: true })
+      .order('id', { ascending: true })
+      .range(from, from + PAGE - 1);
+    if (error) throw error;
+    let nuevas = 0;
+    (data || []).forEach(r => { if (!seen.has(r.id)) { seen.add(r.id); rows.push(r); nuevas++; } });
+    if (!data || data.length < PAGE || !nuevas) break;   // última página (o no avanzó: evita repetir sin fin)
+  }
+  return rows;
+}
+
 async function loadCollectionFromSupabase(tableName) {
   const db = getSupabaseDb();
   if (!db) return null;
-  const { data, error } = await db
-    .from(tableName)
-    .select('id,data,updated_at')
-    .order('updated_at', { ascending: true });
-  if (error) throw error;
-  return (data || []).map(row => ({ ...(row.data || {}), id: row.data?.id || row.id }));
+  const data = await fetchAllRows(db, tableName);
+  return data.map(row => ({ ...(row.data || {}), id: row.data?.id || row.id }));
 }
 
 function snapshotCollection(scope, items) {
@@ -6507,8 +6525,8 @@ async function cjDeleteRemote(id){
 async function cjPull(){
   const db = getSupabaseDb();
   if(!db){ cjSetSync('local'); return; }
-  const { data, error } = await db.from(CJ_TABLE).select('id,data,updated_at');
-  if(error){ cjSetSync('local', error); return; }
+  let data;
+  try{ data = await fetchAllRows(db, CJ_TABLE); }catch(error){ cjSetSync('local', error); return; }
   const deleted = cjGetSet(CJ_DELETED_KEY), synced = cjGetSet(CJ_SYNCED_KEY);
   for(const id of [...deleted]){
     const r = await db.from(CJ_TABLE).delete().eq('id', id);

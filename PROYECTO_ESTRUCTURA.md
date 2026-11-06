@@ -334,6 +334,12 @@ Sincronización: `refreshFromSupabase()` (cada 8 s) descarta lo que trae de la n
 cambios locales, una subida en curso o un envío a Sheets (`supabaseEditSeq`, `supabaseSyncing`, `invoiceSending`).
 Antes, esa revisión podía pisar la factura recién enviada y dejarla otra vez en "Pendiente".
 
+**Límite de 1000 filas:** Supabase devuelve como máximo 1000 filas por consulta. `fetchAllRows()` pide por páginas
+(`.range()` con orden fijo `updated_at` + `id`) hasta traer todo; lo usan `loadCollectionFromSupabase` (productos y
+facturas) y la Caja de viajes. Antes, al pasar de 1000 productos la app solo cargaba los más viejos: los nuevos
+(variaciones incluidas) no aparecían en Productos y, al no encontrarse su producto, las facturas los mostraban como
+"simples" (`tipo` por defecto). Los datos siempre estuvieron bien guardados en la nube.
+
 ---
 
 ## 9. DATOS Y PERSISTENCIA
