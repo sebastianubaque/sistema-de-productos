@@ -47,6 +47,9 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* Al correr la interfaz a la derecha (gesto del Ticket) no debe ensancharse la página:
+       en el celular el navegador agrandaba el área de dibujo y descentraba las pantallas */
+    html { overflow-x: hidden; overflow-x: clip; }
     body {
       font-family: 'Inter', sans-serif;
       background: var(--bg);
@@ -920,6 +923,155 @@
     }
     .ac-expanded-label span { color: var(--red); }
     /* ══════════ ESCÁNER IA ══════════ */
+    /* ══════════ TICKET: función oculta (desliza Inicio a la izquierda) ══════════ */
+    body.tk-on-home #app { touch-action: pan-y; }
+    body.tk-dragging, body.tk-dragging * { user-select: none; -webkit-user-select: none; }
+    #tkDrawer {
+      position: fixed; top: 0; bottom: 0; left: 0; width: 0; z-index: 310; overflow: hidden; visibility: hidden; pointer-events: none;
+      background: linear-gradient(90deg, rgba(108,99,255,.15) 0%, rgba(108,99,255,0) 100%);
+      border-right: 2px dashed rgba(255,255,255,.18);
+    }
+    #tkDrawer.live { pointer-events: auto; }
+    .tk-inner { position: absolute; left: 0; top: 0; bottom: 0; width: var(--tk-w, 150px); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding-bottom: 70px; }
+    .tk-btn {
+      position: relative; width: 84px; height: 84px; border-radius: 50%; border: none; cursor: pointer; color: #fff;
+      display: flex; align-items: center; justify-content: center; -webkit-tap-highlight-color: transparent;
+      background: linear-gradient(135deg, #6c63ff, #8b5cf6);
+      box-shadow: 0 12px 32px rgba(108,99,255,.5), inset 0 1px 0 rgba(255,255,255,.32);
+      opacity: clamp(0, calc((var(--tk-p, 0) - .1) * 1.8), 1);
+      transform: scale(calc(.5 + .5 * var(--tk-p, 0))) rotate(calc((1 - var(--tk-p, 0)) * -18deg));
+    }
+    .tk-btn:active .tk-ico { transform: scale(.9); }
+    .tk-ico { width: 46px; height: 46px; display: block; transition: transform .15s; }
+    .tk-ring { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(167,139,250,.75); opacity: 0; pointer-events: none; }
+    #tkDrawer.ready .tk-ring { animation: tkRing 1.8s ease-out infinite; }
+    #tkDrawer.ready .tk-ring.r2 { animation-delay: .9s; }
+    @keyframes tkRing { 0% { transform: scale(1); opacity: .75; } 100% { transform: scale(1.75); opacity: 0; } }
+    .tk-cap { font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--text2); opacity: clamp(0, calc((var(--tk-p, 0) - .45) * 2), 1); }
+    #tkShield { position: fixed; inset: 0; z-index: 300; display: none; touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
+    #tkShield.on { display: block; }
+
+    #tkView {
+      position: fixed; inset: 0; z-index: 1350; visibility: hidden; transform: translateX(-100%); touch-action: pan-y;
+      background: radial-gradient(ellipse 80% 50% at 20% 10%, rgba(108,99,255,.18) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 80% 85%, rgba(16,217,160,.09) 0%, transparent 60%), var(--bg);
+      transition: transform .44s cubic-bezier(.2,.9,.3,1), visibility 0s linear .44s;
+    }
+    #tkView.open { visibility: visible; transform: none; transition: transform .44s cubic-bezier(.2,.9,.3,1), visibility 0s; }
+    #tkView.dragging { transition: none; }
+    .tk-view-in { max-width: 480px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; padding: 14px 16px calc(24px + env(safe-area-inset-bottom)); }
+    .tk-view-top { display: flex; align-items: center; gap: 12px; }
+    .tk-back { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface2); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .tk-back svg { width: 20px; height: 20px; }
+    .tk-view-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 20px; }
+    .tk-view-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 10px; padding-bottom: 40px; }
+    .tk-hero { width: 132px; height: 132px; border-radius: 40px; display: flex; align-items: center; justify-content: center; color: #fff; margin-bottom: 14px; background: linear-gradient(135deg, #6c63ff, #8b5cf6); box-shadow: 0 18px 50px rgba(108,99,255,.42); animation: tkFloat 3.2s ease-in-out infinite; }
+    .tk-ico.big { width: 72px; height: 72px; }
+    @keyframes tkFloat { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-8px) rotate(2deg); } }
+    .tk-view-body h2 { font-family: 'Space Grotesk', sans-serif; font-size: 26px; }
+    .tk-view-body p { color: var(--text2); font-size: 14px; max-width: 280px; line-height: 1.5; }
+    .tk-hint { margin-top: 16px; display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text3); padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); }
+    .tk-hint svg { width: 15px; height: 15px; animation: tkNudge 1.4s ease-in-out infinite; }
+    @keyframes tkNudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-5px); } }
+    @media (prefers-reduced-motion: reduce) { .tk-hero, .tk-hint svg, #tkDrawer.ready .tk-ring { animation: none; } #tkView { transition: none; } }
+
+    /* ── Ticket: escáner de QR master + hoja virtual ── */
+    .qr-body { align-items: stretch; justify-content: flex-start; text-align: left; gap: 10px; padding: 14px 0 20px; overflow-y: auto; min-height: 0; -webkit-overflow-scrolling: touch; }
+    .qr-body[hidden], .qr-body [hidden] { display: none !important; }
+    .qr-actions { display: flex; gap: 8px; }
+    .qr-btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 44px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font: 600 13.5px 'DM Sans', sans-serif; cursor: pointer; }
+    .qr-btn svg { width: 17px; height: 17px; }
+    .qr-btn.primary { background: linear-gradient(135deg, #6c63ff, #8b5cf6); border-color: transparent; color: #fff; box-shadow: 0 8px 22px rgba(108,99,255,.35); }
+    .qr-btn.sm { height: 34px; flex: 0 0 auto; padding: 0 12px; font-size: 12.5px; border-radius: 10px; }
+    .qr-btn.on { border-color: #fbbf24; color: #fbbf24; background: rgba(251,191,36,.1); }
+    .qr-cam { position: relative; border-radius: 18px; overflow: hidden; background: #000; height: min(40vh, 300px); flex: 0 0 auto; }
+    .qr-cam video { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .qr-reticle { position: absolute; inset: 14% 18%; border: 2px solid rgba(255,255,255,.75); border-radius: 18px; box-shadow: 0 0 0 999px rgba(0,0,0,.28); pointer-events: none; }
+    .qr-cam-msg { position: absolute; left: 10px; right: 54px; bottom: 10px; padding: 7px 11px; border-radius: 10px; background: rgba(0,0,0,.62); color: #fff; font-size: 12.5px; line-height: 1.3; transition: background .2s; }
+    .qr-cam-msg.ok { background: rgba(16,185,129,.9); } .qr-cam-msg.bad { background: rgba(239,68,68,.92); }
+    .qr-cam-x { position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; border-radius: 50%; border: none; background: rgba(0,0,0,.6); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .qr-zoom { position: absolute; left: 14px; right: 14px; top: 12px; width: auto; accent-color: #a78bfa; }
+    .qr-paste { display: flex; flex-direction: column; gap: 8px; }
+    .qr-paste textarea { width: 100%; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 10px; font: 12px/1.35 ui-monospace, Consolas, monospace; resize: vertical; }
+    #qrBar { display: flex; flex-direction: column; gap: 9px; }
+    .qr-chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+    .qr-chip { flex: 0 0 auto; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text2); font: 600 12px 'DM Sans', sans-serif; cursor: pointer; white-space: nowrap; }
+    .qr-chip.cur { background: rgba(108,99,255,.2); border-color: #8b5cf6; color: var(--text); }
+    .qr-chip.full::after { content: ' ✓'; color: #10d9a0; }
+    .qr-meta { font-size: 12px; color: var(--text2); display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
+    .qr-meta b { color: var(--text); }
+    .qr-prog { display: flex; flex-direction: column; gap: 6px; padding: 11px 13px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); }
+    .qr-prog-t { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; }
+    .qr-prog-t b { font: 700 18px 'Space Grotesk', sans-serif; }
+    .qr-prog-b { height: 7px; border-radius: 999px; background: var(--surface2); overflow: hidden; }
+    .qr-prog-b i { display: block; height: 100%; background: linear-gradient(90deg, #10d9a0, #34d399); border-radius: inherit; transition: width .35s; }
+    .qr-tools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .qr-warn { padding: 9px 12px; border-radius: 12px; background: rgba(251,191,36,.12); border: 1px solid rgba(251,191,36,.4); color: #fbbf24; font-size: 12.5px; line-height: 1.4; }
+    .qr-scroll { overflow: auto; border-radius: 12px; background: #2a2a33; padding: 8px; touch-action: pan-x pan-y pinch-zoom; max-height: 70vh; flex: 0 0 auto; }
+    #qrSheet { position: relative; background: #fff; box-shadow: 0 6px 24px rgba(0,0,0,.45); container-type: inline-size; overflow: hidden; }
+    .qr-t { position: absolute; box-sizing: border-box; display: flex; flex-direction: column; padding: 0; margin: 0; border: .25cqw solid #8a8a96; border-radius: .6cqw; background: #fff; color: #17171c; overflow: hidden; cursor: pointer; font-family: 'DM Sans', sans-serif; text-align: center; transition: opacity .2s, background .25s; }
+    .qr-t.rot { flex-direction: row; }
+    .qr-mk { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; background: #17171c; color: #fff; font-weight: 700; font-size: 1.05cqw; letter-spacing: .04em; text-transform: uppercase; overflow: hidden; white-space: nowrap; }
+    .qr-t.rot .qr-mk { writing-mode: vertical-rl; transform: rotate(180deg); }
+    .qr-tb { flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3cqw; padding: .6cqw; line-height: 1.05; }
+    .qr-tc { font-size: 1.5cqw; font-weight: 700; word-break: break-all; }
+    .qr-tz { font-size: 3.6cqw; font-weight: 800; }
+    .qr-tp { font-size: 2cqw; font-weight: 700; }
+    .qr-tl { font-size: 1.35cqw; color: #55555f; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .qr-tn { position: absolute; right: .5cqw; bottom: .3cqw; font-size: 1.05cqw; color: #77778a; }
+    .qr-t.done { background: #c8f5df; border-color: #10b981; }
+    .qr-t.done::after { content: '✓'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 8cqw; font-weight: 800; color: rgba(5,150,105,.85); text-shadow: 0 0 .6cqw #fff; }
+    .qr-sheet.focus-pend .qr-t.done { opacity: .14; }
+    .qr-sheet.focus-pend .qr-t:not(.done) { border-color: #f59e0b; box-shadow: 0 0 0 .35cqw rgba(245,158,11,.45); }
+    .qr-t.pulse { animation: qrPulse .9s ease-out; z-index: 3; }
+    @keyframes qrPulse { 0% { box-shadow: 0 0 0 0 rgba(16,185,129,.9); transform: scale(1.18); } 100% { box-shadow: 0 0 0 3cqw rgba(16,185,129,0); transform: scale(1); } }
+    .qr-empty { text-align: center; padding: 24px 10px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .qr-empty h2 { font-family: 'Space Grotesk', sans-serif; font-size: 22px; }
+    .qr-empty-p { color: var(--text2); font-size: 13.5px; max-width: 300px; line-height: 1.5; }
+    .qr-big { flex: 0 0 auto; width: 100%; max-width: 300px; height: 52px; margin-top: 10px; font-size: 15px; }
+    .qr-fab { position: absolute; right: 18px; bottom: calc(22px + env(safe-area-inset-bottom)); z-index: 9; width: 60px; height: 60px; border-radius: 50%; border: none; color: #fff; background: linear-gradient(135deg, #6c63ff, #8b5cf6); box-shadow: 0 10px 28px rgba(108,99,255,.55); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .qr-fab svg { width: 28px; height: 28px; }
+    .qr-fab[hidden] { display: none; }
+    #qrRot { position: relative; }
+    .qr-scroll.full { position: fixed; inset: 0; z-index: 6; max-height: none; border-radius: 0; padding: 6px; background: #0b0b10; display: flex; }
+    .qr-scroll.full #qrRot { margin: auto; flex: none; }
+    .qr-scroll.full #qrSheet { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+    .qr-fullbar { position: absolute; top: calc(8px + env(safe-area-inset-top)); left: 8px; right: 8px; z-index: 7; display: flex; gap: 6px; align-items: center; justify-content: flex-end; pointer-events: none; }
+    .qr-fullbar > * { pointer-events: auto; }
+    .qr-fullbar .qr-btn { background: rgba(20,20,30,.82); backdrop-filter: blur(6px); }
+    .qr-fullbar .qr-btn.on { background: rgba(60,45,5,.9); }
+    .qr-fullprog { margin-right: auto; padding: 6px 12px; border-radius: 999px; background: rgba(20,20,30,.82); color: #fff; font: 700 13px 'DM Sans', sans-serif; backdrop-filter: blur(6px); }
+    .qr-fullbar[hidden] { display: none; }
+    .qr-cam.float { position: fixed; left: 10px; right: 10px; bottom: 10px; height: 200px; z-index: 8; box-shadow: 0 10px 40px rgba(0,0,0,.6); }
+    .qr-pin { position: absolute; inset: 0; z-index: 14; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(0,0,0,.7); backdrop-filter: blur(4px); }
+    .qr-pin[hidden] { display: none; }
+    .qr-pincard { width: 100%; max-width: 320px; background: var(--bg); border: 1px solid var(--border); border-radius: 22px; padding: 22px 20px 18px; text-align: center; display: flex; flex-direction: column; gap: 10px; animation: qrUp .25s cubic-bezier(.2,.9,.3,1); }
+    .qr-pincard.shake { animation: qrShake .4s; }
+    @keyframes qrShake { 20%, 60% { transform: translateX(-9px); } 40%, 80% { transform: translateX(9px); } }
+    .qr-pin-ico { width: 52px; height: 52px; margin: 0 auto; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #fff; background: linear-gradient(135deg, #6c63ff, #8b5cf6); }
+    .qr-pin-ico svg { width: 24px; height: 24px; }
+    .qr-pincard h3 { font: 700 18px 'Space Grotesk', sans-serif; }
+    #qrPinIn { text-align: center; font: 700 30px 'Space Grotesk', sans-serif; letter-spacing: .5em; padding: 10px 0 10px .5em; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); color: var(--text); width: 100%; }
+    #qrPinIn:focus { outline: 2px solid #8b5cf6; }
+    .qr-pin-err { min-height: 18px; font-size: 12.5px; color: #f87171; }
+    .qr-detail[hidden] { display: none; }
+    .qr-flash { position: absolute; left: 16px; right: 16px; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 11; max-width: 448px; margin: 0 auto; padding: 11px 14px; border-radius: 14px; background: #1d1d28; border: 1px solid var(--border); color: #fff; font-size: 13.5px; line-height: 1.35; box-shadow: 0 10px 30px rgba(0,0,0,.5); opacity: 0; transform: translateY(12px); pointer-events: none; transition: opacity .2s, transform .2s; }
+    .qr-flash.on { opacity: 1; transform: none; }
+    .qr-flash.ok { background: #065f46; border-color: #10b981; } .qr-flash.bad { background: #7f1d1d; border-color: #ef4444; }
+    .qr-detail { position: absolute; inset: 0; z-index: 12; display: flex; align-items: flex-end; justify-content: center; background: rgba(0,0,0,.55); }
+    .qr-card { width: 100%; max-width: 480px; max-height: 86%; overflow-y: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 22px 22px 0 0; padding: 18px 18px calc(18px + env(safe-area-inset-bottom)); animation: qrUp .28s cubic-bezier(.2,.9,.3,1); }
+    @keyframes qrUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+    .qr-card h3 { font: 700 20px 'Space Grotesk', sans-serif; margin-bottom: 2px; word-break: break-all; }
+    .qr-state { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; margin: 4px 0 10px; }
+    .qr-state.on { background: rgba(16,185,129,.18); color: #10d9a0; } .qr-state.off { background: rgba(251,191,36,.15); color: #fbbf24; }
+    .qr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+    .qr-f { padding: 8px 10px; border-radius: 10px; background: var(--surface2); }
+    .qr-f.w { grid-column: 1 / -1; }
+    .qr-f span { display: block; font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--text3); }
+    .qr-f b { font-size: 14px; font-weight: 600; word-break: break-word; }
+    .qr-f.diff b { color: #fbbf24; }
+    .qr-card-act { display: flex; gap: 8px; }
+    @media (prefers-reduced-motion: reduce) { .qr-t.pulse, .qr-card { animation: none; } }
+
     /* ══════════ ANIMACIÓN DE CARGA (video de HyperFrames) ══════════ */
     .loader-ov { align-items: center; justify-content: center; padding: 20px; z-index: 2500; }
     .loader-ov.out { animation: ldOut .26s ease forwards; }
@@ -2236,6 +2388,68 @@
 </button>
 <button class="fab-caja" id="fabCaja" onclick="openCaja()" aria-label="Caja de viajes" title="Caja de viajes"><i data-lucide="wallet"></i></button>
 <div id="cajaApp" role="dialog" aria-label="Caja de viajes"><div class="cj-wrap" id="cjMain"></div><div id="cjSheetHost"></div><div id="cjTip"></div></div>
+<!-- ══ TICKET: función oculta (desliza Inicio a la izquierda) ══ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <symbol id="tkIcon" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M13 5H35A3 3 0 0 1 38 8V39L35.67 43L33.33 39L31 43L28.67 39L26.33 43L24 39L21.67 43L19.33 39L17 43L14.67 39L12.33 43L10 39V8A3 3 0 0 1 13 5Z"/>
+    <path d="M16 12H26"/><path d="M16 18H32M16 23H32M16 28H27"/>
+    <path d="M16 33V35.5M19 33V35.5M22 33V35.5M25.5 33V35.5M28 33V35.5M31 33V35.5" stroke-width="2"/>
+  </symbol>
+</defs></svg>
+<div id="tkDrawer" aria-hidden="true">
+  <div class="tk-inner">
+    <button type="button" id="tkTicket" class="tk-btn" aria-label="Abrir Ticket" tabindex="-1">
+      <span class="tk-ring"></span><span class="tk-ring r2"></span>
+      <svg class="tk-ico" aria-hidden="true"><use href="#tkIcon"/></svg>
+    </button>
+    <span class="tk-cap">Ticket</span>
+  </div>
+</div>
+<div id="tkShield"></div>
+<div id="tkView" role="dialog" aria-label="Ticket" aria-hidden="true">
+  <div class="tk-view-in">
+    <div class="tk-view-top">
+      <button type="button" class="tk-back" id="tkBack" aria-label="Salir (pide clave)"><i data-lucide="x"></i></button>
+      <div class="tk-view-title">Ticket</div>
+    </div>
+    <div class="tk-view-body qr-body">
+      <div class="qr-cam" id="qrCam" hidden>
+        <video id="qrVideo" playsinline muted autoplay></video>
+        <div class="qr-reticle"></div>
+        <div class="qr-cam-msg" id="qrCamMsg">Apunta al QR de la hoja o de una etiqueta</div>
+        <button type="button" class="qr-cam-x" id="qrCamX" aria-label="Cerrar cámara"><i data-lucide="x"></i></button>
+        <input type="range" id="qrZoom" class="qr-zoom" hidden aria-label="Zoom">
+      </div>
+      <div id="qrBar"></div>
+      <div class="qr-scroll qr-nogesture" id="qrScroll" hidden><div id="qrRot"><div id="qrSheet"></div></div></div>
+      <div class="qr-empty" id="qrEmpty">
+        <div class="tk-hero"><svg class="tk-ico big" aria-hidden="true"><use href="#tkIcon"/></svg></div>
+        <h2 id="qrEmptyT">Hojas de etiquetas</h2>
+        <div class="qr-empty-p" id="qrEmptyP">Cargando…</div>
+        <button type="button" class="qr-btn primary qr-big" id="qrRetry" hidden><i data-lucide="refresh-cw"></i> Reintentar</button>
+      </div>
+    </div>
+  </div>
+  <button type="button" class="qr-fab" id="qrFab" aria-label="Escanear etiqueta" hidden><i data-lucide="scan-line"></i></button>
+  <div class="qr-fullbar" id="qrFullBar" hidden>
+    <span class="qr-fullprog" id="qrFullProg"></span>
+    <button type="button" class="qr-btn sm" id="qrFRot" aria-label="Girar hoja"><i data-lucide="rotate-cw"></i></button>
+    <button type="button" class="qr-btn sm" id="qrFZoom" aria-label="Zoom">1×</button>
+    <button type="button" class="qr-btn sm" id="qrFPend" aria-label="Resaltar pendientes"><i data-lucide="eye"></i></button>
+    <button type="button" class="qr-btn sm" id="qrFX" aria-label="Salir de pantalla completa"><i data-lucide="minimize-2"></i></button>
+  </div>
+  <div class="qr-flash" id="qrFlash" role="status" aria-live="polite"></div>
+  <div class="qr-detail" id="qrDetail" hidden></div>
+  <div class="qr-pin" id="qrPin" hidden>
+    <form class="qr-pincard" id="qrPinForm" autocomplete="off">
+      <div class="qr-pin-ico"><i data-lucide="lock"></i></div>
+      <h3>Clave para salir</h3>
+      <input type="password" id="qrPinIn" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" aria-label="Clave de 4 dígitos" placeholder="••••">
+      <div class="qr-pin-err" id="qrPinErr" aria-live="polite"></div>
+      <div class="qr-card-act"><button type="button" class="qr-btn" id="qrPinNo">Cancelar</button><button type="submit" class="qr-btn primary">Salir</button></div>
+    </form>
+  </div>
+</div>
 <input type="file" id="scanQuickInput" accept="image/*,application/pdf,.pdf" multiple hidden onchange="scanOnFilesPicked(this)">
 <button class="fab-invoice" id="fabInvoice" onclick="openNewInvoiceSheet()" style="display:none;" aria-label="Nueva factura">
   <i data-lucide="plus"></i>
@@ -2279,6 +2493,7 @@ function switchPage(name, el) {
   // Botones de IA y Caja: solo en Inicio (salen hacia abajo al cambiar de panel)
   document.getElementById('fabAI')?.classList.toggle('fab-out', name !== 'home');
   document.getElementById('fabCaja')?.classList.toggle('fab-out', name !== 'home');
+  tkOnPage(name);
 }
 
 // ══════════════════════════════════════════
@@ -5878,12 +6093,51 @@ function confirmSendInvoice(invId) {
 }
 
 // ── Enviar factura a Sheets ──
-async function recordEnvioToSupabase(cantidadProductos, nombreFactura='', numeroFactura='') {
+// Costo de envío de una factura en Costos & Abonos (250 por unidad). Una factura = UN registro:
+//  · si ya está registrada con el mismo costo → NO se vuelve a agregar
+//  · si el costo cambió → se elimina el anterior y se deja el nuevo
+// Devuelve { estado: 'agregado' | 'sin-cambios' | 'reemplazado', costo, anterior } (o null si falla).
+const COSTO_POR_UNIDAD = 250;
+const envioQueue = {};   // un solo registro a la vez por factura (evita duplicados por doble toque)
+function recordEnvioToSupabase(cantidadProductos, nombreFactura = '', numeroFactura = '') {
+  const key = numeroFactura || nombreFactura || '_';
+  const run = (envioQueue[key] || Promise.resolve()).catch(() => {}).then(() => registrarEnvio(cantidadProductos, nombreFactura, numeroFactura));
+  envioQueue[key] = run;
+  return run;
+}
+async function registrarEnvio(cantidadProductos, nombreFactura, numeroFactura) {
   const db = getSupabaseDb();
-  if (!db) return;
+  if (!db) return null;
   try {
-    const costo = cantidadProductos * 250;
-    const { error } = await db.from('jahdiel_costos_envios').insert([{
+    const costo = (Number(cantidadProductos) || 0) * COSTO_POR_UNIDAD;
+    const TABLA = 'jahdiel_costos_envios';
+
+    // Registros que ya tiene esta factura (se identifica por su número)
+    let existentes = [];
+    if (numeroFactura) {
+      const { data, error } = await db.from(TABLA).select('*').eq('numero_factura', numeroFactura).order('fecha', { ascending: true });
+      if (error) throw error;
+      existentes = data || [];
+    }
+
+    if (existentes.length) {
+      const ultimo = existentes[existentes.length - 1];
+      if (Number(ultimo.costo) === costo) {
+        // Mismo valor: no se agrega nada. Si por errores anteriores quedaron repetidos, se limpian
+        // y se conserva el primero que tiene este valor.
+        let conservar = ultimo;
+        for (let i = existentes.length - 1; i >= 0 && Number(existentes[i].costo) === costo; i--) conservar = existentes[i];
+        const sobran = existentes.filter(r => r.id !== conservar.id).map(r => r.id);
+        if (sobran.length) {
+          const { error } = await db.from(TABLA).delete().in('id', sobran);
+          if (error) throw error;
+        }
+        return { estado: 'sin-cambios', costo, anterior: costo };
+      }
+    }
+
+    // Nuevo, o con otro valor: se inserta el nuevo y se eliminan los anteriores
+    const { error } = await db.from(TABLA).insert([{
       cantidad_productos: cantidadProductos,
       costo: costo,
       fecha: new Date().toISOString(),
@@ -5892,8 +6146,15 @@ async function recordEnvioToSupabase(cantidadProductos, nombreFactura='', numero
       numero_factura: numeroFactura
     }]);
     if (error) throw error;
-  } catch(e) {
+    if (existentes.length) {
+      const { error: errDel } = await db.from(TABLA).delete().in('id', existentes.map(r => r.id));
+      if (errDel) throw errDel;
+      return { estado: 'reemplazado', costo, anterior: Number(existentes[existentes.length - 1].costo) };
+    }
+    return { estado: 'agregado', costo, anterior: null };
+  } catch (e) {
     console.warn('Error al registrar envío:', e);
+    return null;
   }
 }
 
@@ -5930,6 +6191,7 @@ async function sendInvoiceToSheets(invId) {
         PRECIOVENTA:   it.precioVenta  || prod?.precioVenta  || 0,
         FECHACREACION: inv.date        || '',
         CATEGORIA:     categoria,
+        FACTURA:       nombre || numFactura,   // columna N de PRODUCTOS: nombre de la factura (o su número si no tiene nombre)
       };
     });
 
@@ -5945,13 +6207,19 @@ async function sendInvoiceToSheets(invId) {
 
     // Registrar el costo del envío (no bloquea el estado si falla)
     const totalProductos = inv.items.reduce((sum, item) => sum + (item.qty || 0), 0);
-    recordEnvioToSupabase(totalProductos, inv.name || '', numFactura).catch(e => console.warn('Error registrando envío:', e));
+    const envioPromise = recordEnvioToSupabase(totalProductos, inv.name || '', numFactura);
     saveInvoices();
     renderInvoices();
     refreshAllInvoiceBars();
     await loader.finish();   // la animación llega al 100 % antes de mostrar el resultado
     SFX.sheets();
     showToast('Factura enviada', `${numFactura} ${nombre} → Sheets`, 'success');
+    envioPromise.then(r => {
+      if (!r) return;
+      const money = n => '$' + Math.round(n).toLocaleString('es-CO');
+      if (r.estado === 'reemplazado') showToast('Pagos actualizado', `${numFactura}: ${money(r.anterior)} → ${money(r.costo)}`, 'info');
+      else if (r.estado === 'sin-cambios') showToast('Pagos sin cambios', `${numFactura} ya estaba registrada (${money(r.costo)})`, 'info');
+    });
     const detailOverlay = document.getElementById('invoiceDetailOverlay');
     if (detailOverlay) renderInvoiceDetailContent(detailOverlay, target);
   } catch(err) {
@@ -5960,6 +6228,559 @@ async function sendInvoiceToSheets(invId) {
   } finally {
     invoiceSending = false;
   }
+}
+
+// ══════════════════════════════════════════
+// TICKET (función oculta)
+// En Inicio, arrastrar la interfaz hacia la DERECHA deja ver un ícono de ticket (como la cámara del
+// iPhone): hay que TOCARLO para entrar. Deslizar a la IZQUIERDA vuelve a Inicio, entres o no.
+// Por ahora la pantalla del ticket está vacía: aquí irá la nueva función.
+// ══════════════════════════════════════════
+const TK = { x: 0, open: false, view: false, max: 150, baseLeft: 0, drag: null, raf: 0, noClick: false, ready: false, els: [] };
+const tkReduce = () => !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+const tkMax = () => Math.round(Math.min(160, Math.max(112, window.innerWidth * 0.4)));
+
+// Pinta todo según el desplazamiento x (≥ 0, hacia la derecha): interfaz, barra, botones flotantes y el ticket que asoma
+function tkRender() {
+  const x = TK.x, p = Math.max(0, Math.min(1, x / TK.max));
+  const t = Math.abs(x) < 0.3 ? '' : x.toFixed(2) + 'px 0';
+  TK.els.forEach(el => { if (el) el.style.translate = t; });
+  const d = TK.drawer;
+  if (!t) { d.style.visibility = 'hidden'; d.style.width = '0px'; d.classList.remove('ready', 'live'); return; }
+  d.style.visibility = 'visible';
+  d.style.left = TK.baseLeft + 'px';
+  d.style.width = x + 'px';
+  d.style.setProperty('--tk-p', p.toFixed(3));
+  d.style.setProperty('--tk-w', TK.max + 'px');
+  d.classList.toggle('ready', p > 0.85);
+  d.classList.toggle('live', TK.open);
+}
+function tkSetX(x) { TK.x = x; tkRender(); }
+function tkAnimate(to, kind) {
+  cancelAnimationFrame(TK.raf);
+  const from = TK.x;
+  if (tkReduce() || Math.abs(to - from) < 0.5) { tkSetX(to); return Promise.resolve(); }
+  const dur = kind === 'open' ? 460 : 340, t0 = performance.now();
+  const ease = kind === 'open'
+    ? t => { const c1 = 1.25, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); }   // con un pequeño rebote
+    : t => 1 - Math.pow(1 - t, 3);
+  return new Promise(res => {
+    const step = now => {
+      const t = Math.min(1, (now - t0) / dur);
+      tkSetX(from + (to - from) * ease(t));
+      if (t < 1) TK.raf = requestAnimationFrame(step); else res();
+    };
+    TK.raf = requestAnimationFrame(step);
+  });
+}
+function tkOpenTeaser() {
+  TK.open = true; TK.shield.classList.add('on');
+  try { if (navigator.vibrate) navigator.vibrate(10); } catch {}
+  return tkAnimate(TK.max, 'open');
+}
+function tkClose() {
+  TK.open = false; TK.shield.classList.remove('on');
+  return tkAnimate(0, 'close');
+}
+
+// Pantalla del ticket (por ahora vacía)
+function tkEnter() {
+  if (TK.view) return;
+  TK.view = true;
+  const v = TK.viewEl;
+  v.setAttribute('aria-hidden', 'false');
+  v.classList.remove('dragging'); v.style.transform = '';
+  void v.offsetWidth;
+  v.classList.add('open');
+  try { history.pushState({ tk: 1 }, ''); } catch {}
+  qrOnEnter();
+}
+function tkLeaveView(goHome = true) {
+  if (!TK.view) return;
+  TK.view = false; TK.exiting = false; tkClosePin();
+  qrStopCam(); qrCloseDetail(); if (QR.full) qrFull(false);
+  const v = TK.viewEl;
+  v.classList.remove('dragging'); v.style.transform = '';
+  v.classList.remove('open'); v.setAttribute('aria-hidden', 'true');
+  if (goHome) tkClose();   // al volver, la interfaz queda en Inicio
+}
+function tkExit() { if (history.state && history.state.tk) { TK.exiting = true; history.back(); } else tkLeaveView(); }
+// La salida del Ticket es SOLO con la X (arriba a la izquierda) y la clave. El gesto de deslizar, Escape
+// y el botón atrás del celular ya no sacan de aquí: piden la clave.
+const TK_PIN_HASH = 4991616608558541;
+const tkPinHash = s => { let h1 = 0xdeadbeef, h2 = 0x41c6ce57; for (let i = 0; i < s.length; i++) { const c = s.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); } h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909); h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909); return 4294967296 * (2097151 & h2) + (h1 >>> 0); };
+const TKP = { fails: 0, lockUntil: 0 };
+function tkAskPin() {
+  if (!TK.view) return;
+  const p = qr$('qrPin'); p.hidden = false;
+  qr$('qrPinIn').value = ''; qr$('qrPinErr').textContent = '';
+  if (window.lucide) lucide.createIcons({ nodes: [p] });
+  setTimeout(() => qr$('qrPinIn').focus(), 60);
+}
+function tkClosePin() { const p = qr$('qrPin'); if (p) { p.hidden = true; qr$('qrPinIn').value = ''; qr$('qrPinIn').blur(); } }
+function tkCheckPin() {
+  const inp = qr$('qrPinIn'), err = qr$('qrPinErr'), now = Date.now();
+  if (now < TKP.lockUntil) { err.textContent = 'Espera ' + Math.ceil((TKP.lockUntil - now) / 1000) + ' s para volver a intentar'; inp.value = ''; return; }
+  if (tkPinHash('jhd:' + inp.value) === TK_PIN_HASH) { TKP.fails = 0; tkClosePin(); tkExit(); return; }
+  TKP.fails++; inp.value = '';
+  if (TKP.fails >= 5) { TKP.fails = 0; TKP.lockUntil = now + 30000; err.textContent = 'Demasiados intentos. Espera 30 s.'; }
+  else err.textContent = 'Clave incorrecta';
+  const c = qr$('qrPinForm'); c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
+  try { navigator.vibrate && navigator.vibrate([60, 40, 60]); } catch {}
+}
+
+function tkCanStart(e) {
+  if (!TK.ready || TK.view || TK.drag) return false;
+  if (e.pointerType === 'mouse' && e.button !== 0) return false;
+  if (TK.open) return true;
+  if (!TK.home.classList.contains('active')) return false;
+  if (document.querySelector('.modal-overlay, .loader-ov, #cajaApp.open')) return false;
+  if (e.target.closest && e.target.closest('input, textarea, select, [contenteditable="true"], video')) return false;
+  return true;
+}
+function tkOnPage(name) {
+  if (!TK.ready) return;
+  document.body.classList.toggle('tk-on-home', name === 'home');
+  if (name !== 'home' && (TK.open || TK.view)) {
+    if (TK.view) tkLeaveView(false);
+    TK.open = false; TK.shield.classList.remove('on');
+    cancelAnimationFrame(TK.raf); tkSetX(0);
+  }
+}
+
+// Deslizar a la izquierda sobre la pantalla del ticket → volver a Inicio
+const TK_SWIPE_EXIT = false;
+function tkBindView() {
+  const v = TK.viewEl;
+  let s = null;
+  v.addEventListener('pointerdown', e => {
+    if (TK_SWIPE_EXIT === false || !TK.view || s || (e.pointerType === 'mouse' && e.button !== 0)) return;   // salir deslizando está desactivado
+    if (e.target.closest && e.target.closest('.qr-nogesture, .qr-detail, .qr-cam, textarea, input')) return;   // hoja con scroll, cámara y ficha no cierran con el gesto
+    s = { id: e.pointerId, x0: e.clientX, y0: e.clientY, lock: null, samples: [[e.clientX, performance.now()]] };
+  });
+  v.addEventListener('pointermove', e => {
+    if (!s || e.pointerId !== s.id) return;
+    const dx = e.clientX - s.x0, dy = e.clientY - s.y0;
+    if (!s.lock) {
+      if (Math.abs(dx) < 9 && Math.abs(dy) < 9) return;
+      s.lock = (dx < 0 && Math.abs(dx) > Math.abs(dy) * 1.15) ? 'h' : 'v';
+      if (s.lock === 'h') { v.classList.add('dragging'); document.body.classList.add('tk-dragging'); }
+    }
+    if (s.lock !== 'h') return;
+    v.style.transform = 'translateX(' + Math.min(0, dx) + 'px)';
+    const now = performance.now();
+    s.samples.push([e.clientX, now]);
+    while (s.samples.length > 2 && now - s.samples[0][1] > 120) s.samples.shift();
+  });
+  const end = e => {
+    if (!s || e.pointerId !== s.id) return;
+    const st = s; s = null;
+    document.body.classList.remove('tk-dragging');
+    if (st.lock !== 'h') return;
+    TK.noClick = true; setTimeout(() => { TK.noClick = false; }, 120);
+    const dx = e.clientX - st.x0, a = st.samples[0], b = st.samples[st.samples.length - 1];
+    const vel = b[1] > a[1] ? (b[0] - a[0]) / (b[1] - a[1]) : 0;
+    if (-dx > Math.min(110, window.innerWidth * 0.28) || vel < -0.5) tkExit();
+    else { v.classList.remove('dragging'); v.style.transform = ''; }   // no llegó: vuelve a su sitio
+  };
+  v.addEventListener('pointerup', end);
+  v.addEventListener('pointercancel', end);
+}
+
+function initTicketGesture() {
+  if (TK.ready) return;
+  TK.app = document.getElementById('app');
+  TK.drawer = document.getElementById('tkDrawer');
+  TK.shield = document.getElementById('tkShield');
+  TK.viewEl = document.getElementById('tkView');
+  TK.home = document.getElementById('page-home');
+  if (!TK.app || !TK.drawer || !TK.shield || !TK.viewEl || !TK.home) return;
+  TK.els = [TK.app, document.querySelector('.bottom-nav'), document.getElementById('fabAI'), document.getElementById('fabCaja'), document.getElementById('fabInvoice')];
+  TK.max = tkMax();
+  TK.ready = true;
+  document.body.classList.toggle('tk-on-home', TK.home.classList.contains('active'));
+
+  document.addEventListener('pointerdown', e => {
+    if (!tkCanStart(e)) return;
+    TK.max = tkMax();
+    TK.baseLeft = TK.app.getBoundingClientRect().left - TK.x;
+    TK.drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, base: TK.x, lock: null, samples: [[e.clientX, performance.now()]] };
+  }, { passive: true });
+
+  document.addEventListener('pointermove', e => {
+    const d = TK.drag;
+    if (!d || e.pointerId !== d.id) return;
+    const dx = e.clientX - d.x0, dy = e.clientY - d.y0;
+    if (!d.lock) {
+      if (Math.abs(dx) < 9 && Math.abs(dy) < 9) return;
+      d.lock = Math.abs(dx) > Math.abs(dy) * 1.15 ? 'h' : 'v';
+      if (d.lock === 'h' && !TK.open && dx < 0) d.lock = 'v';       // cerrado, hacia la izquierda: no es nuestro
+      if (d.lock === 'h') { cancelAnimationFrame(TK.raf); document.body.classList.add('tk-dragging'); }
+    }
+    if (d.lock !== 'h') return;
+    let x = d.base + dx;
+    if (x < 0) x = 0;                                               // no pasa del borde
+    if (x > TK.max) x = TK.max + (x - TK.max) * 0.3;                // resistencia elástica al pasarse
+    tkSetX(x);
+    const now = performance.now();
+    d.samples.push([e.clientX, now]);
+    while (d.samples.length > 2 && now - d.samples[0][1] > 120) d.samples.shift();
+  });
+
+  const end = e => {
+    const d = TK.drag;
+    if (!d || e.pointerId !== d.id) return;
+    TK.drag = null;
+    document.body.classList.remove('tk-dragging');
+    if (d.lock !== 'h') {
+      // Toque sin arrastrar: con el ticket asomado, tocar fuera del ícono vuelve a Inicio
+      if (!d.lock && TK.open && e.type === 'pointerup' && e.target === TK.shield) tkClose();
+      return;
+    }
+    TK.noClick = true; setTimeout(() => { TK.noClick = false; }, 120);   // que el arrastre no cuente como toque
+    const a = d.samples[0], b = d.samples[d.samples.length - 1];
+    const vel = b[1] > a[1] ? (b[0] - a[0]) / (b[1] - a[1]) : 0;          // px/ms
+    let open;
+    if (Math.abs(vel) > 0.45) open = vel > 0;                              // un empujón rápido decide
+    else open = d.base === 0 ? TK.x > TK.max * 0.4 : TK.x > TK.max * 0.6;
+    open ? tkOpenTeaser() : tkClose();
+  };
+  document.addEventListener('pointerup', end);
+  document.addEventListener('pointercancel', end);
+  document.addEventListener('click', e => { if (TK.noClick) { e.stopPropagation(); e.preventDefault(); } }, true);
+
+  document.getElementById('tkTicket').addEventListener('click', () => { if (!TK.noClick) tkEnter(); });
+  document.getElementById('tkBack').addEventListener('click', tkAskPin);
+  qr$('qrPinForm').addEventListener('submit', e => { e.preventDefault(); tkCheckPin(); });
+  qr$('qrPinIn').addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4); if (e.target.value.length === 4) tkCheckPin(); });
+  qr$('qrPinNo').addEventListener('click', tkClosePin);
+  tkBindView();
+  window.addEventListener('popstate', () => {
+    if (!TK.view) return;
+    if (TK.exiting) { tkLeaveView(); return; }                 // salida autorizada con la clave
+    try { history.pushState({ tk: 1 }, ''); } catch {}         // "atrás" del celular: no sale, pide la clave
+    tkAskPin();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if (TK.view) { if (!qr$('qrPin').hidden) tkClosePin(); } else if (TK.open) tkClose();
+  });
+  window.addEventListener('resize', () => {
+    if (!TK.open) return;
+    TK.max = tkMax();
+    TK.baseLeft = TK.app.getBoundingClientRect().left - TK.x;
+    tkSetX(TK.max);
+  });
+  qrInit();
+  if (window.lucide) lucide.createIcons({ nodes: [TK.viewEl] });
+}
+
+// ══════════════════════════════════════════
+// TICKET · HOJAS VIRTUALES DE ETIQUETAS + ESCÁNER DE CÓDIGOS
+// Brief: BRIEF_HOJAS_VIRTUALES.md · tablas Supabase: corridas, hojas, etiquetas (supabase_tablas.sql)
+// El programa "Generar QRs" sube la última corrida; aquí se ve cada hoja tal como se imprimió y se marcan
+// (pegada / pendiente) las etiquetas, tocándolas o escaneando el QR pequeño (contiene solo el código).
+// ══════════════════════════════════════════
+const QR = { corrida: null, hojas: [], et: [], tipo: '', num: 0, pend: false, zoom: 1, stream: null, timer: 0, det: null, busy: false, last: { txt: '', t: 0 }, ready: false, full: false, rot: null, fz: 1, single: false, state: 'idle', err: '', ch: null, seq: 0 };
+const qrEsc = v => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const qr$ = id => document.getElementById(id);
+const qrMoney = v => Number(v || 0).toLocaleString('es-CO');
+const qrKey = e => e.tipo + '|' + e.orden;
+const qrTipoName = t => t === 'CON' ? 'Con descripción' : t === 'SIN' ? 'Sin descripción' : t;
+
+// ── Carga desde Supabase ──
+async function qrFetchPages(build) {      // Supabase devuelve máx. 1000 filas por consulta: se pide por páginas
+  const out = [];
+  for (let from = 0; from < 50000; from += 1000) {
+    const { data, error } = await build().range(from, from + 999);
+    if (error) throw error;
+    out.push(...(data || []));
+    if (!data || data.length < 1000) break;
+  }
+  return out;
+}
+async function qrLoad(aviso) {
+  const db = getSupabaseDb(); const my = ++QR.seq;
+  if (!db) { QR.state = 'error'; QR.err = 'Sin conexión con Supabase.'; return qrRender(); }
+  if (!QR.corrida) { QR.state = 'loading'; qrRender(); }
+  try {
+    const { data: c, error } = await db.from('corridas').select('*').order('creada', { ascending: false }).limit(1).maybeSingle();
+    if (error) throw error;
+    if (my !== QR.seq) return;
+    if (!c) { QR.corrida = null; QR.hojas = []; QR.et = []; QR.state = 'empty'; return qrRender(); }
+    const [hojas, et] = await Promise.all([
+      qrFetchPages(() => db.from('hojas').select('*').eq('corrida_id', c.id).order('tipo').order('numero')),
+      qrFetchPages(() => db.from('etiquetas').select('*').eq('corrida_id', c.id).order('tipo').order('orden'))
+    ]);
+    if (my !== QR.seq) return;
+    const cambio = QR.corrida && QR.corrida.id !== c.id;
+    QR.corrida = c; QR.hojas = hojas; QR.et = et; QR.state = 'ok';
+    if (!QR.hojas.find(h => h.tipo === QR.tipo && h.numero === QR.num)) { const h0 = QR.hojas.find(h => h.tipo === 'CON') || QR.hojas[0]; QR.tipo = h0 ? h0.tipo : ''; QR.num = h0 ? h0.numero : 0; }
+    if (cambio || aviso) qrFlashMsg('Se cargó la corrida más reciente: los checks anteriores ya no aplican.', 'bad');
+    qrSubscribe(); qrRender();
+  } catch (e) { if (my !== QR.seq) return; console.warn('Hojas virtuales:', e); QR.state = QR.corrida ? 'ok' : 'error'; QR.err = (e && e.message) || 'No se pudieron cargar las hojas.'; qrRender(); if (QR.corrida) qrFlashMsg('No se pudo actualizar: ' + QR.err, 'bad'); }
+}
+function qrSubscribe() {               // tiempo real (opcional): checks de otros dispositivos y corridas nuevas
+  const db = getSupabaseDb(); if (!db || QR.ch || !db.channel) return;
+  try {
+    QR.ch = db.channel('jahdiel-hojas')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'etiquetas' }, p => {
+        if (p.eventType === 'UPDATE' && p.new && QR.corrida && p.new.corrida_id === QR.corrida.id) {
+          const e = QR.et.find(x => x.tipo === p.new.tipo && x.orden === p.new.orden);
+          if (e && (!!e.pegada !== !!p.new.pegada)) { e.pegada = p.new.pegada; e.pegada_en = p.new.pegada_en; if (TK.view) { qrRenderBar(); qrPaintChecks(); } }
+        }
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'corridas' }, () => { if (TK.view) qrLoad(true); })
+      .subscribe();
+  } catch (e) { QR.ch = null; }
+}
+const qrHoja = () => QR.hojas.find(h => h.tipo === QR.tipo && h.numero === QR.num);
+const qrEtHoja = (tipo, num) => QR.et.filter(e => e.tipo === tipo && e.hoja === num);
+const qrStats = (tipo, num) => { const l = qrEtHoja(tipo, num); return { total: l.length, hechas: l.filter(e => e.pegada).length }; };
+
+// ── Marcar ──
+async function qrSetPegada(e, on) {
+  const db = getSupabaseDb(); if (!db) return false;
+  const antes = { p: e.pegada, t: e.pegada_en };
+  e.pegada = on; e.pegada_en = on ? new Date().toISOString() : null; qrRenderBar(); qrPaintChecks();
+  const { data, error } = await db.from('etiquetas').update({ pegada: on, pegada_en: e.pegada_en })
+    .match({ corrida_id: e.corrida_id, tipo: e.tipo, orden: e.orden }).select('orden');
+  if (error || !data || !data.length) {
+    e.pegada = antes.p; e.pegada_en = antes.t; qrRenderBar(); qrPaintChecks();
+    if (error) qrFlashMsg('No se pudo guardar: ' + error.message, 'bad');
+    else qrLoad(true);                 // 0 filas: la corrida ya no existe (se generó otra)
+    return false;
+  }
+  return true;
+}
+function qrBuzz(p) { try { navigator.vibrate && navigator.vibrate(p || 40); } catch {} }
+function qrFlashMsg(m, kind) {
+  const el = qr$('qrCamMsg');
+  if (el && !qr$('qrCam').hidden) { el.textContent = m; el.className = 'qr-cam-msg ' + (kind || ''); clearTimeout(qrFlashMsg.t); qrFlashMsg.t = setTimeout(() => { el.className = 'qr-cam-msg'; el.textContent = 'Apunta al QR de una etiqueta'; }, 3400); return; }
+  const fl = qr$('qrFlash'); fl.textContent = m; fl.className = 'qr-flash on ' + (kind || '');
+  clearTimeout(qrFlashMsg.f); qrFlashMsg.f = setTimeout(() => fl.classList.remove('on'), 3400);
+}
+function qrPulse(k) {
+  const el = [...document.querySelectorAll('#qrSheet .qr-t')].find(x => x.dataset.k === k);
+  if (!el) return;
+  el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse');
+  try { el.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' }); } catch {}
+}
+
+// ── Qué hacer con un código escaneado ──
+async function qrHandleText(raw) {
+  const txt = String(raw || '').trim(); if (!txt) return;
+  const now = Date.now();
+  if (txt === QR.last.txt && now - QR.last.t < 3000) return;      // misma lectura en pocos segundos
+  QR.last = { txt, t: now };
+  if (QR.single) qrStopCam();                                     // modo "uno a uno": una lectura y se cierra
+  if (!QR.corrida) { qrFlashMsg('Aún no hay hojas cargadas', 'bad'); return; }
+  if (txt.startsWith('QRM1:')) { qrFlashMsg('Ese es un QR master: ya no se usa. Escanea el QR de una etiqueta.', 'bad'); return; }
+  const cod = txt.toUpperCase();
+  const todas = QR.et.filter(e => String(e.codigo).toUpperCase() === cod);
+  if (!todas.length) { qrFlashMsg(`${txt} no existe en la corrida`, 'bad'); qrBuzz([60, 40, 60]); return; }
+  const libres = todas.filter(e => !e.pegada);
+  if (!libres.length) { qrFlashMsg(`${txt}: ya están pegadas todas sus copias (${todas.length})`, 'bad'); qrBuzz([60, 40, 60]); return; }
+  // primero en la hoja abierta; si no, la primera pendiente de la corrida (tipo, orden)
+  const e = libres.filter(x => x.tipo === QR.tipo && x.hoja === QR.num).sort((a, b) => a.orden - b.orden)[0]
+    || libres.sort((a, b) => a.tipo < b.tipo ? -1 : a.tipo > b.tipo ? 1 : a.orden - b.orden)[0];
+  const cambia = !(e.tipo === QR.tipo && e.hoja === QR.num);
+  if (cambia) { QR.tipo = e.tipo; QR.num = e.hoja; qrRender(); }
+  const ok = await qrSetPegada(e, true);
+  if (!ok) return;
+  qrFlashMsg(`✓ ${e.codigo} · ${e.marca} ${e.talla} · hoja ${e.hoja} (${qrTipoName(e.tipo).split(' ')[0]}) · copia ${e.copia}/${e.copias}`, 'ok');
+  qrBuzz(); qrPulse(qrKey(e));
+}
+
+// ── Dibujo ──
+function qrRender() {
+  const vac = qr$('qrEmpty'), sc = qr$('qrScroll'), h = qrHoja();
+  const msg = { loading: ['Cargando hojas…', 'Un momento.'], error: ['No se pudieron cargar las hojas', QR.err || ''], empty: ['Aún no hay hojas', 'Genera una corrida en el programa Generar QRs y aparecerá aquí.'] }[QR.state];
+  vac.hidden = QR.state === 'ok' && !!h; sc.hidden = !(QR.state === 'ok' && h);
+  if (msg) { qr$('qrEmptyT').textContent = msg[0]; qr$('qrEmptyP').textContent = msg[1]; qr$('qrRetry').hidden = QR.state !== 'error'; }
+  else if (!h) { qr$('qrEmptyT').textContent = 'Sin hojas'; qr$('qrEmptyP').textContent = 'Esta corrida no trae hojas.'; qr$('qrRetry').hidden = true; }
+  qrRenderBar(); qrRenderSheet(); qrFab();
+}
+function qrFab() { const f = qr$('qrFab'); if (f) f.hidden = !(QR.state === 'ok' && QR.corrida && !QR.stream); }
+function qrRenderBar() {
+  const bar = qr$('qrBar'); if (!bar) return;
+  const h = qrHoja();
+  if (QR.state !== 'ok' || !h) { bar.innerHTML = ''; return; }
+  const c = QR.corrida, st = qrStats(QR.tipo, QR.num), pct = st.total ? Math.round(st.hechas * 100 / st.total) : 0;
+  const tipos = [...new Set(QR.hojas.map(x => x.tipo))];
+  const fecha = String(c.id).replace(/^(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2}).*/, '$3/$2/$1 $4:$5');
+  const all = QR.et.length, allOn = QR.et.filter(e => e.pegada).length;
+  bar.innerHTML = `
+    <div class="qr-meta"><span>Corrida <b>${qrEsc(fecha)}</b></span><span>${qrEsc(c.formato)} ${qrEsc(String(c.orientacion || '').toLowerCase())}</span><span>Total <b>${allOn}/${all}</b> pegadas</span></div>
+    ${tipos.length > 1 ? `<div class="qr-chips">${tipos.map(t => `<button type="button" class="qr-chip ${t === QR.tipo ? 'cur' : ''}" data-tipo="${qrEsc(t)}">${qrTipoName(t)}</button>`).join('')}</div>` : ''}
+    <div class="qr-chips" id="qrHojas">${QR.hojas.filter(x => x.tipo === QR.tipo).map(x => { const s = qrStats(x.tipo, x.numero); return `<button type="button" class="qr-chip ${x.numero === QR.num ? 'cur' : ''} ${s.total && s.hechas === s.total ? 'full' : ''}" data-num="${x.numero}">${x.numero} · ${s.hechas}/${s.total}</button>`; }).join('')}</div>
+    <div class="qr-prog"><div class="qr-prog-t"><span><b>${st.hechas} / ${st.total}</b> pegadas</span><span>${st.total - st.hechas} pendientes</span></div><div class="qr-prog-b"><i style="width:${pct}%"></i></div></div>
+    <div class="qr-tools">
+      <button type="button" class="qr-btn sm ${QR.pend ? 'on' : ''}" id="qrPendBtn">Resaltar pendientes</button>
+      <button type="button" class="qr-btn sm" id="qrFullBtn" aria-label="Pantalla completa"><i data-lucide="maximize-2"></i></button>
+      <button type="button" class="qr-btn sm ${QR.single ? 'on' : ''}" id="qrModeBtn">Escáner: ${QR.single ? 'uno a uno' : 'continuo'}</button>
+      ${[1, 2, 3].map(z => `<button type="button" class="qr-btn sm ${QR.zoom === z ? 'on' : ''}" data-zoom="${z}">${z}×</button>`).join('')}
+      <button type="button" class="qr-btn sm" id="qrRefBtn" aria-label="Actualizar" style="margin-left:auto"><i data-lucide="refresh-cw"></i></button>
+    </div>`;
+  if (window.lucide) lucide.createIcons({ nodes: [bar] });
+  qrFullBarUpdate();
+  const cur = bar.querySelector('#qrHojas .cur'); if (cur && cur.scrollIntoView) { try { cur.scrollIntoView({ block: 'nearest', inline: 'center' }); } catch {} }
+}
+function qrRenderSheet() {
+  const h = qrHoja(), box = qr$('qrSheet'); if (!h || QR.state !== 'ok') { box.innerHTML = ''; return; }
+  const W = Number(h.ancho_mm), H = Number(h.alto_mm), ew = Number(h.etiqueta_ancho_mm), eh = Number(h.etiqueta_alto_mm), mk = Number(h.marca_alto_mm) || 0;
+  box.style.cssText = ''; box.style.width = (QR.zoom * 100) + '%'; box.style.aspectRatio = W + ' / ' + H;
+  qr$('qrRot').style.cssText = '';
+  box.className = 'qr-sheet' + (QR.pend ? ' focus-pend' : '');
+  box.innerHTML = qrEtHoja(h.tipo, h.numero).map(e => {
+    const rot = !!e.acostada, cw = rot ? eh + mk : ew, ch = rot ? ew : eh + mk;
+    const strip = mk ? `<span class="qr-mk" style="${rot ? 'width' : 'height'}:${(mk / (rot ? cw : ch) * 100).toFixed(2)}%">${qrEsc(e.marca)}</span>` : '';
+    return `<button type="button" class="qr-t ${rot ? 'rot' : ''} ${e.pegada ? 'done' : ''}" data-k="${qrEsc(qrKey(e))}" style="left:${(e.x_mm / W * 100).toFixed(3)}%;top:${(e.y_mm / H * 100).toFixed(3)}%;width:${(cw / W * 100).toFixed(3)}%;height:${(ch / H * 100).toFixed(3)}%">${strip}<span class="qr-tb"><b class="qr-tc">${qrEsc(e.codigo)}</b><span class="qr-tz">${qrEsc(e.talla)}</span><span class="qr-tp">${qrMoney(e.venta)}</span><span class="qr-tl">${qrEsc(e.color)}</span></span>${e.copias > 1 ? `<span class="qr-tn">${e.copia}/${e.copias}</span>` : ''}</button>`;
+  }).join('');
+  if (QR.full) qrLayout();
+}
+// Pantalla completa: la hoja se ajusta a toda la pantalla; si su orientación no coincide con la del
+// celular se gira 90° (botón para girarla a mano) y se puede ampliar.
+function qrRotEff(h) { return QR.rot === null ? ((Number(h.ancho_mm) > Number(h.alto_mm)) !== (window.innerWidth > window.innerHeight)) : QR.rot; }
+function qrLayout() {
+  const h = qrHoja(), box = qr$('qrSheet'), wrap = qr$('qrRot'); if (!QR.full || !h) return;
+  const W = Number(h.ancho_mm), H = Number(h.alto_mm), aw = window.innerWidth, ah = window.innerHeight;
+  const rot = qrRotEff(h);
+  const rw = rot ? H : W, rh = rot ? W : H, s = Math.min((aw - 12) / rw, (ah - 12) / rh) * QR.fz;
+  wrap.style.width = (rw * s) + 'px'; wrap.style.height = (rh * s) + 'px';
+  box.style.width = (W * s) + 'px'; box.style.aspectRatio = W + ' / ' + H;
+  box.style.transform = rot ? 'translateX(' + (rw * s) + 'px) rotate(90deg)' : 'none';
+}
+function qrFullBarUpdate() {
+  const b = qr$('qrFullBar'); if (!b) return;
+  b.hidden = !QR.full; if (!QR.full) return;
+  const st = qrStats(QR.tipo, QR.num);
+  qr$('qrFullProg').textContent = 'Hoja ' + QR.num + ' · ' + st.hechas + '/' + st.total;
+  qr$('qrFZoom').textContent = QR.fz + '×';
+  qr$('qrFPend').classList.toggle('on', QR.pend);
+}
+function qrFull(on) {
+  if (on && !qrHoja()) return;
+  QR.full = !!on; QR.rot = null; QR.fz = 1;
+  qr$('qrScroll').classList.toggle('full', QR.full);
+  qr$('qrCam').classList.toggle('float', QR.full);
+  qrFullBarUpdate(); qrRenderSheet();
+  if (QR.full && window.lucide) lucide.createIcons({ nodes: [qr$('qrFullBar')] });
+}
+function qrPaintChecks() {               // actualiza solo los estados (sin redibujar la hoja)
+  const m = new Map(QR.et.filter(e => e.tipo === QR.tipo && e.hoja === QR.num).map(e => [qrKey(e), e]));
+  document.querySelectorAll('#qrSheet .qr-t').forEach(el => { const e = m.get(el.dataset.k); el.classList.toggle('done', !!(e && e.pegada)); });
+}
+
+// ── Ficha de una etiqueta ──
+function qrOpenDetail(k) {
+  const e = QR.et.find(x => qrKey(x) === k); if (!e) return;
+  const prod = (typeof currentProducts !== 'undefined' ? currentProducts : []).find(p => String(p.codigo || '').toUpperCase() === String(e.codigo).toUpperCase());
+  const f = (l, v, cls = '') => v === '' || v == null ? '' : `<div class="qr-f ${cls}"><span>${l}</span><b>${qrEsc(v)}</b></div>`;
+  const dif = prod && Number(prod.precioVenta) !== Number(e.venta);
+  qr$('qrDetail').innerHTML = `<div class="qr-card" role="dialog" aria-label="Etiqueta">
+    <h3>${qrEsc(e.codigo)}</h3>
+    <span class="qr-state ${e.pegada ? 'on' : 'off'}">${e.pegada ? 'Pegada' : 'Pendiente'}</span>${e.pegada && e.pegada_en ? `<span class="qr-meta"> ${new Date(e.pegada_en).toLocaleString('es-CO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>` : ''}
+    <div class="qr-grid">
+      ${f('Marca', e.marca)}${f('Talla', e.talla)}${f('Precio venta (impreso)', '$' + qrMoney(e.venta))}${f('Color', e.color)}
+      ${f('Estilo', e.estilo)}${f('Género', e.genero)}${f('Categoría', e.categoria, 'w')}${f('Descripción', e.descripcion, 'w')}
+      ${f('Copia', e.copia + ' de ' + e.copias)}${f('Fila en la hoja de cálculo', e.fila_hoja)}
+      ${f('Hoja', `${e.hoja} · ${qrTipoName(e.tipo)}`)}${f('Posición', `x ${e.x_mm} mm · y ${e.y_mm} mm${e.acostada ? ' · acostada' : ''}`)}
+      ${e.zapatos ? f('Tipo', 'Zapatos (se imprime duplicado)', 'w') : ''}
+      ${prod ? f('En Jhadiel ahora', `${prod.marca || ''} ${prod.talla || ''} · $${qrMoney(prod.precioVenta)}${dif ? ' (cambió desde la impresión)' : ''}`, 'w' + (dif ? ' diff' : '')) : f('En Jhadiel', 'No hay un producto con este código', 'w')}
+    </div>
+    <div class="qr-card-act"><button type="button" class="qr-btn" id="qrDetClose">Cerrar</button><button type="button" class="qr-btn primary" id="qrDetToggle">${e.pegada ? 'Desmarcar' : 'Marcar como pegada'}</button></div></div>`;
+  qr$('qrDetail').hidden = false;
+  qr$('qrDetClose').onclick = qrCloseDetail;
+  qr$('qrDetToggle').onclick = async () => { const on = !e.pegada; qrCloseDetail(); await qrSetPegada(e, on); };
+}
+function qrCloseDetail() { const d = qr$('qrDetail'); if (d) { d.hidden = true; d.innerHTML = ''; } }
+
+// ── Cámara ──
+let qrJsQRp = null;
+function qrLoadJsQR() {
+  if (window.jsQR) return Promise.resolve();
+  return qrJsQRp || (qrJsQRp = new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js'; s.onload = ok; s.onerror = () => { qrJsQRp = null; no(new Error('No se pudo cargar el lector de respaldo')); }; document.head.appendChild(s); }));
+}
+async function qrDecodeSource(src, w, h) {     // src: video | ImageBitmap | canvas → texto o ''
+  if (QR.det) { try { const r = await QR.det.detect(src); if (r.length) return r[0].rawValue; } catch {} }
+  if (QR.det && !window.jsQR) return '';
+  await qrLoadJsQR();
+  const c = qrDecodeSource.c || (qrDecodeSource.c = document.createElement('canvas'));
+  const ctx = c.getContext('2d', { willReadFrequently: true });
+  c.width = w; c.height = h; ctx.drawImage(src, 0, 0, w, h);
+  const d = ctx.getImageData(0, 0, w, h);
+  const r = window.jsQR(d.data, d.width, d.height, { inversionAttempts: 'attemptBoth' });
+  return r && r.data ? r.data : '';
+}
+async function qrInitDetector() {
+  if (QR.ready) return;
+  try { if ('BarcodeDetector' in window) { const f = await BarcodeDetector.getSupportedFormats(); if (f.includes('qr_code')) QR.det = new BarcodeDetector({ formats: ['qr_code'] }); } } catch {}
+  if (!QR.det) await qrLoadJsQR();
+  QR.ready = true;
+}
+async function qrStartCam() {
+  if (QR.stream) return;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.isSecureContext) { showToast('Cámara', 'La cámara necesita HTTPS (o localhost).', 'warning', 6000); return; }
+  try {
+    await qrInitDetector();
+    QR.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false });
+  } catch (e) { QR.stream = null; showToast('Cámara', e && e.name === 'NotAllowedError' ? 'Permiso de cámara denegado.' : 'No se pudo abrir la cámara: ' + (e.message || e), 'error', 6000); return; }
+  const v = qr$('qrVideo'); v.srcObject = QR.stream; v.setAttribute('playsinline', ''); v.muted = true;
+  qr$('qrCam').hidden = false;
+  try { await v.play(); } catch {}
+  const tr = QR.stream.getVideoTracks()[0], caps = (tr.getCapabilities && tr.getCapabilities()) || {}, z = qr$('qrZoom');
+  try { if (caps.focusMode && caps.focusMode.includes('continuous')) await tr.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }); } catch {}
+  if (caps.zoom) { z.min = caps.zoom.min; z.max = caps.zoom.max; z.step = caps.zoom.step || 0.1; z.value = (tr.getSettings().zoom || caps.zoom.min); z.hidden = false; } else z.hidden = true;
+  qrFab();
+  qrLoop();
+}
+function qrStopCam() {
+  clearTimeout(QR.timer); QR.timer = 0;
+  if (QR.stream) { QR.stream.getTracks().forEach(t => t.stop()); QR.stream = null; }
+  const v = qr$('qrVideo'); if (v) v.srcObject = null;
+  const c = qr$('qrCam'); if (c) c.hidden = true;
+  qrFab();
+}
+function qrLoop() {
+  clearTimeout(QR.timer);
+  if (!QR.stream) return;
+  QR.timer = setTimeout(async () => {
+    const v = qr$('qrVideo');
+    if (v.readyState >= 2 && v.videoWidth && !QR.busy) {
+      QR.busy = true;
+      try { const t = await qrDecodeSource(v, v.videoWidth, v.videoHeight); if (t) await qrHandleText(t); } catch {}
+      QR.busy = false;
+    }
+    qrLoop();
+  }, 130);
+}
+
+// ── Eventos ──
+function qrOnEnter() { try { QR.single = localStorage.getItem('jahdiel_qr_single') === '1'; } catch {} qrRender(); qrLoad(false); }
+function qrInit() {
+  qr$('qrCamX').addEventListener('click', qrStopCam);
+  qr$('qrFX').addEventListener('click', () => qrFull(false));
+  qr$('qrFRot').addEventListener('click', () => { const h = qrHoja(); if (!h) return; QR.rot = !qrRotEff(h); qrLayout(); });
+  qr$('qrFZoom').addEventListener('click', () => { QR.fz = QR.fz >= 3 ? 1 : QR.fz + 1; qrLayout(); qrFullBarUpdate(); });
+  qr$('qrFPend').addEventListener('click', () => { QR.pend = !QR.pend; qrRenderBar(); qrRenderSheet(); });
+  window.addEventListener('resize', () => { if (QR.full) qrLayout(); });
+  qr$('qrFab').addEventListener('click', () => qrStartCam());
+  qr$('qrRetry').addEventListener('click', () => qrLoad(false));
+  qr$('qrZoom').addEventListener('input', e => { const tr = QR.stream && QR.stream.getVideoTracks()[0]; if (tr) tr.applyConstraints({ advanced: [{ zoom: Number(e.target.value) }] }).catch(() => {}); });
+  qr$('qrVideo').addEventListener('click', () => { const tr = QR.stream && QR.stream.getVideoTracks()[0]; if (tr) tr.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(() => {}); });
+  qr$('qrSheet').addEventListener('click', e => { const t = e.target.closest('.qr-t'); if (t) qrOpenDetail(t.dataset.k); });
+  qr$('qrDetail').addEventListener('click', e => { if (e.target === qr$('qrDetail')) qrCloseDetail(); });
+  qr$('qrBar').addEventListener('click', e => {
+    const tipo = e.target.closest('[data-tipo]'), num = e.target.closest('[data-num]'), zoom = e.target.closest('[data-zoom]');
+    if (tipo) { QR.tipo = tipo.dataset.tipo; const h = QR.hojas.find(x => x.tipo === QR.tipo); QR.num = h ? h.numero : 0; qrRender(); }
+    else if (num) { QR.num = Number(num.dataset.num); qrRender(); }
+    else if (zoom) { QR.zoom = Number(zoom.dataset.zoom); qrRenderBar(); qrRenderSheet(); }
+    else if (e.target.closest('#qrPendBtn')) { QR.pend = !QR.pend; qrRenderBar(); qrRenderSheet(); }
+    else if (e.target.closest('#qrRefBtn')) qrLoad(false);
+    else if (e.target.closest('#qrFullBtn')) qrFull(true);
+    else if (e.target.closest('#qrModeBtn')) { QR.single = !QR.single; try { localStorage.setItem('jahdiel_qr_single', QR.single ? '1' : '0'); } catch {} qrRenderBar(); qrFlashMsg(QR.single ? 'Escáner uno a uno: lee un código y se cierra' : 'Escáner continuo: sigue leyendo hasta que lo cierres', 'ok'); }
+  });
 }
 
 // ══════════════════════════════════════════
@@ -8609,6 +9430,7 @@ async function init(){
     initFormDraft();
     initCaja();
     setTimeout(preloadLoaderVideos, 3500);
+    initTicketGesture();
     setInterval(refreshFromSupabase, 8000);
   }catch(err){
     supabaseSyncPaused = false;
