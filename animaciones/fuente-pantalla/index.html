@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=720, height=960" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      :root { --ink: #f0f4ff; --muted: #8892a4; --a1: #ff9ac1; --a2: #8b5cf6; --glow: rgba(255, 134, 176, 0.38); --pink: #ff86b0; --lav: #b9a6ff; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 720px; height: 960px; overflow: hidden; background: #0a0e1a; }
+      #root { position: relative; width: 720px; height: 960px; overflow: hidden; font-family: "Inter", sans-serif; color: var(--ink); }
+      #scene { position: absolute; inset: 0; }
+      .bg { position: absolute; inset: 0; background: radial-gradient(120% 70% at 50% 0%, #1d1840 0%, #0e1024 55%, #070a14 100%); }
+      .aura { position: absolute; left: 360px; top: 330px; width: 800px; height: 800px; margin: -400px 0 0 -400px; border-radius: 50%; background: radial-gradient(circle, var(--glow), transparent 64%); }
+      .vig { position: absolute; inset: 0; background: radial-gradient(90% 80% at 50% 45%, transparent 55%, rgba(0, 0, 0, 0.45) 100%); }
+      .heart { position: absolute; left: 0; top: 0; }
+      .heart svg { display: block; width: 100%; height: 100%; }
+
+      .chip { position: absolute; left: 50%; top: 58px; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; padding: 13px 26px; border-radius: 999px; white-space: nowrap; background: rgba(255, 255, 255, 0.06); border: 1.5px solid rgba(255, 255, 255, 0.13); font: 600 21px "Inter", sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: var(--a1); }
+      .chip .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--a1); box-shadow: 0 0 14px var(--a1); }
+
+      #stage { position: absolute; left: 130px; top: 130px; width: 460px; height: 420px; }
+      #mon { position: absolute; left: 40px; top: 0; width: 380px; height: 310px; filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.45)); }
+      #mon svg { width: 380px; height: 310px; display: block; }
+      #screenGlow { position: absolute; left: 66px; top: 22px; width: 328px; height: 204px; border-radius: 14px; box-shadow: 0 0 60px var(--glow); opacity: 0; }
+      .code { position: absolute; left: 80px; height: 10px; border-radius: 5px; background: rgba(255, 255, 255, 0.35); width: 0; }
+      #bigHeart { position: absolute; left: 165px; top: 57px; width: 130px; height: 130px; filter: drop-shadow(0 8px 24px rgba(255, 90, 140, 0.55)); }
+      #bigHeart svg { width: 100%; height: 100%; display: block; }
+      .ring { position: absolute; left: 230px; top: 124px; width: 120px; height: 120px; margin: -60px 0 0 -60px; border-radius: 50%; border: 5px solid var(--a1); opacity: 0; }
+
+      #phone { position: absolute; left: 0; top: 208px; width: 84px; height: 140px; border-radius: 18px; background: #151a36; border: 3px solid rgba(255, 255, 255, 0.3); box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45); }
+      #phone .scr { position: absolute; left: 7px; top: 14px; right: 7px; bottom: 10px; border-radius: 10px; background: linear-gradient(160deg, #3a2a7a, #7a2f67); display: flex; align-items: center; justify-content: center; }
+      #phone .scr svg { width: 34px; height: 34px; display: block; }
+      #phone .notch { position: absolute; left: 50%; top: 5px; width: 22px; height: 5px; margin-left: -11px; border-radius: 3px; background: rgba(255, 255, 255, 0.35); }
+      .fly { position: absolute; left: 0; top: 0; }
+      .fly svg { display: block; width: 100%; height: 100%; }
+
+      #ok { position: absolute; left: 344px; top: 262px; width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, var(--a1), var(--a2)); border: 7px solid #0e1024; box-shadow: 0 10px 30px var(--glow); display: flex; align-items: center; justify-content: center; opacity: 0; }
+      #ok svg { width: 50px; height: 50px; display: block; }
+      .burst { position: absolute; left: 0; top: 0; width: 30px; height: 30px; opacity: 0; }
+      .burst svg { width: 100%; height: 100%; display: block; }
+      .spark { position: absolute; width: 26px; height: 26px; opacity: 0; }
+      .spark svg { width: 100%; height: 100%; display: block; }
+
+      #msgs { position: absolute; left: 40px; top: 590px; width: 640px; height: 170px; }
+      .m { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; font: 700 46px/1.16 "Space Grotesk", sans-serif; letter-spacing: -0.01em; text-wrap: balance; opacity: 0; }
+      .m span { display: block; }
+      .m em { font-style: normal; background: linear-gradient(90deg, var(--pink), var(--lav)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .m svg.h { display: inline-block; width: 0.78em; height: 0.78em; vertical-align: -0.08em; margin-left: 0.14em; }
+
+      #prog { position: absolute; left: 80px; top: 786px; width: 560px; }
+      .prow { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; }
+      #plabel { position: relative; font: 600 20px "Inter", sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); padding-bottom: 6px; }
+      #pct { font: 700 46px/1 "Space Grotesk", sans-serif; color: var(--ink); }
+      .track { position: relative; height: 22px; border-radius: 11px; background: rgba(255, 255, 255, 0.11); }
+      #fill { height: 100%; width: 0%; border-radius: 11px; background: linear-gradient(90deg, var(--a2), var(--a1)); box-shadow: 0 0 24px var(--glow); }
+      #knob { position: absolute; top: -9px; left: 0%; width: 40px; height: 40px; margin-left: -20px; filter: drop-shadow(0 0 10px rgba(255, 134, 176, 0.8)); }
+      #knob svg { width: 100%; height: 100%; display: block; }
+      .brand { position: absolute; left: 0; right: 0; top: 892px; text-align: center; font: 600 19px "Inter", sans-serif; letter-spacing: 0.16em; text-transform: uppercase; color: #8a94a8; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="6" data-width="720" data-height="960" data-fps="30">
+      <div id="scene" class="clip" data-start="0" data-duration="6" data-track-index="0">
+        <div class="bg"></div>
+        <div class="aura" id="aura"></div>
+        <div class="vig"></div>
+        <div id="hearts"></div>
+
+        <div class="chip"><span class="dot" id="chipDot"></span><span>Enviando a la pantalla</span></div>
+
+        <div id="stage">
+          <div class="ring" id="ring1"></div><div class="ring" id="ring2"></div><div class="ring" id="ring3"></div>
+          <div id="mon">
+            <svg viewBox="0 0 380 310">
+              <defs>
+                <linearGradient id="scr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b2a86" /><stop offset="1" stop-color="#8a2d6a" /></linearGradient>
+              </defs>
+              <rect x="10" y="4" width="360" height="236" rx="24" fill="#1a1f40" stroke="rgba(255,255,255,0.22)" stroke-width="3" />
+              <rect x="26" y="20" width="328" height="204" rx="13" fill="url(#scr)" />
+              <ellipse cx="130" cy="52" rx="90" ry="18" fill="#ffffff" opacity="0.07" />
+              <path d="M150 240 h80 l14 46 h-108 z" fill="#262d58" />
+              <rect x="104" y="284" width="172" height="14" rx="7" fill="#303868" />
+            </svg>
+          </div>
+          <div id="screenGlow"></div>
+          <div class="code" id="c1" style="top: 54px"></div>
+          <div class="code" id="c2" style="top: 80px"></div>
+          <div class="code" id="c3" style="top: 106px"></div>
+          <div class="code" id="c4" style="top: 132px"></div>
+          <div id="bigHeart"></div>
+          <div id="phone"><span class="notch"></span><div class="scr" id="phoneHeart"></div></div>
+          <div id="flies"></div>
+          <div id="sparks"></div>
+          <div id="bursts"></div>
+          <div id="ok"><svg viewBox="0 0 56 56"><path d="M13 30 L24 41 L44 16" stroke="#fff" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round" /></svg></div>
+        </div>
+
+        <div id="msgs"><div class="m" id="m1"></div></div>
+
+        <div id="prog">
+          <div class="prow"><span id="plabel"><span id="pl1">Exportando</span><span id="pl2" style="position:absolute;left:0;opacity:0">Listo</span></span><span id="pct">0%</span></div>
+          <div class="track"><div id="fill"></div><div id="knob"></div></div>
+        </div>
+        <div class="brand">Tienda Jahdiel</div>
+      </div>
+    </div>
+
+    <script>
+      const HEART_PATH = "M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z";
+      const heartSvg = (fill) => '<svg viewBox="0 0 24 24"><path fill="' + fill + '" d="' + HEART_PATH + '"/></svg>';
+      const heartInline = '<svg class="h" viewBox="0 0 24 24"><path fill="#ff86b0" d="' + HEART_PATH + '"/></svg>';
+      const SPARK_PATH = "M12 0L14.6 9.4L24 12L14.6 14.6L12 24L9.4 14.6L0 12L9.4 9.4Z";
+
+      // Un solo mensaje
+      document.getElementById("m1").innerHTML = "<span>Siempre pienso en ti,<br><em>mi tinto</em>" + heartInline + "</span>";
+      document.getElementById("knob").innerHTML = heartSvg("#ff86b0");
+      document.getElementById("phoneHeart").innerHTML = heartSvg("#ff9ac1");
+      document.getElementById("bigHeart").innerHTML = heartSvg("#ff6f9f");
+
+      // Corazoncitos de fondo (posiciones fijas)
+      const HEARTS = [
+        [40, 22, 900, 820, "#ff86b0", 0.42], [120, 34, 980, 900, "#b9a6ff", 0.34], [210, 18, 840, 760, "#ff86b0", 0.3],
+        [300, 26, 1010, 860, "#b9a6ff", 0.28], [380, 16, 760, 700, "#ff86b0", 0.3], [470, 30, 960, 880, "#ff86b0", 0.36],
+        [540, 20, 880, 800, "#b9a6ff", 0.34], [620, 36, 1000, 920, "#ff86b0", 0.4], [680, 18, 800, 740, "#b9a6ff", 0.3],
+        [80, 16, 700, 640, "#b9a6ff", 0.26], [590, 14, 720, 660, "#ff86b0", 0.28], [250, 24, 930, 840, "#ff86b0", 0.26],
+      ];
+      const heartsBox = document.getElementById("hearts");
+      const heartEls = HEARTS.map((h) => {
+        const d = document.createElement("div"); d.className = "heart";
+        d.style.width = h[1] + "px"; d.style.height = h[1] + "px"; d.innerHTML = heartSvg(h[4]);
+        heartsBox.appendChild(d); return d;
+      });
+
+      const tl = gsap.timeline({ paused: true });
+      gsap.set(heartEls, { opacity: 0 });
+      tl.fromTo("#aura", { opacity: 0.4, scale: 0.85 }, { opacity: 1, scale: 1.08, duration: 5.6, ease: "sine.inOut" }, 0);
+      tl.to("#chipDot", { scale: 1.5, opacity: 0.55, duration: 0.5, ease: "sine.inOut", yoyo: true, repeat: 11 }, 0.2);
+      heartEls.forEach((el, i) => {
+        const h = HEARTS[i];
+        tl.fromTo(el, { x: h[0], y: h[2] }, { y: h[2] - h[3] * 1.4, duration: 6, ease: "none" }, 0);
+        tl.to(el, { x: h[0] + (i % 2 ? 28 : -28), duration: 1.5, ease: "sine.inOut", yoyo: true, repeat: 3 }, 0);
+        tl.to(el, { opacity: h[5], duration: 0.7 }, 0.1);
+        tl.to(el, { opacity: 0, duration: 0.8 }, 5.2);
+      });
+
+      // Mensajes
+      gsap.set("#m1", { y: 18 });
+      tl.to("#m1", { opacity: 1, y: 0, duration: 0.7, ease: "power3.out" }, 0.4);
+      tl.to("#m1 em", { scale: 1.06, duration: 0.6, ease: "sine.inOut", yoyo: true, repeat: 7, transformOrigin: "50% 50%", display: "inline-block" }, 1.2);
+      // Progreso 0 → 100 (llega a 100 justo cuando aparece la insignia)
+      const P = { v: 0 };
+      const fillEl = document.getElementById("fill"), knobEl = document.getElementById("knob"), pctEl = document.getElementById("pct");
+      const paint = () => { fillEl.style.width = P.v + "%"; knobEl.style.left = P.v + "%"; pctEl.textContent = Math.round(P.v) + "%"; };
+      tl.to(P, { v: 34, duration: 1.4, ease: "power1.inOut", onUpdate: paint }, 0.2);
+      tl.to(P, { v: 71, duration: 1.8, ease: "sine.inOut", onUpdate: paint }, 1.6);
+      tl.to(P, { v: 100, duration: 1.5, ease: "power2.out", onUpdate: paint }, 3.4);
+      tl.to(knobEl, { rotation: 9, duration: 0.32, ease: "sine.inOut", yoyo: true, repeat: 14 }, 0.3);
+      tl.fromTo("#fill", { filter: "brightness(1)" }, { filter: "brightness(1.4)", duration: 0.25, yoyo: true, repeat: 1 }, 4.9);
+      tl.to("#pl1", { opacity: 0, duration: 0.2 }, 4.9); tl.to("#pl2", { opacity: 1, duration: 0.2 }, 4.95);
+
+      // Pantalla: se escribe "código" y aparece el corazón grande
+      gsap.set("#bigHeart", { scale: 0, transformOrigin: "50% 55%" });
+      tl.to("#screenGlow", { opacity: 1, duration: 1.2, ease: "sine.inOut" }, 0.6);
+      [["#c1", 150, 0.7], ["#c2", 100, 0.95], ["#c3", 190, 1.2], ["#c4", 120, 1.45]].forEach((c) => {
+        tl.to(c[0], { width: c[1], duration: 0.5, ease: "power2.out" }, c[2]);
+        tl.to(c[0], { opacity: 0, duration: 0.3 }, 2.5);
+      });
+      tl.to("#bigHeart", { scale: 1, duration: 0.6, ease: "back.out(2.2)" }, 2.5);
+      tl.to("#bigHeart", { scale: 1.14, duration: 0.3, ease: "sine.inOut", yoyo: true, repeat: 9 }, 3.1);
+
+      // Celular: latido suave
+      tl.fromTo("#phoneHeart svg", { scale: 1 }, { scale: 1.25, duration: 0.35, ease: "sine.inOut", yoyo: true, repeat: 9, transformOrigin: "50% 50%" }, 0.3);
+      tl.fromTo("#phone", { y: 0 }, { y: -6, duration: 0.9, ease: "sine.inOut", yoyo: true, repeat: 5 }, 0.3);
+
+      // Corazones que viajan del celular a la pantalla
+      const SX = 42, SY = 226, TX = 230, TY = 124;
+      const fliesBox = document.getElementById("flies");
+      for (let i = 0; i < 9; i++) {
+        const sz = 22 + (i % 3) * 6;
+        const d = document.createElement("div"); d.className = "fly";
+        d.style.width = sz + "px"; d.style.height = sz + "px"; d.innerHTML = heartSvg(i % 2 ? "#ff9ac1" : "#c8b8ff");
+        fliesBox.appendChild(d);
+        const t0 = 0.5 + i * 0.32, arc = i % 2 ? -40 : 30;
+        gsap.set(d, { x: SX - sz / 2, y: SY - sz / 2, opacity: 0, scale: 0.4 });
+        tl.to(d, { opacity: 1, scale: 1, duration: 0.2 }, t0);
+        tl.to(d, { x: TX - sz / 2 + arc * 0.3, duration: 0.9, ease: "power1.inOut" }, t0);
+        tl.to(d, { y: TY - sz / 2, duration: 0.9, ease: "sine.out" }, t0);
+        tl.to(d, { opacity: 0, scale: 0.3, duration: 0.2, ease: "power2.in" }, t0 + 0.75);
+        tl.fromTo("#ring" + (i % 3 + 1), { scale: 0.5, opacity: 0.8 }, { scale: 2.1, opacity: 0, duration: 0.7, ease: "power2.out", immediateRender: false }, t0 + 0.85);
+      }
+
+      // Destellos
+      const sparkBox = document.getElementById("sparks");
+      const SP = [[70, 20], [410, 40], [440, 150], [20, 110], [200, -26], [330, -16]];
+      SP.forEach((p, i) => {
+        const s = document.createElement("div"); s.className = "spark";
+        s.innerHTML = '<svg viewBox="0 0 24 24"><path fill="' + (i % 2 ? "#ffe08a" : "#ffffff") + '" d="' + SPARK_PATH + '"/></svg>';
+        s.style.left = p[0] + "px"; s.style.top = p[1] + "px"; sparkBox.appendChild(s);
+        tl.fromTo(s, { scale: 0, opacity: 1, rotation: 0 }, { scale: 1.2, opacity: 0, rotation: 90, duration: 0.7, ease: "power2.out", immediateRender: false }, 2.5 + i * 0.35);
+      });
+
+      // Éxito: insignia + lluvia de corazones
+      const BURST = [[-1, -0.2, "#ff86b0"], [-0.8, -0.8, "#b9a6ff"], [-0.3, -1, "#ff86b0"], [0.3, -1, "#b9a6ff"], [0.8, -0.8, "#ff86b0"], [1, -0.2, "#b9a6ff"], [0.9, 0.5, "#ff86b0"], [0.4, 0.95, "#b9a6ff"], [-0.4, 0.95, "#ff86b0"], [-0.9, 0.5, "#b9a6ff"]];
+      const burstBox = document.getElementById("bursts");
+      const OKX = 344 + 50, OKY = 262 + 50;
+      BURST.forEach((b, i) => {
+        const d = document.createElement("div"); d.className = "burst"; d.innerHTML = heartSvg(b[2]); burstBox.appendChild(d);
+        gsap.set(d, { x: OKX - 15, y: OKY - 15, scale: 0.3 });
+        tl.fromTo(d, { opacity: 1, scale: 0.3, x: OKX - 15, y: OKY - 15 }, { opacity: 0, scale: 1 + (i % 3) * 0.25, x: OKX - 15 + b[0] * (110 + (i % 3) * 22), y: OKY - 15 + b[1] * (110 + (i % 3) * 22), duration: 0.8, ease: "power2.out", immediateRender: false }, 4.9);
+      });
+      gsap.set("#ok", { scale: 0 });
+      tl.to("#ok", { opacity: 1, duration: 0.05 }, 4.9);
+      tl.to("#ok", { scale: 1, duration: 0.5, ease: "back.out(2.4)" }, 4.9);
+      tl.to("#mon", { scale: 1.03, duration: 0.3, ease: "back.out(2)", yoyo: true, repeat: 1, transformOrigin: "50% 50%" }, 4.9);
+
+      tl.set({}, {}, 6);
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

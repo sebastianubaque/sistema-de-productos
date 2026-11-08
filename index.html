@@ -985,11 +985,15 @@
     .qr-btn.on { border-color: #fbbf24; color: #fbbf24; background: rgba(251,191,36,.1); }
     .qr-cam { position: relative; border-radius: 18px; overflow: hidden; background: #000; height: min(40vh, 300px); flex: 0 0 auto; }
     .qr-cam video { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .qr-reticle { position: absolute; inset: 14% 18%; border: 2px solid rgba(255,255,255,.75); border-radius: 18px; box-shadow: 0 0 0 999px rgba(0,0,0,.28); pointer-events: none; }
+    .qr-reticle { position: absolute; left: 50%; top: 50%; width: var(--roi, 140px); height: var(--roi, 140px); transform: translate(-50%, -50%); border: 2px solid #fff; border-radius: 12px; box-shadow: 0 0 0 999px rgba(0,0,0,.55); pointer-events: none; transition: width .15s, height .15s; }
+    .qr-roi { position: absolute; top: 8px; left: 8px; display: flex; gap: 4px; z-index: 2; }
+    .qr-roi button { min-width: 34px; height: 34px; padding: 0 9px; border-radius: 10px; border: none; background: rgba(0,0,0,.6); color: #fff; font: 700 12.5px 'DM Sans', sans-serif; cursor: pointer; }
+    .qr-roi button.on { background: #8b5cf6; }
     .qr-cam-msg { position: absolute; left: 10px; right: 54px; bottom: 10px; padding: 7px 11px; border-radius: 10px; background: rgba(0,0,0,.62); color: #fff; font-size: 12.5px; line-height: 1.3; transition: background .2s; }
     .qr-cam-msg.ok { background: rgba(16,185,129,.9); } .qr-cam-msg.bad { background: rgba(239,68,68,.92); }
     .qr-cam-x { position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; border-radius: 50%; border: none; background: rgba(0,0,0,.6); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-    .qr-zoom { position: absolute; left: 14px; right: 14px; top: 12px; width: auto; accent-color: #a78bfa; }
+    .qr-snd { right: 52px; }
+    .qr-zoom { position: absolute; left: 14px; right: 14px; top: 52px; width: auto; accent-color: #a78bfa; }
     .qr-paste { display: flex; flex-direction: column; gap: 8px; }
     .qr-paste textarea { width: 100%; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 10px; font: 12px/1.35 ui-monospace, Consolas, monospace; resize: vertical; }
     #qrBar { display: flex; flex-direction: column; gap: 9px; }
@@ -1053,6 +1057,10 @@
     #qrPinIn { text-align: center; font: 700 30px 'Space Grotesk', sans-serif; letter-spacing: .5em; padding: 10px 0 10px .5em; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); color: var(--text); width: 100%; }
     #qrPinIn:focus { outline: 2px solid #8b5cf6; }
     .qr-pin-err { min-height: 18px; font-size: 12.5px; color: #f87171; }
+    .qr-detail.rot { transform-origin: 0 0; transform: rotate(90deg); }
+    .qr-detail.rot .qr-card { max-width: 720px; max-height: 94%; border-radius: 22px; margin-bottom: 8px; padding: 14px 18px; }
+    .qr-detail.rot .qr-grid { grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
+    .qr-detail.rot .qr-f.w { grid-column: span 2; }
     .qr-detail[hidden] { display: none; }
     .qr-flash { position: absolute; left: 16px; right: 16px; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 11; max-width: 448px; margin: 0 auto; padding: 11px 14px; border-radius: 14px; background: #1d1d28; border: 1px solid var(--border); color: #fff; font-size: 13.5px; line-height: 1.35; box-shadow: 0 10px 30px rgba(0,0,0,.5); opacity: 0; transform: translateY(12px); pointer-events: none; transition: opacity .2s, transform .2s; }
     .qr-flash.on { opacity: 1; transform: none; }
@@ -1990,7 +1998,7 @@
         </div>
       </div>
       <div class="header-actions" aria-label="Acciones rápidas">
-        <button type="button" class="header-icon-btn" aria-label="Pantalla">
+        <button type="button" class="header-icon-btn" aria-label="Pantalla" onclick="exportarPantalla()">
           <i data-lucide="monitor"></i>
         </button>
         <button type="button" class="header-icon-btn" aria-label="Moneda">
@@ -2415,9 +2423,11 @@
     <div class="tk-view-body qr-body">
       <div class="qr-cam" id="qrCam" hidden>
         <video id="qrVideo" playsinline muted autoplay></video>
-        <div class="qr-reticle"></div>
-        <div class="qr-cam-msg" id="qrCamMsg">Apunta al QR de la hoja o de una etiqueta</div>
+        <div class="qr-reticle" id="qrReticle"></div>
+        <div class="qr-roi" id="qrRoi" role="group" aria-label="Tamaño del recuadro"><button type="button" data-roi="0.26">Chico</button><button type="button" data-roi="0.4">Medio</button><button type="button" data-roi="0.6">Grande</button></div>
+        <div class="qr-cam-msg" id="qrCamMsg">Pon UN código dentro del recuadro</div>
         <button type="button" class="qr-cam-x" id="qrCamX" aria-label="Cerrar cámara"><i data-lucide="x"></i></button>
+        <button type="button" class="qr-cam-x qr-snd" id="qrSound" aria-label="Sonido"><i data-lucide="volume-2"></i></button>
         <input type="range" id="qrZoom" class="qr-zoom" hidden aria-label="Zoom">
       </div>
       <div id="qrBar"></div>
@@ -6481,7 +6491,7 @@ function initTicketGesture() {
 // El programa "Generar QRs" sube la última corrida; aquí se ve cada hoja tal como se imprimió y se marcan
 // (pegada / pendiente) las etiquetas, tocándolas o escaneando el QR pequeño (contiene solo el código).
 // ══════════════════════════════════════════
-const QR = { corrida: null, hojas: [], et: [], tipo: '', num: 0, pend: false, zoom: 1, stream: null, timer: 0, det: null, busy: false, last: { txt: '', t: 0 }, ready: false, full: false, rot: null, fz: 1, single: false, state: 'idle', err: '', ch: null, seq: 0 };
+const QR = { corrida: null, hojas: [], et: [], tipo: '', num: 0, pend: false, zoom: 1, stream: null, timer: 0, det: null, busy: false, last: { txt: '', t: 0 }, ready: false, sound: true, roi: 0.4, full: false, rot: null, fz: 1, single: false, state: 'idle', err: '', ch: null, seq: 0 };
 const qrEsc = v => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const qr$ = id => document.getElementById(id);
 const qrMoney = v => Number(v || 0).toLocaleString('es-CO');
@@ -6553,10 +6563,33 @@ async function qrSetPegada(e, on) {
   }
   return true;
 }
-function qrBuzz(p) { try { navigator.vibrate && navigator.vibrate(p || 40); } catch {} }
+function qrBuzz(p) { try { navigator.vibrate && navigator.vibrate(p || 40); } catch {} qrBeep(p ? 'bad' : 'ok'); }
+// Sonidos (generados con Web Audio, sin archivos): 'ok' = pitido agudo doble al marcar bien;
+// 'bad' = zumbido grave doble si no existe, ya estaba pegada (doble lectura) o falló.
+function qrAudio() {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
+    if (!QR.ac) QR.ac = new AC();
+    if (QR.ac.state === 'suspended') QR.ac.resume();
+    return QR.ac;
+  } catch { return null; }
+}
+function qrBeep(kind) {
+  if (!QR.sound) return;
+  const ac = qrAudio(); if (!ac) return;
+  const notes = kind === 'ok' ? [[880, 0, .09, 'sine'], [1320, .1, .13, 'sine']] : [[170, 0, .18, 'sawtooth'], [140, .22, .26, 'sawtooth']];
+  const t0 = ac.currentTime + .01;
+  notes.forEach(([f, d, len, type]) => {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.value = f;
+    g.gain.setValueAtTime(0.0001, t0 + d); g.gain.exponentialRampToValueAtTime(kind === 'ok' ? .35 : .22, t0 + d + .015); g.gain.exponentialRampToValueAtTime(.0001, t0 + d + len);
+    o.connect(g); g.connect(ac.destination); o.start(t0 + d); o.stop(t0 + d + len + .02);
+  });
+}
+function qrSoundBtn() { const b = qr$('qrSound'); if (b) { b.innerHTML = '<i data-lucide="' + (QR.sound ? 'volume-2' : 'volume-x') + '"></i>'; if (window.lucide) lucide.createIcons({ nodes: [b] }); } }
 function qrFlashMsg(m, kind) {
   const el = qr$('qrCamMsg');
-  if (el && !qr$('qrCam').hidden) { el.textContent = m; el.className = 'qr-cam-msg ' + (kind || ''); clearTimeout(qrFlashMsg.t); qrFlashMsg.t = setTimeout(() => { el.className = 'qr-cam-msg'; el.textContent = 'Apunta al QR de una etiqueta'; }, 3400); return; }
+  if (el && !qr$('qrCam').hidden) { el.textContent = m; el.className = 'qr-cam-msg ' + (kind || ''); clearTimeout(qrFlashMsg.t); qrFlashMsg.t = setTimeout(() => { el.className = 'qr-cam-msg'; el.textContent = 'Pon UN código dentro del recuadro'; }, 3400); return; }
   const fl = qr$('qrFlash'); fl.textContent = m; fl.className = 'qr-flash on ' + (kind || '');
   clearTimeout(qrFlashMsg.f); qrFlashMsg.f = setTimeout(() => fl.classList.remove('on'), 3400);
 }
@@ -6574,8 +6607,8 @@ async function qrHandleText(raw) {
   if (txt === QR.last.txt && now - QR.last.t < 3000) return;      // misma lectura en pocos segundos
   QR.last = { txt, t: now };
   if (QR.single) qrStopCam();                                     // modo "uno a uno": una lectura y se cierra
-  if (!QR.corrida) { qrFlashMsg('Aún no hay hojas cargadas', 'bad'); return; }
-  if (txt.startsWith('QRM1:')) { qrFlashMsg('Ese es un QR master: ya no se usa. Escanea el QR de una etiqueta.', 'bad'); return; }
+  if (!QR.corrida) { qrFlashMsg('Aún no hay hojas cargadas', 'bad'); qrBeep('bad'); return; }
+  if (txt.startsWith('QRM1:')) { qrFlashMsg('Ese es un QR master: ya no se usa. Escanea el QR de una etiqueta.', 'bad'); qrBeep('bad'); return; }
   const cod = txt.toUpperCase();
   const todas = QR.et.filter(e => String(e.codigo).toUpperCase() === cod);
   if (!todas.length) { qrFlashMsg(`${txt} no existe en la corrida`, 'bad'); qrBuzz([60, 40, 60]); return; }
@@ -6587,7 +6620,7 @@ async function qrHandleText(raw) {
   const cambia = !(e.tipo === QR.tipo && e.hoja === QR.num);
   if (cambia) { QR.tipo = e.tipo; QR.num = e.hoja; qrRender(); }
   const ok = await qrSetPegada(e, true);
-  if (!ok) return;
+  if (!ok) { qrBeep('bad'); return; }
   qrFlashMsg(`✓ ${e.codigo} · ${e.marca} ${e.talla} · hoja ${e.hoja} (${qrTipoName(e.tipo).split(' ')[0]}) · copia ${e.copia}/${e.copias}`, 'ok');
   qrBuzz(); qrPulse(qrKey(e));
 }
@@ -6663,7 +6696,7 @@ function qrFull(on) {
   if (on && !qrHoja()) return;
   QR.full = !!on; QR.rot = null; QR.fz = 1;
   qr$('qrScroll').classList.toggle('full', QR.full);
-  qr$('qrCam').classList.toggle('float', QR.full);
+  qr$('qrCam').classList.toggle('float', QR.full); qrApplyRoi();
   qrFullBarUpdate(); qrRenderSheet();
   if (QR.full && window.lucide) lucide.createIcons({ nodes: [qr$('qrFullBar')] });
 }
@@ -6675,26 +6708,24 @@ function qrPaintChecks() {               // actualiza solo los estados (sin redi
 // ── Ficha de una etiqueta ──
 function qrOpenDetail(k) {
   const e = QR.et.find(x => qrKey(x) === k); if (!e) return;
-  const prod = (typeof currentProducts !== 'undefined' ? currentProducts : []).find(p => String(p.codigo || '').toUpperCase() === String(e.codigo).toUpperCase());
   const f = (l, v, cls = '') => v === '' || v == null ? '' : `<div class="qr-f ${cls}"><span>${l}</span><b>${qrEsc(v)}</b></div>`;
-  const dif = prod && Number(prod.precioVenta) !== Number(e.venta);
   qr$('qrDetail').innerHTML = `<div class="qr-card" role="dialog" aria-label="Etiqueta">
     <h3>${qrEsc(e.codigo)}</h3>
     <span class="qr-state ${e.pegada ? 'on' : 'off'}">${e.pegada ? 'Pegada' : 'Pendiente'}</span>${e.pegada && e.pegada_en ? `<span class="qr-meta"> ${new Date(e.pegada_en).toLocaleString('es-CO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>` : ''}
     <div class="qr-grid">
-      ${f('Marca', e.marca)}${f('Talla', e.talla)}${f('Precio venta (impreso)', '$' + qrMoney(e.venta))}${f('Color', e.color)}
+      ${f('Marca', e.marca)}${f('Talla', e.talla)}${f('Precio venta', '$' + qrMoney(e.venta))}${f('Color', e.color)}
       ${f('Estilo', e.estilo)}${f('Género', e.genero)}${f('Categoría', e.categoria, 'w')}${f('Descripción', e.descripcion, 'w')}
-      ${f('Copia', e.copia + ' de ' + e.copias)}${f('Fila en la hoja de cálculo', e.fila_hoja)}
-      ${f('Hoja', `${e.hoja} · ${qrTipoName(e.tipo)}`)}${f('Posición', `x ${e.x_mm} mm · y ${e.y_mm} mm${e.acostada ? ' · acostada' : ''}`)}
-      ${e.zapatos ? f('Tipo', 'Zapatos (se imprime duplicado)', 'w') : ''}
-      ${prod ? f('En Jhadiel ahora', `${prod.marca || ''} ${prod.talla || ''} · $${qrMoney(prod.precioVenta)}${dif ? ' (cambió desde la impresión)' : ''}`, 'w' + (dif ? ' diff' : '')) : f('En Jhadiel', 'No hay un producto con este código', 'w')}
     </div>
     <div class="qr-card-act"><button type="button" class="qr-btn" id="qrDetClose">Cerrar</button><button type="button" class="qr-btn primary" id="qrDetToggle">${e.pegada ? 'Desmarcar' : 'Marcar como pegada'}</button></div></div>`;
-  qr$('qrDetail').hidden = false;
+  const d = qr$('qrDetail'), hj = qrHoja();
+  const girada = QR.full && hj && qrRotEff(hj);        // misma orientación que la hoja en pantalla completa
+  d.classList.toggle('rot', !!girada);
+  if (girada) { d.style.inset = 'auto'; d.style.width = window.innerHeight + 'px'; d.style.height = window.innerWidth + 'px'; d.style.left = window.innerWidth + 'px'; d.style.top = '0px'; }
+  d.hidden = false;
   qr$('qrDetClose').onclick = qrCloseDetail;
   qr$('qrDetToggle').onclick = async () => { const on = !e.pegada; qrCloseDetail(); await qrSetPegada(e, on); };
 }
-function qrCloseDetail() { const d = qr$('qrDetail'); if (d) { d.hidden = true; d.innerHTML = ''; } }
+function qrCloseDetail() { const d = qr$('qrDetail'); if (d) { d.hidden = true; d.innerHTML = ''; d.classList.remove('rot'); d.style.cssText = ''; } }
 
 // ── Cámara ──
 let qrJsQRp = null;
@@ -6703,7 +6734,7 @@ function qrLoadJsQR() {
   return qrJsQRp || (qrJsQRp = new Promise((ok, no) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js'; s.onload = ok; s.onerror = () => { qrJsQRp = null; no(new Error('No se pudo cargar el lector de respaldo')); }; document.head.appendChild(s); }));
 }
 async function qrDecodeSource(src, w, h) {     // src: video | ImageBitmap | canvas → texto o ''
-  if (QR.det) { try { const r = await QR.det.detect(src); if (r.length) return r[0].rawValue; } catch {} }
+  if (QR.det) { try { const r = await QR.det.detect(src); if (r.length) { r.sort((a, b) => { const d = q => { const bb = q.boundingBox; return Math.hypot(bb.x + bb.width / 2 - w / 2, bb.y + bb.height / 2 - h / 2); }; return d(a) - d(b); }); return r[0].rawValue; } } catch {} }
   if (QR.det && !window.jsQR) return '';
   await qrLoadJsQR();
   const c = qrDecodeSource.c || (qrDecodeSource.c = document.createElement('canvas'));
@@ -6713,6 +6744,23 @@ async function qrDecodeSource(src, w, h) {     // src: video | ImageBitmap | can
   const r = window.jsQR(d.data, d.width, d.height, { inversionAttempts: 'attemptBoth' });
   return r && r.data ? r.data : '';
 }
+// Recorte del video que coincide con el recuadro de la pantalla (el video se muestra con object-fit: cover).
+// Así solo se lee lo que está dentro del recuadro y no los demás códigos de la hoja.
+function qrRoiSide() { const cam = qr$('qrCam'); const m = Math.min(cam.clientWidth, cam.clientHeight) || 200; return Math.max(60, Math.round(m * QR.roi)); }
+function qrCropVideo(v) {
+  const cam = qr$('qrCam'), cw = cam.clientWidth, ch = cam.clientHeight, vw = v.videoWidth, vh = v.videoHeight;
+  const side = qrRoiSide(), sc = Math.max(cw / vw, ch / vh), ox = (vw * sc - cw) / 2, oy = (vh * sc - ch) / 2;
+  let sx = ((cw - side) / 2 + ox) / sc, sy = ((ch - side) / 2 + oy) / sc, ss = side / sc;
+  sx = Math.max(0, Math.min(vw - 1, sx)); sy = Math.max(0, Math.min(vh - 1, sy)); ss = Math.max(8, Math.min(ss, vw - sx, vh - sy));
+  const out = Math.min(Math.round(ss), 900);
+  const c = qrCropVideo.c || (qrCropVideo.c = document.createElement('canvas'));
+  c.width = out; c.height = out; c.getContext('2d').drawImage(v, sx, sy, ss, ss, 0, 0, out, out);
+  return c;
+}
+function qrApplyRoi() {
+  const r = qr$('qrReticle'); if (r) r.style.setProperty('--roi', qrRoiSide() + 'px');
+  document.querySelectorAll('#qrRoi button').forEach(b => b.classList.toggle('on', Math.abs(Number(b.dataset.roi) - QR.roi) < 0.01));
+}
 async function qrInitDetector() {
   if (QR.ready) return;
   try { if ('BarcodeDetector' in window) { const f = await BarcodeDetector.getSupportedFormats(); if (f.includes('qr_code')) QR.det = new BarcodeDetector({ formats: ['qr_code'] }); } } catch {}
@@ -6721,6 +6769,7 @@ async function qrInitDetector() {
 }
 async function qrStartCam() {
   if (QR.stream) return;
+  qrAudio();                                   // el audio se activa con el toque en Escanear
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.isSecureContext) { showToast('Cámara', 'La cámara necesita HTTPS (o localhost).', 'warning', 6000); return; }
   try {
     await qrInitDetector();
@@ -6732,7 +6781,7 @@ async function qrStartCam() {
   const tr = QR.stream.getVideoTracks()[0], caps = (tr.getCapabilities && tr.getCapabilities()) || {}, z = qr$('qrZoom');
   try { if (caps.focusMode && caps.focusMode.includes('continuous')) await tr.applyConstraints({ advanced: [{ focusMode: 'continuous' }] }); } catch {}
   if (caps.zoom) { z.min = caps.zoom.min; z.max = caps.zoom.max; z.step = caps.zoom.step || 0.1; z.value = (tr.getSettings().zoom || caps.zoom.min); z.hidden = false; } else z.hidden = true;
-  qrFab();
+  qrApplyRoi(); qrFab();
   qrLoop();
 }
 function qrStopCam() {
@@ -6749,7 +6798,7 @@ function qrLoop() {
     const v = qr$('qrVideo');
     if (v.readyState >= 2 && v.videoWidth && !QR.busy) {
       QR.busy = true;
-      try { const t = await qrDecodeSource(v, v.videoWidth, v.videoHeight); if (t) await qrHandleText(t); } catch {}
+      try { const c = qrCropVideo(v); const t = await qrDecodeSource(c, c.width, c.height); if (t) await qrHandleText(t); } catch {}
       QR.busy = false;
     }
     qrLoop();
@@ -6757,9 +6806,11 @@ function qrLoop() {
 }
 
 // ── Eventos ──
-function qrOnEnter() { try { QR.single = localStorage.getItem('jahdiel_qr_single') === '1'; } catch {} qrRender(); qrLoad(false); }
+function qrOnEnter() { try { QR.sound = localStorage.getItem('jahdiel_qr_sound') !== '0'; } catch {} qrSoundBtn(); try { const r = Number(localStorage.getItem('jahdiel_qr_roi')); if (r >= 0.2 && r <= 0.7) QR.roi = r; } catch {} try { QR.single = localStorage.getItem('jahdiel_qr_single') === '1'; } catch {} qrRender(); qrLoad(false); }
 function qrInit() {
   qr$('qrCamX').addEventListener('click', qrStopCam);
+  qr$('qrSound').addEventListener('click', () => { QR.sound = !QR.sound; try { localStorage.setItem('jahdiel_qr_sound', QR.sound ? '1' : '0'); } catch {} qrSoundBtn(); if (QR.sound) qrBeep('ok'); });
+  qr$('qrRoi').addEventListener('click', e => { const b = e.target.closest('[data-roi]'); if (!b) return; QR.roi = Number(b.dataset.roi); try { localStorage.setItem('jahdiel_qr_roi', String(QR.roi)); } catch {} qrApplyRoi(); });
   qr$('qrFX').addEventListener('click', () => qrFull(false));
   qr$('qrFRot').addEventListener('click', () => { const h = qrHoja(); if (!h) return; QR.rot = !qrRotEff(h); qrLayout(); });
   qr$('qrFZoom').addEventListener('click', () => { QR.fz = QR.fz >= 3 ? 1 : QR.fz + 1; qrLayout(); qrFullBarUpdate(); });
@@ -6793,12 +6844,20 @@ function qrInit() {
 // · Si hay error, se cierra al instante. Si el video no carga, se usa una tarjeta sencilla.
 // ══════════════════════════════════════════
 const LOADER_DIR = 'animaciones/';
-const LOADER_SRC = { enviar: 'carga-enviar.mp4', ver: 'carga-ver.mp4', borrar: 'carga-borrar.mp4' };
+const LOADER_SRC = { enviar: 'carga-enviar.mp4', ver: 'carga-ver.mp4', borrar: 'carga-borrar.mp4', pantalla: 'carga-pantalla.mp4' };
 const LOADER_INFO = {
   enviar: { title: 'Enviando factura', msg: 'Empacando con cariño…', glow: 'rgba(16,217,160,.38)' },
   ver:    { title: 'Consultando Sheets', msg: 'Abriendo con cariño…', glow: 'rgba(56,189,248,.38)' },
   borrar: { title: 'Limpiando Sheets', msg: 'Limpiando con cuidado…', glow: 'rgba(255,87,87,.38)' },
+  pantalla: { title: 'Mi tinto', msg: 'Siempre pienso en ti ♥', glow: 'rgba(255,134,176,.38)' },
 };
+// Botón de la pantalla (arriba a la derecha): animación de 6 s con mensaje cariñoso. No espera ningún trabajo:
+// se llama a finish() de inmediato para que el video corra completo y se cierre solo.
+async function exportarPantalla() {
+  if (document.querySelector('.loader-ov')) return;
+  const loader = showLoader('pantalla');
+  await loader.finish();
+}
 const LOADER_HOLD = 3.3;        // s del video donde espera si la operación sigue en curso
 const LOADER_LINGER = 600;      // ms que se queda el último cuadro (para leer el mensaje final)
 const LOADER_MIN_FALLBACK = 1200;
