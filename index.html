@@ -1340,7 +1340,7 @@
 
     /* ══════════ CAJA DE VIAJES (módulo en modo claro) ══════════ */
     .fab-caja {
-      position: fixed; bottom: 152px; right: 20px; z-index: 160;
+      position: fixed; bottom: 84px; right: 20px; z-index: 160;   /* ocupa el lugar que dejó el botón de IA */
       width: 52px; height: 52px; border-radius: 50%; border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       background: linear-gradient(135deg, #22C9A0, #0E9F8E);
@@ -1587,6 +1587,7 @@
     .cj-seg button.on { background: #fff; color: var(--cj-ink) !important; box-shadow: 0 2px 6px rgba(23,23,43,0.08); }
     .cj-calc { font-size: 13px; color: var(--cj-ink2); padding: 2px 2px 0; }
     .cj-calc b { color: var(--cj-ink); }
+    .cj-actions-sticky { position: sticky; bottom: 0; z-index: 3; margin: 12px -18px 0 !important; padding: 12px 18px calc(12px + env(safe-area-inset-bottom)); background: var(--cj-card); box-shadow: 0 -10px 18px -8px rgba(23,23,43,.14); }
     .cj-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
     .cj-btn { border: none; cursor: pointer; padding: 15px; border-radius: 16px; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .cj-btn.primary { background: var(--cj-primary); color: #fff !important; box-shadow: 0 8px 18px rgba(108,76,241,0.3); }
@@ -2389,11 +2390,6 @@
 </div><!-- /app -->
 
 <!-- FAB nueva factura (solo visible en tab facturas) -->
-<button class="fab-ai" id="fabAI" onclick="openScanSheet()" aria-label="Escanear factura con IA" title="Escanear factura con IA">
-  <span class="fab-ai-ring"></span>
-  <span class="fab-ai-core"><i data-lucide="sparkles"></i></span>
-  <span class="fab-ai-tag">IA</span>
-</button>
 <button class="fab-caja" id="fabCaja" onclick="openCaja()" aria-label="Caja de viajes" title="Caja de viajes"><i data-lucide="wallet"></i></button>
 <div id="cajaApp" role="dialog" aria-label="Caja de viajes"><div class="cj-wrap" id="cjMain"></div><div id="cjSheetHost"></div><div id="cjTip"></div></div>
 <!-- ══ TICKET: función oculta (desliza Inicio a la izquierda) ══ -->
@@ -8805,7 +8801,7 @@ function cjRenderAssignSheet(animate){
     <div class="cj-sheet-trip"><i data-lucide="clipboard-list"></i> ${cjEsc(e.prenda)} · ${cjEsc(e.persona)}</div>
     ${modeSeg}
     ${body}
-    <div class="cj-actions">
+    <div class="cj-actions cj-actions-sticky">
       <button class="cj-btn ghost" onclick="cjCloseSheet()">Cancelar</button>
       <button class="cj-btn primary green" onclick="cjSaveAssign()" ${canSave ? '' : 'disabled'}><i data-lucide="check"></i> Conseguido</button>
     </div>`, { noAnim: !animate });
@@ -8818,8 +8814,10 @@ function cjAsgTrip(id){ const keep = cjKeepInputs(['cjS-venta']); cjAsg.tripId =
 function cjAsgPick(pid){
   cjAsg.prodId = pid;
   const list = document.getElementById('cjS-list'), top = list ? list.scrollTop : 0;
+  const sheet = document.querySelector('#cjSheetHost .cj-sheet'), sTop = sheet ? sheet.scrollTop : 0;
   cjRenderAssignSheet(false);
   const again = document.getElementById('cjS-list'); if(again) again.scrollTop = top;
+  const sheet2 = document.querySelector('#cjSheetHost .cj-sheet'); if(sheet2) sheet2.scrollTop = sTop;
 }
 function cjAsgFilter(q){
   cjAsg.q = q;
@@ -8851,7 +8849,7 @@ function cjSaveAssign(){
       fechaConseguido: fecha,
     });
   } else {
-    const v = cjViajes.find(x => x.id === cjAsg.tripId);
+    const v = cjViajes.find(x => x.id === cjAsg.tripId) || cjTripsConPrendas()[0];
     const p = v && (v.productos || []).find(x => x.id === cjAsg.prodId);
     if(!p){ showToast('Elige el proveedor','Toca la compra de la que salió este encargo.','warning'); return; }
     Object.assign(e, {
