@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Tienda Jahdiel</title>
-  <script>if (/^\/ticket\/?$/i.test(location.pathname)) document.documentElement.classList.add('tk-only');</script>
+  <script>if (/^\/ticket\/?$/i.test(location.pathname)) document.documentElement.classList.add('tk-only'); else { try { if (!localStorage.getItem('jahdiel_sesion_v1')) document.documentElement.classList.add('locked'); } catch (e) {} }</script>
   <link rel="icon" type="image/png" href="/favicon.png" />
   <script src="/_sdk/element_sdk.js"></script>
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
@@ -974,6 +974,21 @@
     .tk-hint svg { width: 15px; height: 15px; animation: tkNudge 1.4s ease-in-out infinite; }
     @keyframes tkNudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-5px); } }
     @media (prefers-reduced-motion: reduce) { .tk-hero, .tk-hint svg, #tkDrawer.ready .tk-ring { animation: none; } #tkView { transition: none; } }
+
+    /* ── Acceso con clave (se pide una sola vez por dispositivo) ── */
+    #loginGate { display: none; position: fixed; inset: 0; z-index: 99999; align-items: center; justify-content: center; padding: 24px; background: radial-gradient(ellipse 80% 50% at 20% 10%, rgba(108,99,255,.22) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 80% 85%, rgba(16,217,160,.1) 0%, transparent 60%), #0a0e1a; }
+    html.locked #loginGate { display: flex; }
+    html.locked body { overflow: hidden; }
+    .lg-card { width: 100%; max-width: 330px; text-align: center; display: flex; flex-direction: column; gap: 12px; }
+    .lg-card.shake { animation: qrShake .4s; }
+    .lg-ico { width: 68px; height: 68px; margin: 0 auto 4px; border-radius: 22px; display: flex; align-items: center; justify-content: center; color: #fff; background: linear-gradient(135deg, #6c63ff, #8b5cf6); box-shadow: 0 16px 40px rgba(108,99,255,.4); }
+    .lg-ico svg { width: 30px; height: 30px; }
+    .lg-card h1 { font: 700 26px 'Space Grotesk', sans-serif; color: #f0f4ff; }
+    .lg-card p { font-size: 14px; color: #8892a4; margin-bottom: 6px; }
+    #lgIn { text-align: center; font: 700 32px 'Space Grotesk', sans-serif; letter-spacing: .5em; padding: 12px 0 12px .5em; border-radius: 16px; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); color: #f0f4ff; width: 100%; }
+    #lgIn:focus { outline: 2px solid #8b5cf6; }
+    .lg-err { min-height: 18px; font-size: 13px; color: #f87171; }
+    .lg-btn { height: 50px; border: none; border-radius: 16px; color: #fff; font: 700 16px 'DM Sans', sans-serif; cursor: pointer; background: linear-gradient(135deg, #6c63ff, #8b5cf6); box-shadow: 0 10px 26px rgba(108,99,255,.4); }
 
     /* ── Modo solo Ticket (https://…/ticket): sin panel, sin menús, sin X ni forma de salir ── */
     html.tk-only #app, html.tk-only .bottom-nav, html.tk-only #fabCaja, html.tk-only #fabInvoice, html.tk-only #cajaApp,
@@ -1987,6 +2002,17 @@
   </style>
 </head>
 <body>
+
+<div id="loginGate" role="dialog" aria-modal="true" aria-label="Acceso">
+  <form class="lg-card" id="lgForm" autocomplete="off">
+    <div class="lg-ico"><i data-lucide="lock"></i></div>
+    <h1>Tienda Jahdiel</h1>
+    <p>Escribe la clave para entrar</p>
+    <input type="password" id="lgIn" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" aria-label="Clave de 4 dígitos" placeholder="••••">
+    <div class="lg-err" id="lgErr" aria-live="polite"></div>
+    <button type="submit" class="lg-btn">Entrar</button>
+  </form>
+</div>
 
 <div id="toast-container"></div>
 <div id="variationsModal" style="display:none;"></div>
@@ -9476,7 +9502,39 @@ function scanSaveAll(){
 }
 
 const TK_ONLY = document.documentElement.classList.contains('tk-only');
+// ── Acceso con clave: se pide una sola vez; la sesión queda guardada en este dispositivo ──
+// (Es un freno para curiosos: el código de la página es público. No reemplaza una autenticación real.)
+const SESSION_KEY = 'jahdiel_sesion_v1';
+const gateOk = () => { try { return localStorage.getItem(SESSION_KEY) === String(TK_PIN_HASH); } catch { return false; } };
+const GATE = { fails: 0, lockUntil: 0, resolve: null };
+function gateSetup(){
+  const form = document.getElementById('lgForm'), inp = document.getElementById('lgIn'), err = document.getElementById('lgErr');
+  const check = () => {
+    const now = Date.now();
+    if(now < GATE.lockUntil){ err.textContent = 'Espera ' + Math.ceil((GATE.lockUntil - now) / 1000) + ' s para volver a intentar'; inp.value = ''; return; }
+    if(tkPinHash('jhd:' + inp.value) === TK_PIN_HASH){
+      try{ localStorage.setItem(SESSION_KEY, String(TK_PIN_HASH)); }catch{}
+      document.documentElement.classList.remove('locked'); inp.value = ''; inp.blur();
+      if(GATE.resolve){ GATE.resolve(); GATE.resolve = null; }
+      return;
+    }
+    GATE.fails++; inp.value = '';
+    if(GATE.fails >= 5){ GATE.fails = 0; GATE.lockUntil = now + 30000; err.textContent = 'Demasiados intentos. Espera 30 s.'; }
+    else err.textContent = 'Clave incorrecta';
+    form.classList.remove('shake'); void form.offsetWidth; form.classList.add('shake');
+    try{ navigator.vibrate && navigator.vibrate([60, 40, 60]); }catch{}
+  };
+  form.addEventListener('submit', e => { e.preventDefault(); check(); });
+  inp.addEventListener('input', () => { inp.value = inp.value.replace(/\D/g, '').slice(0, 4); if(inp.value.length === 4) check(); });
+  try{ lucide.createIcons({ nodes: [document.getElementById('loginGate')] }); }catch{}
+  setTimeout(() => inp.focus(), 150);
+}
 async function init(){
+  if(!TK_ONLY && !gateOk()){             // sin sesión válida: no se carga nada hasta poner la clave
+    document.documentElement.classList.add('locked');
+    gateSetup();
+    await new Promise(res => { GATE.resolve = res; });
+  }
   if(TK_ONLY){            // /ticket: solo la pantalla del Ticket; no se carga el resto de la aplicación
     try{ lucide.createIcons(); initTicketGesture(); tkEnter(); }catch(err){ console.error('Ticket:', err); }
     return;
