@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Tienda Jahdiel</title>
+  <script>if (/^\/ticket\/?$/i.test(location.pathname)) document.documentElement.classList.add('tk-only');</script>
   <link rel="icon" type="image/png" href="/favicon.png" />
   <script src="/_sdk/element_sdk.js"></script>
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
@@ -973,6 +974,12 @@
     .tk-hint svg { width: 15px; height: 15px; animation: tkNudge 1.4s ease-in-out infinite; }
     @keyframes tkNudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-5px); } }
     @media (prefers-reduced-motion: reduce) { .tk-hero, .tk-hint svg, #tkDrawer.ready .tk-ring { animation: none; } #tkView { transition: none; } }
+
+    /* ── Modo solo Ticket (https://…/ticket): sin panel, sin menús, sin X ni forma de salir ── */
+    html.tk-only #app, html.tk-only .bottom-nav, html.tk-only #fabCaja, html.tk-only #fabInvoice, html.tk-only #cajaApp,
+    html.tk-only #tkDrawer, html.tk-only #tkShield, html.tk-only .header, html.tk-only #tkBack { display: none !important; }
+    html.tk-only #tkView { transition: none; }
+    html.tk-only .tk-view-in { padding-top: calc(18px + env(safe-area-inset-top)); }
 
     /* ── Ticket: escáner de QR master + hoja virtual ── */
     .qr-body { align-items: stretch; justify-content: flex-start; text-align: left; gap: 10px; padding: 14px 0 20px; overflow-y: auto; min-height: 0; -webkit-overflow-scrolling: touch; }
@@ -6317,7 +6324,7 @@ const TK_PIN_HASH = 4991616608558541;
 const tkPinHash = s => { let h1 = 0xdeadbeef, h2 = 0x41c6ce57; for (let i = 0; i < s.length; i++) { const c = s.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); } h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909); h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909); return 4294967296 * (2097151 & h2) + (h1 >>> 0); };
 const TKP = { fails: 0, lockUntil: 0 };
 function tkAskPin() {
-  if (!TK.view) return;
+  if (!TK.view || TK_ONLY) return;
   const p = qr$('qrPin'); p.hidden = false;
   qr$('qrPinIn').value = ''; qr$('qrPinErr').textContent = '';
   if (window.lucide) lucide.createIcons({ nodes: [p] });
@@ -6465,7 +6472,7 @@ function initTicketGesture() {
     if (!TK.view) return;
     if (TK.exiting) { tkLeaveView(); return; }                 // salida autorizada con la clave
     try { history.pushState({ tk: 1 }, ''); } catch {}         // "atrás" del celular: no sale, pide la clave
-    tkAskPin();
+    if (!TK_ONLY) tkAskPin();                                  // en /ticket ni siquiera hay clave: no hay salida
   });
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
@@ -9468,7 +9475,12 @@ function scanSaveAll(){
     }, 'Guardar', 'Cancelar', true);
 }
 
+const TK_ONLY = document.documentElement.classList.contains('tk-only');
 async function init(){
+  if(TK_ONLY){            // /ticket: solo la pantalla del Ticket; no se carga el resto de la aplicación
+    try{ lucide.createIcons(); initTicketGesture(); tkEnter(); }catch(err){ console.error('Ticket:', err); }
+    return;
+  }
   try{
     if(window.elementSdk) await window.elementSdk.init(elementConfig);
     supabaseSyncPaused = true;
