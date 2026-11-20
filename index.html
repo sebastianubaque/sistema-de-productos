@@ -9944,7 +9944,7 @@ function kbPriceThousands(inp){
 // ══════════════════════════════════════════
 // VARIACIONES EN PC: formulario a la izquierda, variaciones como tarjetas a la derecha
 // Enter = siguiente casilla · en Cantidad, Enter agrega la tarjeta · Ctrl+Enter guarda todas · Esc cierra
-// Al agregar se conservan Estilo y Color (lo normal es cargar varias tallas seguidas) y el cursor va a Talla.
+// Al agregar se conservan Estilo y Color y el cursor vuelve a Color con el texto seleccionado (Enter = mismo color).
 // ══════════════════════════════════════════
 const VD = { last: null };
 const vd$ = id => document.getElementById(id);
@@ -10025,7 +10025,8 @@ function vdAdd(){
   vd$('varTalla-new').value = ''; vd$('varCantidad-new').value = 1;   // estilo y color se quedan para la siguiente talla
   try{ SFX.addInventory(); }catch{}
   vdRenderCards();
-  vd$('varTalla-new').focus();
+  // vuelve a Color con el color anterior SELECCIONADO: Enter = mismo color · escribir o Borrar = otro
+  const col2 = vd$('varColor-new'); col2.focus(); try{ col2.select(); }catch{}
   return true;
 }
 function vdEdit(id){
