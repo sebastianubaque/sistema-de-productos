@@ -1144,6 +1144,13 @@
     .qr-prog-b i { display: block; height: 100%; background: linear-gradient(90deg, #10d9a0, #34d399); border-radius: inherit; transition: width .35s; }
     .qr-tools { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
     .qr-warn { padding: 9px 12px; border-radius: 12px; background: rgba(251,191,36,.12); border: 1px solid rgba(251,191,36,.4); color: #fbbf24; font-size: 12.5px; line-height: 1.4; }
+    .qr-mode { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); }
+    .qr-mode button { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 8px 6px; border: none; border-radius: 10px; background: transparent; color: var(--text3); cursor: pointer; font-family: 'DM Sans', sans-serif; }
+    .qr-mode button b { font-size: 13.5px; } .qr-mode button small { font-size: 11px; opacity: .85; }
+    .qr-mode button.on { background: linear-gradient(135deg, #6c63ff, #8b5cf6); color: #fff; box-shadow: 0 6px 16px rgba(108,99,255,.35); }
+    .qr-mode button:last-child.on { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 6px 16px rgba(245,158,11,.3); }
+    .qr-prev-note { display: flex; align-items: center; gap: 8px; padding: 9px 12px; border-radius: 12px; background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.35); color: #fbbf24; font-size: 12.5px; line-height: 1.35; }
+    .qr-prev-note svg { width: 16px; height: 16px; flex-shrink: 0; }
     .qr-scroll { overflow: auto; border-radius: 12px; background: #2a2a33; padding: 8px; touch-action: pan-x pan-y pinch-zoom; max-height: 70vh; flex: 0 0 auto; }
     #qrSheet { position: relative; background: #fff; box-shadow: 0 6px 24px rgba(0,0,0,.45); container-type: inline-size; overflow: hidden; }
     .qr-t { position: absolute; box-sizing: border-box; display: flex; flex-direction: column; padding: 0; margin: 0; border: .25cqw solid #8a8a96; border-radius: .6cqw; background: #fff; color: #17171c; overflow: hidden; cursor: pointer; font-family: 'DM Sans', sans-serif; text-align: center; transition: opacity .2s, background .25s; }
@@ -6750,7 +6757,7 @@ function initTicketGesture() {
 // El programa "Generar QRs" sube la última corrida; aquí se ve cada hoja tal como se imprimió y se marcan
 // (pegada / pendiente) las etiquetas, tocándolas o escaneando el QR pequeño (contiene solo el código).
 // ══════════════════════════════════════════
-const QR = { corrida: null, hojas: [], et: [], tipo: '', num: 0, pend: false, zoom: 1, stream: null, timer: 0, det: null, busy: false, last: { txt: '', t: 0 }, ready: false, sound: true, roi: 0.4, full: false, rot: null, fz: 1, single: false, state: 'idle', err: '', ch: null, seq: 0 };
+const QR = { corrida: null, hojas: [], et: [], tipo: '', num: 0, pend: false, zoom: 1, stream: null, timer: 0, det: null, busy: false, last: { txt: '', t: 0 }, ready: false, mode: 'actual', live: null, prev: null, prevMeta: null, prevT: 0, sound: true, roi: 0.4, full: false, rot: null, fz: 1, single: false, state: 'idle', err: '', ch: null, seq: 0 };
 const qrEsc = v => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const qr$ = id => document.getElementById(id);
 const qrMoney = v => Number(v || 0).toLocaleString('es-CO');
@@ -6776,19 +6783,67 @@ async function qrLoad(aviso) {
     const { data: c, error } = await db.from('corridas').select('*').order('creada', { ascending: false }).limit(1).maybeSingle();
     if (error) throw error;
     if (my !== QR.seq) return;
-    if (!c) { QR.corrida = null; QR.hojas = []; QR.et = []; QR.state = 'empty'; return qrRender(); }
+    if (!c) { QR.live = null; await qrLoadPrevMeta(); if (QR.mode === 'anterior' && QR.prev) { QR.state = 'ok'; return qrRender(); } QR.corrida = null; QR.hojas = []; QR.et = []; QR.state = 'empty'; return qrRender(); }
     const [hojas, et] = await Promise.all([
       qrFetchPages(() => db.from('hojas').select('*').eq('corrida_id', c.id).order('tipo').order('numero')),
       qrFetchPages(() => db.from('etiquetas').select('*').eq('corrida_id', c.id).order('tipo').order('orden'))
     ]);
     if (my !== QR.seq) return;
-    const cambio = QR.corrida && QR.corrida.id !== c.id;
-    QR.corrida = c; QR.hojas = hojas; QR.et = et; QR.state = 'ok';
-    if (!QR.hojas.find(h => h.tipo === QR.tipo && h.numero === QR.num)) { const h0 = QR.hojas.find(h => h.tipo === 'CON') || QR.hojas[0]; QR.tipo = h0 ? h0.tipo : ''; QR.num = h0 ? h0.numero : 0; }
-    if (cambio || aviso) qrFlashMsg('Se cargó la corrida más reciente: los checks anteriores ya no aplican.', 'bad');
+    const cambio = QR.live && QR.live.corrida.id !== c.id;
+    QR.live = { corrida: c, hojas, et };
+    await qrLoadPrevMeta();
+    if (QR.mode === 'actual') qrUse(QR.live);
+    QR.state = 'ok';
+    if ((cambio || aviso) && QR.mode === 'actual') qrFlashMsg('Llegó una corrida nueva. La que tenías quedó en "Anterior".', 'bad');
     qrSubscribe(); qrRender();
   } catch (e) { if (my !== QR.seq) return; console.warn('Hojas virtuales:', e); QR.state = QR.corrida ? 'ok' : 'error'; QR.err = (e && e.message) || 'No se pudieron cargar las hojas.'; qrRender(); if (QR.corrida) qrFlashMsg('No se pudo actualizar: ' + QR.err, 'bad'); }
 }
+// ── Corrida anterior (tabla corridas_historial, la llena un disparador en Supabase: supabase_historial.sql) ──
+function qrUse(src){
+  QR.corrida = src.corrida; QR.hojas = src.hojas || []; QR.et = src.et || [];
+  if (!QR.hojas.find(h => h.tipo === QR.tipo && h.numero === QR.num)) { const h0 = QR.hojas.find(h => h.tipo === 'CON') || QR.hojas[0]; QR.tipo = h0 ? h0.tipo : ''; QR.num = h0 ? h0.numero : 0; }
+}
+async function qrLoadPrevMeta(){
+  const db = getSupabaseDb(); if (!db) return;
+  try {
+    const { data, error } = await db.from('corridas_historial').select('id,corrida_id,creada,archivada,total').order('archivada', { ascending: false }).limit(1).maybeSingle();
+    QR.prevMeta = error ? null : data;                       // si la tabla aún no existe, simplemente no hay "Anterior"
+  } catch { QR.prevMeta = null; }
+}
+async function qrSetMode(mode){
+  if (mode === QR.mode) return;
+  if (mode === 'anterior') {
+    if (!QR.prevMeta) return;
+    if (!QR.prev || QR.prev.histId !== QR.prevMeta.id) {
+      const db = getSupabaseDb(); if (!db) return;
+      qrFlashMsg('Cargando la corrida anterior…');
+      const { data, error } = await db.from('corridas_historial').select('id,data').eq('id', QR.prevMeta.id).maybeSingle();
+      if (error || !data) { qrFlashMsg('No se pudo cargar la anterior', 'bad'); return; }
+      const d = data.data || {};
+      QR.prev = { histId: data.id, corrida: d.corrida || {}, hojas: d.hojas || [], et: d.etiquetas || [] };
+      qr$('qrFlash').classList.remove('on');
+    }
+    QR.mode = 'anterior'; qrStopCam(); qrUse(QR.prev);
+  } else {
+    QR.mode = 'actual';
+    if (QR.live) qrUse(QR.live); else { QR.corrida = null; QR.hojas = []; QR.et = []; QR.state = 'empty'; }
+    qrRender(); qrLoad(false);              // trae lo último de la actual
+    return;
+  }
+  qrRender();
+}
+// Marcar en la anterior: se guarda la copia completa (con espera corta para juntar varios toques)
+function qrSavePrev(){
+  clearTimeout(QR.prevT);
+  QR.prevT = setTimeout(async () => {
+    const db = getSupabaseDb(); if (!db || !QR.prev) return;
+    const p = QR.prev;
+    const { error } = await db.from('corridas_historial').update({ data: { corrida: p.corrida, hojas: p.hojas, etiquetas: p.et } }).eq('id', p.histId);
+    if (error) qrFlashMsg('No se pudo guardar en la anterior: ' + error.message, 'bad');
+  }, 600);
+}
+function qrFechaId(id){ return String(id || '').replace(/^(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2}).*/, '$3/$2/$1 $4:$5'); }
+
 function qrSubscribe() {               // tiempo real (opcional): checks de otros dispositivos y corridas nuevas
   const db = getSupabaseDb(); if (!db || QR.ch || !db.channel) return;
   try {
@@ -6810,6 +6865,10 @@ const qrStats = (tipo, num) => { const l = qrEtHoja(tipo, num); return { total: 
 // ── Marcar ──
 async function qrSetPegada(e, on) {
   const db = getSupabaseDb(); if (!db) return false;
+  if (QR.mode === 'anterior') {
+    e.pegada = on; e.pegada_en = on ? new Date().toISOString() : null; qrRenderBar(); qrPaintChecks();
+    qrSavePrev(); return true;
+  }
   const antes = { p: e.pegada, t: e.pegada_en };
   e.pegada = on; e.pegada_en = on ? new Date().toISOString() : null; qrRenderBar(); qrPaintChecks();
   const { data, error } = await db.from('etiquetas').update({ pegada: on, pegada_en: e.pegada_en })
@@ -6888,6 +6947,7 @@ async function qrHandleText(raw) {
 function qrRender() {
   const vac = qr$('qrEmpty'), sc = qr$('qrScroll'), h = qrHoja();
   const msg = { loading: ['Cargando hojas…', 'Un momento.'], error: ['No se pudieron cargar las hojas', QR.err || ''], empty: ['Aún no hay hojas', 'Genera una corrida en el programa Generar QRs y aparecerá aquí.'] }[QR.state];
+  if (QR.state !== 'ok' && QR.mode === 'anterior' && QR.prev) QR.state = 'ok';
   vac.hidden = QR.state === 'ok' && !!h; sc.hidden = !(QR.state === 'ok' && h);
   if (msg) { qr$('qrEmptyT').textContent = msg[0]; qr$('qrEmptyP').textContent = msg[1]; qr$('qrRetry').hidden = QR.state !== 'error'; }
   else if (!h) { qr$('qrEmptyT').textContent = 'Sin hojas'; qr$('qrEmptyP').textContent = 'Esta corrida no trae hojas.'; qr$('qrRetry').hidden = true; }
@@ -6902,7 +6962,10 @@ function qrRenderBar() {
   const tipos = [...new Set(QR.hojas.map(x => x.tipo))];
   const fecha = String(c.id).replace(/^(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2}).*/, '$3/$2/$1 $4:$5');
   const all = QR.et.length, allOn = QR.et.filter(e => e.pegada).length;
+  const live = QR.live && QR.live.corrida, pm = QR.prevMeta;
+  const seg = pm ? `<div class="qr-mode" role="tablist"><button type="button" class="${QR.mode === 'actual' ? 'on' : ''}" data-mode="actual"><b>Actual</b><small>${live ? qrEsc(qrFechaId(live.id)) : 'sin corrida'}</small></button><button type="button" class="${QR.mode === 'anterior' ? 'on' : ''}" data-mode="anterior"><b>Anterior</b><small>${qrEsc(qrFechaId(pm.corrida_id))}</small></button></div>` : '';
   bar.innerHTML = `
+    ${seg}${QR.mode === 'anterior' ? '<div class="qr-prev-note"><i data-lucide="history"></i> Estás viendo la corrida anterior. Puedes marcar etiquetas; el escáner trabaja sobre esta.</div>' : ''}
     <div class="qr-meta"><span>Corrida <b>${qrEsc(fecha)}</b></span><span>${qrEsc(c.formato)} ${qrEsc(String(c.orientacion || '').toLowerCase())}</span><span>Total <b>${allOn}/${all}</b> pegadas</span></div>
     ${tipos.length > 1 ? `<div class="qr-chips">${tipos.map(t => `<button type="button" class="qr-chip ${t === QR.tipo ? 'cur' : ''}" data-tipo="${qrEsc(t)}">${qrTipoName(t)}</button>`).join('')}</div>` : ''}
     <div class="qr-chips" id="qrHojas">${QR.hojas.filter(x => x.tipo === QR.tipo).map(x => { const s = qrStats(x.tipo, x.numero); return `<button type="button" class="qr-chip ${x.numero === QR.num ? 'cur' : ''} ${s.total && s.hechas === s.total ? 'full' : ''}" data-num="${x.numero}">${x.numero} · ${s.hechas}/${s.total}</button>`; }).join('')}</div>
@@ -7088,6 +7151,7 @@ function qrInit() {
     else if (zoom) { QR.zoom = Number(zoom.dataset.zoom); qrRenderBar(); qrRenderSheet(); }
     else if (e.target.closest('#qrPendBtn')) { QR.pend = !QR.pend; qrRenderBar(); qrRenderSheet(); }
     else if (e.target.closest('#qrRefBtn')) qrLoad(false);
+    else if (e.target.closest('[data-mode]')) qrSetMode(e.target.closest('[data-mode]').dataset.mode);
     else if (e.target.closest('#qrFullBtn')) qrFull(true);
     else if (e.target.closest('#qrModeBtn')) { QR.single = !QR.single; try { localStorage.setItem('jahdiel_qr_single', QR.single ? '1' : '0'); } catch {} qrRenderBar(); qrFlashMsg(QR.single ? 'Escáner uno a uno: lee un código y se cierra' : 'Escáner continuo: sigue leyendo hasta que lo cierres', 'ok'); }
   });
