@@ -1025,6 +1025,50 @@
     .kb-list .k { display: flex; gap: 4px; justify-content: flex-end; }
     .kb-sec { grid-column: 1 / -1; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text3); margin-top: 8px; }
 
+    /* ── Variaciones en PC: formulario a la izquierda, tarjetas a la derecha ── */
+    .vd-sheet { width: min(1220px, 95vw); max-width: none !important; height: 88vh; max-height: 88vh !important; padding: 20px 24px 18px !important; border-radius: 22px !important; }
+    .vd-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; flex-shrink: 0; }
+    .vd-title { font: 700 21px 'Space Grotesk', sans-serif; }
+    .vd-title small { display: block; font: 500 12px 'Inter', sans-serif; color: var(--text3); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 2px; }
+    .vd-pills { display: flex; gap: 8px; margin-left: auto; }
+    .vd-pill { padding: 7px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); font-size: 12.5px; color: var(--text2); }
+    .vd-pill b { color: var(--text); }
+    .vd-x { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .vd-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 370px 1fr; gap: 20px; }
+    .vd-form { display: flex; flex-direction: column; gap: 14px; padding: 18px; border-radius: 18px; border: 1px solid rgba(108,99,255,.3); background: linear-gradient(170deg, rgba(108,99,255,.1), rgba(255,255,255,.02)); overflow-y: auto; }
+    .vd-form h4 { font: 700 15px 'Space Grotesk', sans-serif; display: flex; align-items: center; gap: 8px; }
+    .vd-form h4 svg { width: 17px; height: 17px; color: var(--accent); }
+    .vd-form .form-label { margin-bottom: 6px; }
+    .vd-add { margin-top: auto; }
+    .vd-tip { font-size: 11.5px; color: var(--text3); line-height: 1.6; }
+    .vd-tip kbd { height: 19px; min-width: 19px; font-size: 10.5px; }
+    .vd-side { display: flex; flex-direction: column; min-height: 0; }
+    .vd-side-top { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+    .vd-side-top h4 { font: 700 15px 'Space Grotesk', sans-serif; }
+    .vd-side-top span { font-size: 12.5px; color: var(--text3); }
+    .vd-cards { flex: 1; min-height: 0; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); gap: 12px; align-content: start; padding: 2px 4px 2px 2px; }
+    .vd-card { position: relative; display: flex; flex-direction: column; gap: 12px; padding: 14px; border-radius: 16px; border: 1px solid var(--border); background: linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.015)); cursor: pointer; transition: transform .15s, border-color .15s, box-shadow .15s; text-align: left; color: var(--text); font: inherit; }
+    .vd-card:hover { transform: translateY(-2px); border-color: rgba(108,99,255,.55); box-shadow: 0 10px 24px rgba(0,0,0,.3); }
+    .vd-card.pop { animation: vdPop .45s cubic-bezier(.2,.9,.3,1.4); border-color: rgba(16,217,160,.6); }
+    @keyframes vdPop { from { transform: scale(.85); opacity: 0; } to { transform: none; opacity: 1; } }
+    .vd-ctop { display: flex; align-items: center; gap: 10px; padding-right: 26px; }
+    .vd-sw { width: 34px; height: 34px; flex-shrink: 0; border-radius: 10px; border: 2px solid rgba(255,255,255,.25); box-shadow: inset 0 0 0 1px rgba(0,0,0,.2); }
+    .vd-color { font-weight: 700; font-size: 14px; line-height: 1.2; word-break: break-word; }
+    .vd-est { font-size: 11.5px; color: var(--text3); margin-top: 2px; }
+    .vd-cmid { display: flex; align-items: flex-end; justify-content: space-between; gap: 8px; }
+    .vd-talla { min-width: 52px; padding: 6px 12px; border-radius: 12px; text-align: center; font: 700 22px 'Space Grotesk', sans-serif; background: rgba(108,99,255,.18); color: #c4bfff; }
+    .vd-qty { font: 700 22px 'Space Grotesk', sans-serif; }
+    .vd-qty small { font: 500 11px 'Inter', sans-serif; color: var(--text3); margin-left: 3px; }
+    .vd-csub { font-size: 11.5px; color: var(--text3); border-top: 1px dashed var(--border); padding-top: 8px; display: flex; justify-content: space-between; }
+    .vd-del { position: absolute; top: 10px; right: 10px; width: 26px; height: 26px; border-radius: 8px; border: none; background: rgba(255,87,87,.12); color: #ff8a8a; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; line-height: 1; }
+    .vd-del:hover { background: rgba(255,87,87,.3); }
+    .vd-empty { grid-column: 1 / -1; align-self: center; text-align: center; padding: 60px 20px; color: var(--text3); border: 2px dashed var(--border); border-radius: 18px; font-size: 13.5px; line-height: 1.6; }
+    .vd-empty svg { width: 34px; height: 34px; margin-bottom: 8px; opacity: .6; }
+    .vd-foot { display: flex; align-items: center; gap: 18px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); flex-shrink: 0; }
+    .vd-tot { display: flex; gap: 22px; font-size: 12px; color: var(--text3); }
+    .vd-tot b { display: block; font: 700 19px 'Space Grotesk', sans-serif; color: var(--text); }
+    .vd-save { margin-left: auto; min-width: 260px; }
+
     /* ── Acceso con clave (se pide una sola vez por dispositivo) ── */
     #loginGate { display: none; position: fixed; inset: 0; z-index: 99999; align-items: center; justify-content: center; padding: 24px; background: radial-gradient(ellipse 80% 50% at 20% 10%, rgba(108,99,255,.22) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 80% 85%, rgba(16,217,160,.1) 0%, transparent 60%), #0a0e1a; }
     html.locked #loginGate { display: flex; }
@@ -3505,6 +3549,7 @@ function openVariationsModal(isReopen){
   const {marca,descripcion,genero,precioCompra,precioVenta}=_varModalData;
   const modal=document.getElementById('variationsModal');
   modal.style.display='block';
+  if(kbIsDesktop()) return vdRender(modal, isReopen);   // PC: formulario a un lado y tarjetas al otro
 
   const varsHTML=tempVariations.map(v=>`
     <div class="var-item-box" data-var-id="${v.id}">
@@ -3810,7 +3855,12 @@ function saveAllVariations(){
   const filas = modal.querySelectorAll('[data-var-id]');
   const validas = [];
 
-  filas.forEach(fila => {
+  if (modal.querySelector('.vd-sheet')) tempVariations.forEach(v => {
+    const color = String(v.color || '').toUpperCase().trim(), talla = String(v.talla || '').toUpperCase().trim();
+    const estilo = String(v.estilo || '').toUpperCase().trim(), cant = parseInt(v.cantidad) || 0;
+    if (color && talla && cant > 0) validas.push({ color, talla, estilo, cantidad: cant });
+  });
+  else filas.forEach(fila => {
     const color  = (fila.querySelector('input[id*="varColor"]')?.value  || '').toUpperCase().trim();
     const talla  = (fila.querySelector('input[id*="varTalla"]')?.value  || '').toUpperCase().trim();
     const estilo = (fila.querySelector('input[id*="varEstilo"]')?.value || '').toUpperCase().trim();
@@ -9733,6 +9783,140 @@ document.addEventListener('keydown', e => {
   if(pages[k]){ e.preventDefault(); help?.remove(); kbGo(pages[k]); }
   else if(k === 'n'){ e.preventDefault(); help?.remove(); kbGo('add'); }
   else if(k === 'c'){ e.preventDefault(); help?.remove(); openCaja(); }
+});
+
+// ══════════════════════════════════════════
+// PRECIOS RÁPIDOS EN PC: "33" + Tab (o Enter, o salir de la casilla) → 33.000
+// ══════════════════════════════════════════
+function kbPriceThousands(inp){
+  if(!inp || !kbIsDesktop()) return;
+  const raw = String(inp.value || '').trim();
+  if(!/^\d{1,3}$/.test(raw)) return;                     // solo números cortos, sin puntos ni comas
+  const n = parseInt(raw, 10); if(!n) return;
+  inp.value = (n * 1000).toLocaleString('es-CO');
+  inp.dispatchEvent(new Event('input', { bubbles: true }));
+}
+['precioCompra', 'precioVenta'].forEach(id => {
+  const el = document.getElementById(id); if(!el) return;
+  el.addEventListener('keydown', e => { if(e.key === 'Tab' || e.key === 'Enter') kbPriceThousands(el); });
+  el.addEventListener('blur', () => kbPriceThousands(el), true);
+});
+
+// ══════════════════════════════════════════
+// VARIACIONES EN PC: formulario a la izquierda, variaciones como tarjetas a la derecha
+// Enter = siguiente casilla · en Cantidad, Enter agrega la tarjeta · Ctrl+Enter guarda todas · Esc cierra
+// Al agregar se conservan Estilo y Color (lo normal es cargar varias tallas seguidas) y el cursor va a Talla.
+// ══════════════════════════════════════════
+const VD = { last: null };
+const vd$ = id => document.getElementById(id);
+const vdMoney = n => '$' + Math.round(n || 0).toLocaleString('es-CO');
+function vdSwatch(color){
+  const cs = String(color || '').split('/').map(s => s.trim()).filter(Boolean).map(c => COLOR_HEX[c] || '#5b6178');
+  if(!cs.length) return '#5b6178';
+  return cs.length === 1 ? cs[0] : 'linear-gradient(135deg,' + cs.map((c, i) => c + ' ' + Math.round(i / cs.length * 100) + '%,' + c + ' ' + Math.round((i + 1) / cs.length * 100) + '%').join(',') + ')';
+}
+function vdField(field, label, req, ph){
+  const id = varInputId('new', field);
+  return '<div class="form-group"><label class="form-label">' + label + (req ? ' <span style="color:var(--red)">*</span>' : '') + '</label>'
+    + '<div class="input-wrap"><input type="text" id="' + id + '" class="form-input" placeholder="' + ph + '" autocomplete="off"'
+    + ' onfocus="varShowChips(\'new\',\'' + field + '\')" onblur="varHideChips(\'new\',\'' + field + '\')"'
+    + ' oninput="varCheckNew(\'new\',\'' + field + '\',this.value);this.value=this.value.toUpperCase()">'
+    + '<button type="button" class="add-new-btn" id="varAddBtn-new-' + field + '" onclick="varConfirmAdd(\'new\',\'' + field + '\')" style="display:none;"><i data-lucide="plus-circle"></i></button></div>'
+    + '<div id="varChips-new-' + field + '" class="chips-row var-chips-full" style="display:none;"></div></div>';
+}
+function vdRender(modal, isReopen){
+  const d = _varModalData || {};
+  tempVariations = tempVariations.filter(v => v.color || v.talla || v.estilo || (parseInt(v.cantidad) || 0) > 0);
+  modal.innerHTML = '<div class="modal-overlay"><div class="modal-sheet vd-sheet" role="dialog" aria-label="Variaciones">'
+    + '<div class="vd-head"><div class="vd-title"><small>Variaciones de</small>' + cjEsc(d.marca) + ' — ' + cjEsc(d.descripcion) + '</div>'
+    + '<div class="vd-pills"><span class="vd-pill">Compra <b>' + vdMoney(d.precioCompra) + '</b></span><span class="vd-pill">Venta <b style="color:var(--green)">' + vdMoney(d.precioVenta) + '</b></span><span class="vd-pill">' + cjEsc(d.genero || 'Sin género') + '</span></div>'
+    + '<button type="button" class="vd-x" onclick="closeVariationsModal()" title="Cerrar (Esc)"><i data-lucide="x"></i></button></div>'
+    + '<div class="vd-body">'
+    + '<div class="vd-form"><h4><i data-lucide="plus-circle"></i> Nueva variación</h4>'
+    + vdField('estilo', 'Estilo', false, 'Ej: SKINNY') + vdField('color', 'Color', true, 'Ej: NEGRO') + vdField('talla', 'Talla', true, 'Ej: M')
+    + '<div class="form-group"><label class="form-label">Cantidad <span style="color:var(--red)">*</span></label>'
+    + '<div class="qty-stepper"><button type="button" class="qty-btn minus" onclick="stepQtyEl(\'varCantidad-new\',-1)">−</button>'
+    + '<input type="number" id="varCantidad-new" class="qty-input" value="1" min="0" placeholder="0" onfocus="this.select()">'
+    + '<button type="button" class="qty-btn plus" onclick="stepQtyEl(\'varCantidad-new\',1)">+</button></div>'
+    + '<div class="qty-quick">' + [1, 2, 3, 5, 10].map(n => '<span class="qty-chip" onclick="setQty(\'varCantidad-new\',' + n + ')">' + n + '</span>').join('') + '</div></div>'
+    + '<button type="button" class="btn btn-yellow btn-lg vd-add" onclick="vdAdd()"><i data-lucide="plus"></i> Agregar variación</button>'
+    + '<div class="vd-tip"><kbd>Enter</kbd> siguiente casilla · en Cantidad <kbd>Enter</kbd> agrega · <kbd>Tab</kbd> pone la sugerencia · <kbd>Ctrl</kbd>+<kbd>Enter</kbd> guarda todas · <kbd>Esc</kbd> cierra</div>'
+    + '</div>'
+    + '<div class="vd-side"><div class="vd-side-top"><h4>Variaciones agregadas</h4><span id="vdCount"></span></div><div class="vd-cards" id="vdCards"></div></div>'
+    + '</div>'
+    + '<div class="vd-foot"><div class="vd-tot" id="vdTot"></div><button type="button" class="btn btn-primary btn-lg vd-save" onclick="vdSaveAll()"><i data-lucide="save"></i> Guardar todas <kbd style="margin-left:6px">Ctrl+Enter</kbd></button></div>'
+    + '</div></div>';
+  const ov = modal.querySelector('.modal-overlay');
+  ov.addEventListener('mousedown', e => { if(e.target === ov) closeVariationsModal(); });
+  vdRenderCards();
+  lucide.createIcons({ nodes: [modal] });
+  setTimeout(() => vd$('varEstilo-new')?.focus(), 60);
+}
+function vdRenderCards(){
+  const box = vd$('vdCards'); if(!box) return;
+  const pc = Number((_varModalData || {}).precioCompra) || 0, pv = Number((_varModalData || {}).precioVenta) || 0;
+  const list = tempVariations;
+  const uds = list.reduce((s, v) => s + (parseInt(v.cantidad) || 0), 0);
+  box.innerHTML = list.length ? list.map(v => {
+    const q = parseInt(v.cantidad) || 0;
+    return '<div class="vd-card' + (VD.last === v.id ? ' pop' : '') + '" data-id="' + v.id + '" title="Clic para editar">'
+      + '<button type="button" class="vd-del" data-del="' + v.id + '" title="Quitar">×</button>'
+      + '<div class="vd-ctop"><span class="vd-sw" style="background:' + vdSwatch(v.color) + '"></span><div><div class="vd-color">' + cjEsc(v.color || '—') + '</div><div class="vd-est">' + cjEsc(v.estilo || 'Sin estilo') + '</div></div></div>'
+      + '<div class="vd-cmid"><span class="vd-talla">' + cjEsc(v.talla || '—') + '</span><span class="vd-qty">' + q + '<small>ud' + (q !== 1 ? 's' : '') + '</small></span></div>'
+      + '<div class="vd-csub"><span>Compra ' + vdMoney(q * pc) + '</span><span>Venta ' + vdMoney(q * pv) + '</span></div></div>';
+  }).join('') : '<div class="vd-empty"><i data-lucide="layers"></i><br>Aquí aparecen las variaciones que vayas agregando.<br>Llena el formulario de la izquierda y presiona <kbd>Enter</kbd> en Cantidad.</div>';
+  vd$('vdCount').textContent = list.length ? list.length + ' variaci' + (list.length !== 1 ? 'ones' : 'ón') : '';
+  vd$('vdTot').innerHTML = '<div><b>' + list.length + '</b>variaciones</div><div><b>' + uds + '</b>unidades</div><div><b>' + vdMoney(uds * pc) + '</b>total compra</div><div><b>' + vdMoney(uds * pv) + '</b>total venta</div>';
+  lucide.createIcons({ nodes: [box] });
+  VD.last = null;
+}
+function vdFlashField(id){ const el = vd$(id); if(!el) return; el.focus(); el.classList.remove('is-new'); el.style.borderColor = 'var(--red)'; setTimeout(() => { el.style.borderColor = ''; }, 1200); }
+function vdAdd(){
+  const val = id => String(vd$(id)?.value || '').toUpperCase().trim();
+  const est = val('varEstilo-new'), col = val('varColor-new'), tal = val('varTalla-new');
+  const qty = parseInt(vd$('varCantidad-new')?.value) || 0;
+  if(!col){ vdFlashField('varColor-new'); showToast('Falta el color', '', 'warning', 1800); return false; }
+  if(!tal){ vdFlashField('varTalla-new'); showToast('Falta la talla', '', 'warning', 1800); return false; }
+  if(qty <= 0){ vdFlashField('varCantidad-new'); showToast('Falta la cantidad', '', 'warning', 1800); return false; }
+  const same = tempVariations.find(v => String(v.estilo || '') === est && v.color === col && v.talla === tal);
+  if(same){ same.cantidad = (parseInt(same.cantidad) || 0) + qty; VD.last = same.id; }
+  else { const nv = { id: Date.now(), estilo: est, color: col, talla: tal, cantidad: qty }; tempVariations.push(nv); VD.last = nv.id; }
+  if(est) addValueToDatalist('estilo', est); addValueToDatalist('color', col); addValueToDatalist('talla', tal);
+  ['estilo', 'color', 'talla'].forEach(f => { const b = vd$('varAddBtn-new-' + f); if(b) b.style.display = 'none'; const i = vd$(varInputId('new', f)); if(i) i.classList.remove('is-new'); });
+  vd$('varTalla-new').value = ''; vd$('varCantidad-new').value = 1;   // estilo y color se quedan para la siguiente talla
+  try{ SFX.addInventory(); }catch{}
+  vdRenderCards();
+  vd$('varTalla-new').focus();
+  return true;
+}
+function vdEdit(id){
+  const v = tempVariations.find(x => String(x.id) === String(id)); if(!v) return;
+  vd$('varEstilo-new').value = v.estilo || ''; vd$('varColor-new').value = v.color || ''; vd$('varTalla-new').value = v.talla || ''; vd$('varCantidad-new').value = parseInt(v.cantidad) || 1;
+  tempVariations = tempVariations.filter(x => x !== v);
+  vdRenderCards();
+  vd$('varCantidad-new').focus();
+}
+function vdSaveAll(){
+  const pend = ['varColor-new', 'varTalla-new'].every(id => String(vd$(id)?.value || '').trim());
+  if(pend && !vdAdd()) return;                             // lo que quedó escrito en el formulario también se guarda
+  if(!tempVariations.length){ showToast('Sin variaciones', 'Agrega al menos una variación.', 'warning'); vd$('varColor-new')?.focus(); return; }
+  saveAllVariations();
+  setTimeout(() => { if(vd$('variationsModal').style.display === 'none' && document.getElementById('page-add').classList.contains('active')) kbFocusField('marca'); }, 500);
+}
+document.getElementById('variationsModal').addEventListener('click', e => {
+  const del = e.target.closest('[data-del]');
+  if(del){ e.stopPropagation(); tempVariations = tempVariations.filter(v => String(v.id) !== del.dataset.del); vdRenderCards(); return; }
+  const card = e.target.closest('.vd-card'); if(card) vdEdit(card.dataset.id);
+});
+document.getElementById('variationsModal').addEventListener('keydown', e => {
+  if(!document.querySelector('#variationsModal .vd-sheet')) return;
+  if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); closeVariationsModal(); return; }
+  if(e.key !== 'Enter' || e.isComposing || e.shiftKey) return;
+  if(e.ctrlKey || e.metaKey){ e.preventDefault(); vdSaveAll(); return; }
+  const order = ['varEstilo-new', 'varColor-new', 'varTalla-new', 'varCantidad-new'];
+  const i = order.indexOf(e.target.id); if(i < 0) return;
+  e.preventDefault();
+  if(i === order.length - 1) vdAdd(); else { const n = vd$(order[i + 1]); n.focus(); try{ n.select(); }catch{} }
 });
 
 // ── Acceso con clave: se pide una sola vez; la sesión queda guardada en este dispositivo ──
