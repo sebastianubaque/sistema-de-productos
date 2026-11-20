@@ -267,7 +267,7 @@
     }
     .chip:hover, .chip:active { background: var(--accent); color: #fff; border-color: var(--accent); }
     .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .chip-dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); flex-shrink: 0; }
+    .chip-dot { width: 11px; height: 11px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.28); box-shadow: 0 0 0 1px rgba(0,0,0,.25); flex-shrink: 0; background-size: cover; }
 
     /* ── Buttons ── */
     .btn {
@@ -3245,11 +3245,66 @@ function uvRemove(fieldId, val) {
   saveDeletedValues();
 }
 
+// ══ COLORES ══
+// Paleta pensada para los colores que se usan en la tienda (sale de analizar los 130 nombres de color
+// de los productos). colorFill(nombre) entiende variantes y errores de escritura (BLNACO, NEGR0, KAMEL,
+// ROSADA, AZUL O…), mezclas de dos colores ("NEGRO-VERDE", "MARFIL CAFE") y diseños: RAYAS, PEPAS,
+// CUADROS, ESTAMPADO/FLORES. Si un nombre no se reconoce, recibe un tono suave fijo (siempre el mismo).
 const COLOR_HEX = {
-  ROJO:'#ef4444',AZUL:'#3b82f6',NEGRO:'#374151',BLANCO:'#f9fafb',
-  GRIS:'#9ca3af',VERDE:'#22c55e',AMARILLO:'#eab308',ROSADO:'#f472b6',
-  MORADO:'#a855f7',NARANJA:'#f97316',CAFE:'#92400e',BEIGE:'#d4b896'
+  NEGRO:'#1f2023', BLANCO:'#f8fafc', MARFIL:'#f3ead3', BEIGE:'#d9c3a0', ARENA:'#cdb48f',
+  CAMEL:'#c19a6b', 'CAMEL OSCURO':'#a47148', CAFE:'#7b4b2a', 'CAFE MEDIO':'#8d5a35', 'CAFE CLARO':'#a9784f', TABACO:'#8a5a32', TERRACOTA:'#c4663f',
+  MOSTAZA:'#d1a020', DORADO:'#d4af37', AMARILLO:'#facc15', CURUBA:'#f6a77a', NARANJA:'#f97316', CORAL:'#ff7f6b', SALMON:'#fa9a85',
+  ROJO:'#e11d48', VINO:'#7f1d34', VINOTINTO:'#6b0f2a', ROSADO:'#f9a8d4', 'ROSADO CLARO':'#fbcfe8', ROSA:'#f472b6', 'PALO ROSA':'#d8a7a7', FUCSIA:'#e0218a',
+  LILA:'#c4b5fd', MORADO:'#8b5cf6', UVA:'#5b2a86', 'MORA LECHE':'#b892c9',
+  CELESTE:'#7dd3fc', 'AZUL CLARO':'#93c5fd', 'AZUL MEDIO':'#3b82f6', AZUL:'#2563eb', 'AZUL REY':'#1d4ed8', 'AZUL OSCURO':'#1e3a8a',
+  VERDE:'#22c55e', 'VERDE CLARO':'#86efac', 'VERDE OSCURO':'#166534', 'VERDE HOJA':'#4d7c0f', 'VERDE MILITAR':'#4b5320', 'VERDE AGUA':'#5eead4', VERDOSO:'#84a98c', 'VERDOSO OSCURO':'#52796f',
+  GRIS:'#9ca3af', 'GRIS CLARO':'#d1d5db', 'GRIS OSCURO':'#4b5563', UNICOLOR:'#a5a6c9',
 };
+const COLOR_FIX = { BANCO:'BLANCO', BLNACO:'BLANCO', BLANC9:'BLANCO', BLANCA:'BLANCO', NEGR0:'NEGRO', NEGRA:'NEGRO', KAMEL:'CAMEL', VERDOZO:'VERDOSO',
+  OACURO:'OSCURO', ROSADA:'ROSADO', ROJA:'ROJO', ROJOS:'ROJO', CLARA:'CLARO', ESTAMPADA:'ESTAMPADO', ESTAMAPADO:'ESTAMPADO', CUADROS:'CUADRO',
+  RAYADO:'RAYAS', RAYA:'RAYAS', HOJAS:'HOJA', FLOR:'FLORES' };
+const COLOR_PATTERNS = ['ESTAMPADO','FLORES','PEPAS','RAYAS','CUADRO','ABSTRACTO','MINIPRIN','COMBINADA','COLORES'];
+const colorCache = {};
+function colorParse(name){
+  const raw = String(name || '').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[-_]+/g, ' ').replace(/\s+/g, ' ').trim();
+  let t = raw.split(' ').filter(Boolean).map(w => COLOR_FIX[w] || w);
+  // "AZUL O" → AZUL OSCURO · "GRIS C" → GRIS CLARO · "VINO TINTO" → VINOTINTO
+  t = t.map((w, i) => (w === 'O' && i) ? 'OSCURO' : (w === 'C' && i) ? 'CLARO' : w);
+  const colors = [], pats = [];
+  for(let i = 0; i < t.length; i++){
+    const two = t[i] + ' ' + (t[i + 1] || '');
+    if(t[i] === 'VINO' && t[i + 1] === 'TINTO'){ colors.push('VINOTINTO'); i++; continue; }
+    if(COLOR_HEX[two]){ colors.push(two); i++; continue; }
+    if(COLOR_HEX[t[i]]){ colors.push(t[i]); continue; }
+    if(COLOR_PATTERNS.includes(t[i]) && !pats.includes(t[i])) pats.push(t[i]);
+  }
+  return { raw, colors: [...new Set(colors)], pats };
+}
+function colorHash(s){ let x = 0; for(const c of String(s)) x = (x * 31 + c.charCodeAt(0)) >>> 0; return 'hsl(' + (x % 360) + ',55%,62%)'; }
+// Color sólido principal (para mezclas)
+function colorBase(name){ const p = colorParse(name); return p.colors.length ? COLOR_HEX[p.colors[0]] : (p.pats.length ? '#c084fc' : colorHash(p.raw)); }
+// Relleno para muestras (puede ser un degradado con el diseño)
+function colorFill(name){
+  if(colorCache[name]) return colorCache[name];
+  const p = colorParse(name), hx = p.colors.map(c => COLOR_HEX[c]);
+  const c1 = hx[0], c2 = hx[1];
+  const light = c => ['BLANCO','MARFIL','BEIGE','ARENA','GRIS CLARO','ROSADO CLARO','AMARILLO','CELESTE'].some(k => COLOR_HEX[k] === c);
+  const accent = c => light(c) ? '#3f3f46' : '#f8fafc';
+  let f;
+  if(!p.pats.length){
+    if(!hx.length) f = colorHash(p.raw);
+    else if(hx.length === 1) f = c1;
+    else f = 'linear-gradient(135deg,' + c1 + ' 0 50%,' + c2 + ' 50% 100%)';
+  } else {
+    const pat = p.pats[0], base = c1 || '#8b5cf6', other = c2 || accent(base);
+    if(pat === 'RAYAS') f = 'repeating-linear-gradient(45deg,' + base + ' 0 2px,' + other + ' 2px 4px)';
+    else if(pat === 'PEPAS') f = 'radial-gradient(circle at 30% 30%,' + other + ' 0 14%,transparent 16%),radial-gradient(circle at 72% 68%,' + other + ' 0 14%,transparent 16%),' + base;
+    else if(pat === 'CUADRO') f = 'repeating-linear-gradient(0deg,rgba(0,0,0,.35) 0 2px,transparent 2px 5px),repeating-linear-gradient(90deg,rgba(255,255,255,.28) 0 2px,transparent 2px 5px),' + base;
+    else if(!hx.length) f = 'conic-gradient(#f472b6,#facc15,#22c55e,#3b82f6,#a855f7,#f472b6)';   // estampado / colores sin color base
+    else f = 'conic-gradient(from 30deg,' + base + ' 0 30%,' + other + ' 0 42%,' + base + ' 0 70%,' + (c2 ? accent(base) : '#facc15') + ' 0 80%,' + base + ' 0)';
+  }
+  return (colorCache[name] = f);
+}
 
 // ══════════════════════════════════════════
 // CHIPS
@@ -3367,9 +3422,9 @@ function renderChips(fieldId) {
     chip.dataset.v = v;
     if(isMulti) chip.tabIndex=0; // necesario para focusout del bloque en móvil
     if(isMulti && selected.includes(v)) chip.classList.add('active');
-    if(fieldId==='color'&&COLOR_HEX[v]){
+    if(fieldId==='color'){
       const dot=document.createElement('span');
-      dot.className='chip-dot'; dot.style.background=COLOR_HEX[v];
+      dot.className='chip-dot'; dot.style.background=colorFill(v);
       chip.appendChild(dot);
     }
     const tx=document.createElement('span'); tx.textContent=v;
@@ -3803,9 +3858,9 @@ function varRenderChips(vid, fieldType) {
     chip.dataset.v = v;
     if(isMulti) chip.tabIndex = 0;
     if(isMulti && selected.includes(v)) chip.classList.add('active');
-    if(fieldType==='color' && COLOR_HEX[v]) {
+    if(fieldType==='color') {
       const dot = document.createElement('span');
-      dot.className = 'chip-dot'; dot.style.background = COLOR_HEX[v];
+      dot.className = 'chip-dot'; dot.style.background = colorFill(v);
       chip.appendChild(dot);
     }
     chip.appendChild(Object.assign(document.createElement('span'), {textContent: v}));
@@ -6216,7 +6271,7 @@ function renderInvoiceDetailContent(overlay, inv) {
   const nVars = blocks.filter(b => b.type === 'var').reduce((s, b) => s + b.rows.length, 0);
 
   const chips = r => [
-    r.it.color ? `<span class="inv-chip"><i data-lucide="palette"></i>${esc(r.it.color)}</span>` : '',
+    r.it.color ? `<span class="inv-chip"><span class="chip-dot" style="background:${String(r.it.color).split('/').length > 1 ? 'linear-gradient(90deg,' + String(r.it.color).split('/').map(c => colorBase(c.trim())).join(',') + ')' : colorFill(r.it.color)}"></span>${esc(r.it.color)}</span>` : '',
     r.it.talla ? `<span class="inv-chip"><i data-lucide="ruler"></i>${esc(r.it.talla)}</span>` : '',
     r.it.estilo ? `<span class="inv-chip">${esc(r.it.estilo)}</span>` : '',
   ].join('');
@@ -10049,7 +10104,9 @@ const VD = { last: null };
 const vd$ = id => document.getElementById(id);
 const vdMoney = n => '$' + Math.round(n || 0).toLocaleString('es-CO');
 function vdSwatch(color){
-  const cs = String(color || '').split('/').map(s => s.trim()).filter(Boolean).map(c => COLOR_HEX[c] || '#5b6178');
+  const parts = String(color || '').split('/').map(s => s.trim()).filter(Boolean);
+  if(parts.length === 1) return colorFill(parts[0]);
+  const cs = parts.map(c => colorBase(c));
   if(!cs.length) return '#5b6178';
   return cs.length === 1 ? cs[0] : 'linear-gradient(135deg,' + cs.map((c, i) => c + ' ' + Math.round(i / cs.length * 100) + '%,' + c + ' ' + Math.round((i + 1) / cs.length * 100) + '%').join(',') + ')';
 }
