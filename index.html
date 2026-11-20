@@ -1087,6 +1087,30 @@
     .vd-tot b { display: block; font: 700 19px 'Space Grotesk', sans-serif; color: var(--text); }
     .vd-save { margin-left: auto; min-width: 260px; }
 
+    /* ── "¿Otro igual?": rellenar con el producto simple anterior ── */
+    #rptPanel { position: fixed; right: 16px; bottom: calc(92px + env(safe-area-inset-bottom)); z-index: 1200; width: min(330px, calc(100vw - 32px)); padding: 14px 14px 12px; border-radius: 18px; background: rgba(18,22,40,.97); border: 1px solid rgba(108,99,255,.45); box-shadow: 0 18px 46px rgba(0,0,0,.55); backdrop-filter: blur(10px); transform: translateX(calc(100% + 40px)); opacity: 0; transition: transform .45s cubic-bezier(.2,.9,.3,1.15), opacity .3s; overflow: hidden; }
+    #rptPanel.on { transform: none; opacity: 1; }
+    .rpt-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .rpt-ico { width: 36px; height: 36px; border-radius: 11px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #6c63ff, #8b5cf6); color: #fff; flex-shrink: 0; }
+    .rpt-ico svg { width: 18px; height: 18px; }
+    .rpt-top b { display: block; font: 700 15px 'Space Grotesk', sans-serif; color: var(--text); }
+    .rpt-top small { display: block; font-size: 11.5px; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 210px; }
+    .rpt-x { margin-left: auto; width: 30px; height: 30px; border-radius: 9px; border: none; background: rgba(255,255,255,.06); color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .rpt-x svg { width: 15px; height: 15px; }
+    .rpt-fields { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .rpt-f { display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--text3); font: 600 11.5px 'Inter', sans-serif; cursor: pointer; }
+    .rpt-f span { font-weight: 500; opacity: .85; max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rpt-f::before { content: ''; width: 12px; height: 12px; border-radius: 4px; border: 1.5px solid currentColor; flex-shrink: 0; }
+    .rpt-f.on { border-color: rgba(108,99,255,.6); background: rgba(108,99,255,.16); color: var(--text); }
+    .rpt-f.on::before { background: #8b5cf6; border-color: #8b5cf6; box-shadow: inset 0 0 0 2px rgba(18,22,40,.97); }
+    .rpt-act { display: flex; gap: 8px; align-items: center; }
+    .rpt-go { flex: 1; height: 42px; border: none; border-radius: 12px; color: #fff; font: 700 14px 'DM Sans', sans-serif; cursor: pointer; background: linear-gradient(135deg, #6c63ff, #8b5cf6); display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
+    .rpt-go svg { width: 16px; height: 16px; }
+    .rpt-go kbd { display: none; }
+    .rpt-bar { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: linear-gradient(90deg, #6c63ff, #10d9a0); transform-origin: left; }
+    @media (min-width: 1024px) { #rptPanel { right: 24px; bottom: 24px; } .rpt-go kbd { display: inline-flex; background: rgba(255,255,255,.18); color: #fff; border-color: rgba(255,255,255,.3); } }
+    @media (prefers-reduced-motion: reduce) { #rptPanel { transition: opacity .2s; } }
+
     /* ── Acceso con clave (se pide una sola vez por dispositivo) ── */
     #loginGate { display: none; position: fixed; inset: 0; z-index: 99999; align-items: center; justify-content: center; padding: 24px; background: radial-gradient(ellipse 80% 50% at 20% 10%, rgba(108,99,255,.22) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 80% 85%, rgba(16,217,160,.1) 0%, transparent 60%), #0a0e1a; }
     html.locked #loginGate { display: flex; }
@@ -3555,7 +3579,9 @@ document.getElementById('productForm').addEventListener('submit',function(e){
     SFX.create();
     const invMsg = activeInv ? ` · añadido a factura #${String(activeInv.number).padStart(4,'0')}` : '';
     showToast('Producto guardado',`${marca} — ${descripcion}${invMsg}`,'success');
+    const rptSnap = rptTake();
     clearForm();
+    rptOffer(rptSnap);
   }catch(err){showToast('Error',err.message,'error');}
   finally{btn.disabled=false;lbl.textContent='Crear Producto';}
 });
@@ -4390,6 +4416,7 @@ function clearForm(){
   document.querySelectorAll('.form-input').forEach(i=>i.classList.remove('is-new','is-existing'));
   acResetAll();
   clearFormDraft();
+  SUG_FIELDS.forEach(f => { const c = document.getElementById('chips-' + f); if (c) c.innerHTML = ''; });   // sin sugerencias viejas
 }
 
 // ══════════════════════════════════════════
@@ -10032,6 +10059,102 @@ document.getElementById('variationsModal').addEventListener('keydown', e => {
   e.preventDefault();
   if(i === order.length - 1) vdAdd(); else { const n = vd$(order[i + 1]); n.focus(); try{ n.select(); }catch{} }
 });
+
+// ══════════════════════════════════════════
+// "¿OTRO IGUAL?" — al crear un producto SIMPLE aparece al costado, por 10 s, un panel para volver a
+// llenar el formulario con los datos del anterior. Se eligen qué campos repetir (se recuerda la elección).
+// Pasar el mouse o tocar el panel detiene la cuenta. En PC: Alt+R rellena.
+// ══════════════════════════════════════════
+const RPT_FIELDS = [
+  { k: 'marca', l: 'Marca', ids: ['marca'] }, { k: 'descripcion', l: 'Descripción', ids: ['descripcion'] }, { k: 'genero', l: 'Género', ids: ['genero'] },
+  { k: 'precios', l: 'Precios', ids: ['precioCompra', 'precioVenta'] }, { k: 'estilo', l: 'Estilo', ids: ['estilo'] }, { k: 'color', l: 'Color', ids: ['color'] },
+  { k: 'talla', l: 'Talla', ids: ['talla'] }, { k: 'cantidad', l: 'Cantidad', ids: ['cantidad'] },
+];
+const RPT_KEY = 'jahdiel_repetir_campos', RPT_MS = 10000;
+const RPT = { snap: null, sel: null, t0: 0, left: RPT_MS, timer: 0, paused: false };
+function rptTake(){
+  const s = {}; RPT_FIELDS.forEach(f => f.ids.forEach(id => { s[id] = document.getElementById(id)?.value || ''; })); return s;
+}
+function rptSelDefault(){
+  try{ const v = JSON.parse(localStorage.getItem(RPT_KEY) || 'null'); if(Array.isArray(v)) return new Set(v); }catch{}
+  return new Set(['marca', 'descripcion', 'genero', 'precios', 'estilo', 'color']);   // talla y cantidad suelen cambiar
+}
+function rptShown(f, s){
+  if(f.k === 'precios') return s.precioCompra || s.precioVenta ? '$' + (s.precioCompra || '—') + ' / $' + (s.precioVenta || '—') : '';
+  if(f.k === 'cantidad') return (parseInt(s.cantidad) || 0) > 0 ? s.cantidad + ' uds' : '';
+  return s[f.ids[0]] || '';
+}
+function rptOffer(snap){
+  if(!snap || !snap.marca) return;
+  RPT.snap = snap; RPT.sel = rptSelDefault();
+  let p = document.getElementById('rptPanel');
+  if(!p){ p = document.createElement('div'); p.id = 'rptPanel'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', 'Repetir producto'); document.body.appendChild(p); rptBind(p); }
+  const avail = RPT_FIELDS.filter(f => rptShown(f, snap));
+  p.innerHTML = '<div class="rpt-top"><span class="rpt-ico"><i data-lucide="copy-plus"></i></span><div><b>¿Otro igual?</b><small>' + cjEsc(snap.marca + ' — ' + snap.descripcion) + '</small></div>'
+    + '<button type="button" class="rpt-x" data-rpt="close" aria-label="Cerrar"><i data-lucide="x"></i></button></div>'
+    + '<div class="rpt-fields">' + avail.map(f => '<button type="button" class="rpt-f ' + (RPT.sel.has(f.k) ? 'on' : '') + '" data-f="' + f.k + '" aria-pressed="' + RPT.sel.has(f.k) + '">' + f.l + ' <span>' + cjEsc(rptShown(f, snap)) + '</span></button>').join('') + '</div>'
+    + '<div class="rpt-act"><button type="button" class="rpt-go" data-rpt="go"><i data-lucide="wand-sparkles"></i> Rellenar <kbd>Alt+R</kbd></button></div>'
+    + '<div class="rpt-bar" id="rptBar"></div>';
+  lucide.createIcons({ nodes: [p] });
+  void p.offsetWidth; p.classList.add('on');
+  RPT.left = RPT_MS; RPT.paused = false; rptRun();
+}
+function rptRun(){
+  const bar = document.getElementById('rptBar'); if(!bar) return;
+  RPT.t0 = performance.now();
+  bar.style.transition = 'none'; bar.style.transform = 'scaleX(' + (RPT.left / RPT_MS) + ')';
+  void bar.offsetWidth;
+  bar.style.transition = 'transform ' + RPT.left + 'ms linear'; bar.style.transform = 'scaleX(0)';
+  clearTimeout(RPT.timer); RPT.timer = setTimeout(rptHide, RPT.left);
+}
+function rptPause(){
+  if(RPT.paused || !RPT.snap) return; RPT.paused = true;
+  clearTimeout(RPT.timer);
+  RPT.left = Math.max(800, RPT.left - (performance.now() - RPT.t0));
+  const bar = document.getElementById('rptBar'); if(bar){ const m = getComputedStyle(bar).transform; bar.style.transition = 'none'; bar.style.transform = m === 'none' ? 'scaleX(1)' : m; }
+}
+function rptResume(){ if(!RPT.paused || !RPT.snap) return; RPT.paused = false; rptRun(); }
+function rptHide(){
+  clearTimeout(RPT.timer); RPT.snap = null;
+  const p = document.getElementById('rptPanel'); if(p) p.classList.remove('on');
+}
+function rptBind(p){
+  // mouse: pausa mientras está encima · dedo: pausa mientras se toca y sigue al soltar
+  p.addEventListener('pointerenter', e => { if(e.pointerType === 'mouse') rptPause(); });
+  p.addEventListener('pointerleave', e => { if(e.pointerType === 'mouse') rptResume(); });
+  p.addEventListener('pointerdown', e => { if(e.pointerType !== 'mouse') rptPause(); });
+  p.addEventListener('pointerup', e => { if(e.pointerType !== 'mouse') rptResume(); });
+  p.addEventListener('pointercancel', e => { if(e.pointerType !== 'mouse') rptResume(); });
+  p.addEventListener('click', e => {
+    const f = e.target.closest('[data-f]');
+    if(f){ const k = f.dataset.f; RPT.sel.has(k) ? RPT.sel.delete(k) : RPT.sel.add(k); f.classList.toggle('on', RPT.sel.has(k)); f.setAttribute('aria-pressed', RPT.sel.has(k)); try{ localStorage.setItem(RPT_KEY, JSON.stringify([...RPT.sel])); }catch{} return; }
+    const a = e.target.closest('[data-rpt]'); if(!a) return;
+    if(a.dataset.rpt === 'go') rptFill(); else rptHide();
+  });
+}
+function rptFill(){
+  const s = RPT.snap; if(!s) return;
+  if(currentProductType !== 'simple') setProductType('simple');
+  if(!document.getElementById('page-add').classList.contains('active')) switchPage('add', document.querySelector('.nav-item[data-page="add"]'));
+  const used = RPT_FIELDS.filter(f => RPT.sel.has(f.k) && rptShown(f, s));
+  used.forEach(f => f.ids.forEach(id => {
+    const el = document.getElementById(id); if(!el) return;
+    el.value = s[id];
+    if(['marca', 'genero', 'estilo', 'color', 'talla'].includes(id)) checkNewValue(id, el.value);
+  }));
+  calcPriceInfo();
+  const acs = new Set(used.map(f => f.k === 'precios' ? 'precios' : f.k));
+  AC_FIELDS.forEach(n => { acUpdateSummary(n); if(acs.has(n)) acCollapse(n); });
+  try{ queueFormDraftSave(); }catch{}
+  rptHide();
+  // el cursor va al primer campo que quedó vacío
+  const next = KB_ORDER.find(id => !String(document.getElementById(id)?.value || '').trim() || (id === 'cantidad' && !(parseInt(document.getElementById(id).value) > 0)));
+  if(next) kbFocusField(next);
+  showToast('Rellenado', used.map(f => f.l).join(', '), 'success', 2200);
+}
+document.addEventListener('keydown', e => {
+  if(e.altKey && !e.ctrlKey && !e.metaKey && (e.key === 'r' || e.key === 'R') && RPT.snap){ e.preventDefault(); rptFill(); }
+}, true);
 
 // ── Acceso con clave: se pide una sola vez; la sesión queda guardada en este dispositivo ──
 // (Es un freno para curiosos: el código de la página es público. No reemplaza una autenticación real.)
