@@ -1026,7 +1026,7 @@
     .kb-sec { grid-column: 1 / -1; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text3); margin-top: 8px; }
 
     /* ── Variaciones en PC: formulario a la izquierda, tarjetas a la derecha ── */
-    .vd-sheet { width: min(1220px, 95vw); max-width: none !important; height: 88vh; max-height: 88vh !important; padding: 20px 24px 18px !important; border-radius: 22px !important; }
+    .vd-sheet { width: min(1220px, 95vw); max-width: none !important; height: 92vh; max-height: 92vh !important; padding: 20px 24px 18px !important; border-radius: 22px !important; }
     .vd-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; flex-shrink: 0; }
     .vd-title { font: 700 21px 'Space Grotesk', sans-serif; }
     .vd-title small { display: block; font: 500 12px 'Inter', sans-serif; color: var(--text3); letter-spacing: .06em; text-transform: uppercase; margin-bottom: 2px; }
@@ -1039,7 +1039,25 @@
     .vd-form h4 { font: 700 15px 'Space Grotesk', sans-serif; display: flex; align-items: center; gap: 8px; }
     .vd-form h4 svg { width: 17px; height: 17px; color: var(--accent); }
     .vd-form .form-label { margin-bottom: 6px; }
-    .vd-add { margin-top: auto; }
+    .vd-add { margin-top: auto; flex-shrink: 0; }
+    .vd-form { gap: 12px !important; padding: 16px !important; overflow: visible !important; }
+    .vd-form .form-group { position: relative; }
+    .vd-form .form-input { padding-top: 11px; padding-bottom: 11px; }
+    .vd-form .qty-quick { margin-top: 8px; }
+    .vd-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    /* Las sugerencias flotan sobre el formulario en vez de empujarlo hacia abajo */
+    .vd-form .var-chips-full { position: absolute; left: 0; top: 100%; z-index: 20; margin-top: 4px; width: max-content; min-width: 100%; max-width: 330px; padding: 8px; border-radius: 12px; background: var(--bg2); border: 1px solid rgba(108,99,255,.4); box-shadow: 0 14px 34px rgba(0,0,0,.5); }
+    .vd-row2 .form-group:last-child .var-chips-full { left: auto; right: 0; }
+    @media (max-height: 760px) {
+      .vd-sheet { height: 96vh; max-height: 96vh !important; padding: 14px 20px 12px !important; }
+      .vd-head { margin-bottom: 10px; } .vd-title { font-size: 18px; }
+      .vd-tip { display: none; }
+      .vd-form { gap: 9px !important; padding: 12px 14px !important; }
+      .vd-form h4 { display: none; }
+      .vd-form .form-input { padding-top: 8px; padding-bottom: 8px; }
+      .vd-foot { margin-top: 10px; padding-top: 10px; }
+      .vd-tot b { font-size: 16px; }
+    }
     .vd-tip { font-size: 11.5px; color: var(--text3); line-height: 1.6; }
     .vd-tip kbd { height: 19px; min-width: 19px; font-size: 10.5px; }
     .vd-side { display: flex; flex-direction: column; min-height: 0; }
@@ -9722,8 +9740,14 @@ function kbNextField(fromId){
   kbSubmitProduct();                                       // era la última casilla
 }
 document.getElementById('productForm').addEventListener('keydown', e => {
-  if(e.key !== 'Enter' || e.isComposing || e.shiftKey) return;
+  const tab = e.key === 'Tab';
+  if((e.key !== 'Enter' && !tab) || e.isComposing || e.shiftKey) return;
   const t = e.target; if(!t || t.tagName !== 'INPUT') return;
+  if(tab){                                                 // PC: Tab avanza igual que Enter (sin crear el producto)
+    if(e.defaultPrevented || e.ctrlKey || e.altKey || e.metaKey || !kbIsDesktop()) return;   // si Tab completó una sugerencia, se queda
+    if(t.id === 'cantidad' || KB_ORDER.indexOf(t.id) < 0) return;
+    e.preventDefault(); kbNextField(t.id); return;
+  }
   e.preventDefault();                                      // evita que Enter envíe el formulario a medias
   if(e.ctrlKey || e.metaKey){ kbSubmitProduct(); return; }
   kbNextField(t.id);
@@ -9833,7 +9857,7 @@ function vdRender(modal, isReopen){
     + '<button type="button" class="vd-x" onclick="closeVariationsModal()" title="Cerrar (Esc)"><i data-lucide="x"></i></button></div>'
     + '<div class="vd-body">'
     + '<div class="vd-form"><h4><i data-lucide="plus-circle"></i> Nueva variación</h4>'
-    + vdField('estilo', 'Estilo', false, 'Ej: SKINNY') + vdField('color', 'Color', true, 'Ej: NEGRO') + vdField('talla', 'Talla', true, 'Ej: M')
+    + vdField('estilo', 'Estilo', false, 'Ej: SKINNY') + '<div class="vd-row2">' + vdField('color', 'Color', true, 'Ej: NEGRO') + vdField('talla', 'Talla', true, 'Ej: M') + '</div>'
     + '<div class="form-group"><label class="form-label">Cantidad <span style="color:var(--red)">*</span></label>'
     + '<div class="qty-stepper"><button type="button" class="qty-btn minus" onclick="stepQtyEl(\'varCantidad-new\',-1)">−</button>'
     + '<input type="number" id="varCantidad-new" class="qty-input" value="1" min="0" placeholder="0" onfocus="this.select()">'
@@ -9911,10 +9935,12 @@ document.getElementById('variationsModal').addEventListener('click', e => {
 document.getElementById('variationsModal').addEventListener('keydown', e => {
   if(!document.querySelector('#variationsModal .vd-sheet')) return;
   if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); closeVariationsModal(); return; }
-  if(e.key !== 'Enter' || e.isComposing || e.shiftKey) return;
-  if(e.ctrlKey || e.metaKey){ e.preventDefault(); vdSaveAll(); return; }
+  const tab = e.key === 'Tab';
+  if((e.key !== 'Enter' && !tab) || e.isComposing || e.shiftKey) return;
+  if(!tab && (e.ctrlKey || e.metaKey)){ e.preventDefault(); vdSaveAll(); return; }
   const order = ['varEstilo-new', 'varColor-new', 'varTalla-new', 'varCantidad-new'];
   const i = order.indexOf(e.target.id); if(i < 0) return;
+  if(tab && (e.defaultPrevented || e.ctrlKey || e.altKey || e.metaKey || i === order.length - 1)) return;   // Tab: avanza (no agrega)
   e.preventDefault();
   if(i === order.length - 1) vdAdd(); else { const n = vd$(order[i + 1]); n.focus(); try{ n.select(); }catch{} }
 });
