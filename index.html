@@ -975,6 +975,51 @@
     @keyframes tkNudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-5px); } }
     @media (prefers-reduced-motion: reduce) { .tk-hero, .tk-hint svg, #tkDrawer.ready .tk-ring { animation: none; } #tkView { transition: none; } }
 
+    /* ══════════ VERSIÓN DE COMPUTADOR (pantallas de 1024 px o más) ══════════ */
+    .nav-brand, .nav-keys, .nav-caja { display: none; }
+    kbd { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 6px; border: 1px solid var(--border2, rgba(255,255,255,.18)); border-bottom-width: 2px; background: rgba(255,255,255,.06); color: var(--text2); font: 600 11.5px 'Inter', sans-serif; }
+    @media (min-width: 1024px) {
+      #app { max-width: none; margin: 0 0 0 240px; padding: 0 0 48px; }
+      .header { padding: 18px 40px 14px; }
+      .header-brand { visibility: hidden; }
+      .page { max-width: 1120px; margin: 0 auto; padding: 26px 40px 16px; }
+      #page-add { max-width: 780px; }
+
+      .bottom-nav { top: 0; bottom: 0; left: 0; transform: none; width: 240px; max-width: none; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 4px; padding: 22px 14px 18px; border-top: none; border-right: 1px solid var(--border); }
+      .nav-brand { display: flex; align-items: center; gap: 10px; padding: 0 8px 22px; }
+      .nav-brand img { width: 40px; height: 40px; border-radius: 11px; background: #fff; object-fit: contain; }
+      .nav-brand b { display: block; font: 700 16px 'Space Grotesk', sans-serif; color: var(--text); }
+      .nav-brand small { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); }
+      .nav-item { flex: 0 0 auto; flex-direction: row; justify-content: flex-start; gap: 12px; padding: 11px 12px; font-size: 13.5px; text-transform: none; letter-spacing: 0; cursor: pointer; }
+      .nav-item i, .nav-item svg { width: 19px; height: 19px; }
+      .nav-item:hover { background: rgba(255,255,255,.05); color: var(--text); }
+      .nav-item.active { background: rgba(108,99,255,.15); }
+      .nav-item:active { transform: none; }
+      .nav-item::after { content: attr(data-key); margin-left: auto; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 6px; border: 1px solid rgba(255,255,255,.14); border-bottom-width: 2px; display: inline-flex; align-items: center; justify-content: center; font: 600 11px 'Inter', sans-serif; color: var(--text3); }
+      .nav-caja { display: flex; margin-top: 10px; }
+      .nav-keys { display: flex; align-items: center; gap: 9px; margin-top: auto; padding: 11px 12px; border-radius: 12px; border: 1px dashed var(--border); background: transparent; color: var(--text3); font: 500 12.5px 'Inter', sans-serif; cursor: pointer; }
+      .nav-keys:hover { color: var(--text); border-color: rgba(108,99,255,.5); }
+      .nav-keys svg { width: 17px; height: 17px; }
+      .nav-keys kbd { margin-left: auto; }
+
+      #statsGrid { grid-template-columns: repeat(4, 1fr); }
+      #statsGrid .stat-card { grid-column: auto !important; }
+      #productsContainer { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; align-items: start; }
+      #productsContainer > .invoice-total-row { grid-column: 1 / -1; margin-bottom: 0 !important; }
+      #productsContainer > .product-card { margin: 0; }
+
+      .modal-overlay { align-items: center; padding: 24px; }
+      .modal-sheet, .confirm-sheet { border-radius: var(--radius); max-width: 560px; max-height: 86vh; }
+      #fabCaja { display: none !important; }   /* en PC la Caja está en el menú lateral */
+      .fab-invoice { bottom: 32px; right: 32px; }
+      .kb-hint { display: inline-flex; }
+    }
+    .kb-hint { display: none; align-items: center; gap: 6px; font-size: 11.5px; color: var(--text3); }
+    .kb-help .modal-sheet { padding: 22px 24px 24px; }
+    .kb-list { display: grid; grid-template-columns: auto 1fr; gap: 10px 16px; align-items: center; font-size: 13.5px; color: var(--text2); margin-top: 6px; }
+    .kb-list .k { display: flex; gap: 4px; justify-content: flex-end; }
+    .kb-sec { grid-column: 1 / -1; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text3); margin-top: 8px; }
+
     /* ── Acceso con clave (se pide una sola vez por dispositivo) ── */
     #loginGate { display: none; position: fixed; inset: 0; z-index: 99999; align-items: center; justify-content: center; padding: 24px; background: radial-gradient(ellipse 80% 50% at 20% 10%, rgba(108,99,255,.22) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 80% 85%, rgba(16,217,160,.1) 0%, transparent 60%), #0a0e1a; }
     html.locked #loginGate { display: flex; }
@@ -2496,22 +2541,28 @@
 
 <!-- ══ BOTTOM NAV ══ -->
 <nav class="bottom-nav">
-  <button class="nav-item active" data-page="home" onclick="switchPage('home',this)">
+  <div class="nav-brand"><img src="/favicon.png" alt=""><div><b>Tienda Jahdiel</b><small>Tienda de ropa</small></div></div>
+  <button class="nav-item active" data-page="home" data-key="1" onclick="switchPage('home',this)">
     <i data-lucide="home"></i>
     <span>Inicio</span>
   </button>
-  <button class="nav-item" data-page="add" onclick="switchPage('add',this)">
+  <button class="nav-item" data-page="add" data-key="2" onclick="switchPage('add',this)">
     <i data-lucide="plus-circle"></i>
     <span>Agregar</span>
   </button>
-  <button class="nav-item" data-page="products" onclick="switchPage('products',this)">
+  <button class="nav-item" data-page="products" data-key="3" onclick="switchPage('products',this)">
     <i data-lucide="package"></i>
     <span>Productos</span>
   </button>
-  <button class="nav-item" data-page="invoices" onclick="switchPage('invoices',this)">
+  <button class="nav-item" data-page="invoices" data-key="4" onclick="switchPage('invoices',this)">
     <i data-lucide="receipt"></i>
     <span>Facturas</span>
   </button>
+  <button type="button" class="nav-item nav-caja" data-key="C" onclick="openCaja()">
+    <i data-lucide="wallet"></i>
+    <span>Caja de viajes</span>
+  </button>
+  <button type="button" class="nav-keys" onclick="kbShowHelp()"><i data-lucide="keyboard"></i> Atajos de teclado <kbd>?</kbd></button>
 </nav>
 
 <script>
@@ -9502,6 +9553,101 @@ function scanSaveAll(){
 }
 
 const TK_ONLY = document.documentElement.classList.contains('tk-only');
+// ══════════════════════════════════════════
+// ATAJOS DE TECLADO Y ENTER PARA AVANZAR (pensado para computador; Enter también sirve en el celular)
+//   Agregar producto: Enter = siguiente casilla · en Cantidad, Enter = Crear producto · Ctrl+Enter = crear desde cualquier casilla
+//   1 Inicio · 2 Agregar · 3 Productos · 4 Facturas · C Caja de viajes · N Nuevo producto · ? Ayuda
+//   (con Alt los números funcionan aunque estés escribiendo)
+// ══════════════════════════════════════════
+const KB_ORDER = ['marca','descripcion','genero','precioCompra','precioVenta','estilo','color','talla','cantidad'];
+const kbAcName = id => (id === 'precioCompra' || id === 'precioVenta') ? 'precios' : id;
+const kbIsDesktop = () => window.matchMedia && matchMedia('(min-width: 1024px)').matches;
+const kbTyping = el => !!el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
+function kbFocusField(id){
+  const el = document.getElementById(id); if(!el) return;
+  const ac = document.getElementById('ac-' + kbAcName(id));
+  if(ac && ac.classList.contains('ac-collapsed')) ac.classList.remove('ac-collapsed');
+  setTimeout(() => { el.focus(); try{ el.select(); }catch{} el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 30);
+}
+function kbSubmitProduct(){
+  const f = document.getElementById('productForm');
+  if(currentProductType === 'variations'){ openVariationsModal(); return; }
+  if(f.requestSubmit) f.requestSubmit(); else document.getElementById('submitBtn').click();
+}
+function kbNextField(fromId){
+  const i = KB_ORDER.indexOf(fromId); if(i < 0) return;
+  const simple = currentProductType !== 'variations';
+  for(let j = i + 1; j < KB_ORDER.length; j++){
+    const id = KB_ORDER[j];
+    if(!simple && ['estilo','color','talla','cantidad'].includes(id)) break;   // con variaciones, esas van en la ventana
+    if(document.getElementById(id)){ kbFocusField(id); return; }
+  }
+  kbSubmitProduct();                                       // era la última casilla
+}
+document.getElementById('productForm').addEventListener('keydown', e => {
+  if(e.key !== 'Enter' || e.isComposing || e.shiftKey) return;
+  const t = e.target; if(!t || t.tagName !== 'INPUT') return;
+  e.preventDefault();                                      // evita que Enter envíe el formulario a medias
+  if(e.ctrlKey || e.metaKey){ kbSubmitProduct(); return; }
+  kbNextField(t.id);
+});
+// Después de crear un producto en el PC, el cursor vuelve a Marca para seguir con el siguiente
+document.getElementById('productForm').addEventListener('submit', () => {
+  if(!kbIsDesktop()) return;
+  setTimeout(() => { if(document.getElementById('page-add').classList.contains('active') && !document.querySelector('.modal-overlay')) kbFocusField('marca'); }, 700);
+});
+
+function kbGo(page){
+  const btn = document.querySelector('.nav-item[data-page="' + page + '"]');
+  switchPage(page, btn);
+  if(page === 'add') kbFocusField('marca');
+}
+function kbShowHelp(){
+  if(document.getElementById('kbHelp')) return;
+  const ov = document.createElement('div');
+  ov.className = 'modal-overlay kb-help'; ov.id = 'kbHelp';
+  const row = (keys, txt) => '<div class="k">' + keys.map(k => '<kbd>' + k + '</kbd>').join('') + '</div><div>' + txt + '</div>';
+  ov.innerHTML = '<div class="modal-sheet" role="dialog" aria-label="Atajos de teclado"><div class="modal-title">Atajos de teclado</div><div class="kb-list">'
+    + '<div class="kb-sec">Moverse</div>'
+    + row(['1'], 'Inicio') + row(['2'], 'Agregar producto') + row(['3'], 'Productos') + row(['4'], 'Facturas') + row(['C'], 'Caja de viajes')
+    + row(['Alt', '1…4'], 'Lo mismo, aunque estés escribiendo')
+    + '<div class="kb-sec">Agregar producto</div>'
+    + row(['N'], 'Nuevo producto (va a Marca)') + row(['Enter'], 'Pasar a la siguiente casilla') + row(['Enter'], 'En Cantidad: crear el producto')
+    + row(['Ctrl', 'Enter'], 'Crear el producto desde cualquier casilla')
+    + '<div class="kb-sec">General</div>'
+    + row(['Esc'], 'Cerrar esta ayuda o la Caja / salir de una casilla') + row(['?'], 'Ver esta ayuda')
+    + '</div></div>';
+  ov.addEventListener('click', e => { if(e.target === ov) ov.remove(); });
+  document.body.appendChild(ov);
+}
+document.addEventListener('keydown', e => {
+  if(TK_ONLY || document.documentElement.classList.contains('locked')) return;
+  if(typeof TK !== 'undefined' && TK.view) return;            // el Ticket tiene sus propias teclas
+  if(e.defaultPrevented || e.isComposing) return;
+  const help = document.getElementById('kbHelp');
+  if(e.key === 'Escape'){
+    if(help){ help.remove(); return; }
+    if(document.getElementById('cajaApp')?.classList.contains('open')){
+      if(document.querySelector('#cjSheetHost .cj-sheet-ov')) cjCloseSheet(); else cjExit();
+      return;
+    }
+    if(kbTyping(document.activeElement)) document.activeElement.blur();
+    return;
+  }
+  const pages = { '1': 'home', '2': 'add', '3': 'products', '4': 'invoices' };
+  const busy = document.querySelector('.modal-overlay:not(#kbHelp), .loader-ov, #cajaApp.open');
+  if(e.altKey && !e.ctrlKey && !e.metaKey && pages[e.key]){       // Alt+número: funciona aunque estés escribiendo
+    if(busy) return; e.preventDefault(); help?.remove(); kbGo(pages[e.key]); return;
+  }
+  if(e.ctrlKey || e.metaKey || e.altKey || kbTyping(document.activeElement)) return;
+  if(e.key === '?'){ e.preventDefault(); help ? help.remove() : kbShowHelp(); return; }
+  if(busy) return;
+  const k = e.key.toLowerCase();
+  if(pages[k]){ e.preventDefault(); help?.remove(); kbGo(pages[k]); }
+  else if(k === 'n'){ e.preventDefault(); help?.remove(); kbGo('add'); }
+  else if(k === 'c'){ e.preventDefault(); help?.remove(); openCaja(); }
+});
+
 // ── Acceso con clave: se pide una sola vez; la sesión queda guardada en este dispositivo ──
 // (Es un freno para curiosos: el código de la página es público. No reemplaza una autenticación real.)
 const SESSION_KEY = 'jahdiel_sesion_v1';
