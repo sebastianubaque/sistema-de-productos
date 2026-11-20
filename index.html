@@ -6035,11 +6035,21 @@ function invRelDate(d){
 // Sin parpadeo: si nada cambió no se vuelve a dibujar (la app refresca cada 8 s), y la animación de
 // entrada solo la hacen las tarjetas nuevas.
 const invSeen = new Set();
-const invDayOpen = {};                     // días abiertos/cerrados a mano
+// Días abiertos/cerrados a mano: se guardan en el dispositivo para que queden como los dejaste
+const INV_DAYS_KEY = 'jahdiel_facturas_dias';
+const invDayOpen = (() => { try { return JSON.parse(localStorage.getItem(INV_DAYS_KEY) || '{}') || {}; } catch { return {}; } })();
+function invSaveDays(){
+  try {
+    const keys = Object.keys(invDayOpen).sort().reverse();
+    keys.slice(120).forEach(k => delete invDayOpen[k]);          // solo los días más recientes
+    localStorage.setItem(INV_DAYS_KEY, JSON.stringify(invDayOpen));
+  } catch {}
+}
 function invToggleDay(key){
   const g = document.querySelector('.ivd[data-day="' + key + '"]'); if(!g) return;
   invDayOpen[key] = g.classList.contains('closed');
   g.classList.toggle('closed', !invDayOpen[key]);
+  invSaveDays();
   g.querySelector('.ivd-h').setAttribute('aria-expanded', invDayOpen[key]);
 }
 function renderInvoicesList() {
