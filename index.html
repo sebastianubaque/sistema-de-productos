@@ -252,6 +252,11 @@
 
     /* ── Chips ── */
     .chips-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .chips-row:empty { display: none !important; }
+    .chip.sug-on { border-color: var(--accent); background: rgba(108,99,255,.2); color: var(--text); box-shadow: 0 0 0 1px rgba(108,99,255,.35); }
+    @media (hover: hover) and (pointer: fine) {
+      .chip.sug-on::after { content: 'Tab'; margin-left: 6px; padding: 1px 5px; border-radius: 5px; border: 1px solid rgba(255,255,255,.25); font-size: 9.5px; font-weight: 700; letter-spacing: .03em; opacity: .85; }
+    }
     .chip {
       display: inline-flex; align-items: center; gap: 5px;
       padding: 4px 10px; border-radius: 999px;
@@ -2220,7 +2225,8 @@
                   <input type="text" id="descripcion" name="descripcion" required class="form-input"
                     placeholder="Ej: JEAN, BLUSA..."
                     oninput="this.value=this.value.toUpperCase()"
-                    onblur="acOnBlur('descripcion')">
+                    onblur="acOnBlur('descripcion')" autocomplete="off">
+                  <div class="chips-row" id="chips-descripcion"></div>
                 </div>
               </div>
             </div>
@@ -3073,6 +3079,82 @@ const COLOR_HEX = {
 // ══════════════════════════════════════════
 const MULTI_SELECT_FIELDS = ['color','estilo','talla'];
 
+// ══ SUGERENCIAS MIENTRAS SE ESCRIBE ══
+// En vez de mostrar todo el listado, se muestran hasta 6 sugerencias que coinciden con lo escrito
+// (primero las que empiezan igual). Tab pone la sugerencia resaltada; ↑ ↓ cambian cuál está resaltada.
+// En Color, Estilo y Talla (varios valores con "/") se sugiere para el último valor que se está escribiendo.
+const SUG_MAX = 6;
+const SUG_FIELDS = ['marca','descripcion','genero','estilo','color','talla'];
+let sugDescCache = { n: -1, list: [] };
+function sugTerm(fieldId, value){
+  const v = String(value || '').toUpperCase();
+  if(MULTI_SELECT_FIELDS.includes(fieldId)){ const s = v.split('/'); return s[s.length - 1].trim(); }
+  return v.trim();
+}
+function sugValues(fieldId){
+  if(fieldId === 'descripcion'){
+    if(sugDescCache.n !== currentProducts.length){
+      const set = new Set(); currentProducts.forEach(p => { const d = String(p.descripcion || '').toUpperCase().trim(); if(d) set.add(d); });
+      sugDescCache = { n: currentProducts.length, list: [...set].sort() };
+    }
+    return sugDescCache.list;
+  }
+  return usedValues[fieldId] || [];
+}
+function sugList(fieldId, value){
+  const term = sugTerm(fieldId, value); if(!term) return [];
+  const taken = MULTI_SELECT_FIELDS.includes(fieldId) ? String(value || '').toUpperCase().split('/').slice(0, -1).map(s => s.trim()) : [];
+  const vals = sugValues(fieldId).filter(v => !taken.includes(v));
+  const a = vals.filter(v => v.startsWith(term)), b = vals.filter(v => !v.startsWith(term) && v.includes(term));
+  return [...a, ...b].slice(0, SUG_MAX);
+}
+// Quita el pedazo que se estaba escribiendo cuando se escoge una sugerencia que lo completa
+function sugDropPartial(fieldId, segs, v){
+  const last = segs[segs.length - 1];
+  if(last && last !== v && v.includes(last) && !uvHas(fieldId, last)) segs.pop();
+  return segs;
+}
+function sugApply(fieldId, inp, v){
+  if(MULTI_SELECT_FIELDS.includes(fieldId)){
+    const segs = inp.value.toUpperCase().split('/'); segs[segs.length - 1] = v;
+    inp.value = segs.map(s => s.trim()).filter(Boolean).join('/');
+  } else inp.value = v;
+  inp.dispatchEvent(new Event('input', { bubbles: true }));
+}
+function sugCtx(inp){
+  if(!inp || inp.tagName !== 'INPUT') return null;
+  if(SUG_FIELDS.includes(inp.id)) return { field: inp.id, box: document.getElementById('chips-' + inp.id), main: true };
+  const m = /^var(Estilo|Color|Talla)-(.+)$/.exec(inp.id);
+  if(m){ const f = m[1].toLowerCase(); return { field: f, box: document.getElementById('varChips-' + m[2] + '-' + f), vid: m[2] }; }
+  return null;
+}
+const sugRerender = c => c.main ? renderChips(c.field) : varRenderChips(c.vid, c.field);
+// Al escribir: la resaltada vuelve a ser la primera y se actualiza la lista
+document.addEventListener('input', e => {
+  const c = sugCtx(e.target); if(!c || !c.box) return;
+  c.box.dataset.sel = 0;
+  if(c.main) setTimeout(() => renderChips(c.field), 0);   // después de pasar a mayúsculas
+}, true);
+// Tab = poner la sugerencia · ↑ ↓ = cambiar de sugerencia
+document.addEventListener('keydown', e => {
+  if(!['Tab','ArrowDown','ArrowUp'].includes(e.key) || e.altKey || e.ctrlKey || e.metaKey) return;
+  const inp = e.target, c = sugCtx(inp); if(!c || !c.box) return;
+  const list = sugList(c.field, inp.value); if(!list.length) return;
+  let sel = Math.min(Number(c.box.dataset.sel) || 0, list.length - 1);
+  if(e.key === 'Tab'){
+    if(e.shiftKey) return;
+    const v = list[sel];
+    if(sugTerm(c.field, inp.value) === v) return;          // ya está completa: Tab normal
+    e.preventDefault();
+    c.box.dataset.sel = 0;
+    sugApply(c.field, inp, v);
+    return;
+  }
+  e.preventDefault();
+  c.box.dataset.sel = (sel + (e.key === 'ArrowDown' ? 1 : -1) + list.length) % list.length;
+  sugRerender(c);
+}, true);
+
 function getMultiSelected(fieldId) {
   const inp = document.getElementById(fieldId);
   if(!inp || !inp.value.trim()) return [];
@@ -3082,7 +3164,7 @@ function getMultiSelected(fieldId) {
 function chipToggleMulti(fieldId, v) {
   const inp = document.getElementById(fieldId);
   if(!inp) return;
-  let selected = getMultiSelected(fieldId);
+  let selected = sugDropPartial(fieldId, getMultiSelected(fieldId), v);
   const idx = selected.indexOf(v);
   if(idx >= 0) { selected.splice(idx, 1); } else { selected.push(v); }
   inp.value = selected.join('/');
@@ -3096,13 +3178,16 @@ function chipToggleMulti(fieldId, v) {
 function renderChips(fieldId) {
   const c = document.getElementById('chips-'+fieldId);
   if(!c) return;
-  const vals = usedValues[fieldId] || [];
+  const inp0 = document.getElementById(fieldId);
+  const vals = sugList(fieldId, inp0 ? inp0.value : '');      // solo lo que coincide con lo escrito
+  const sel = Math.min(Number(c.dataset.sel) || 0, Math.max(0, vals.length - 1));
   const isMulti = MULTI_SELECT_FIELDS.includes(fieldId);
   const selected = isMulti ? getMultiSelected(fieldId) : [];
   c.innerHTML='';
-  vals.forEach(v=>{
+  vals.forEach((v, i)=>{
     const chip=document.createElement('button');
-    chip.type='button'; chip.className='chip';
+    chip.type='button'; chip.className='chip' + (i === sel ? ' sug-on' : '');
+    chip.dataset.v = v;
     if(isMulti) chip.tabIndex=0; // necesario para focusout del bloque en móvil
     if(isMulti && selected.includes(v)) chip.classList.add('active');
     if(fieldId==='color'&&COLOR_HEX[v]){
@@ -3135,7 +3220,7 @@ function renderChips(fieldId) {
         'Eliminar', 'Cancelar', false
       );
     };
-    chip.appendChild(del);
+    if(fieldId !== 'descripcion') chip.appendChild(del);
 
     chip.onclick=(e)=>{
       if(e.target===del) return;
@@ -3145,8 +3230,8 @@ function renderChips(fieldId) {
         const inp=document.getElementById(fieldId);
         if(inp){inp.value=v;inp.classList.remove('is-new');inp.classList.add('is-existing');}
         const btn=document.getElementById('addBtn-'+fieldId); if(btn) btn.style.display='none';
-        c.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
-        chip.classList.add('active'); setTimeout(()=>chip.classList.remove('active'),700);
+        c.innerHTML='';                                         // escogida: se ocultan las sugerencias
+        if(inp) inp.focus();
       }
     };
     c.appendChild(chip);
@@ -3528,12 +3613,14 @@ function varRenderChips(vid, fieldType) {
   const isMulti = MULTI_SELECT_FIELDS.includes(fieldType);
   const inp = document.getElementById(varInputId(vid, fieldType));
   const selected = isMulti && inp ? inp.value.toUpperCase().split('/').map(s=>s.trim()).filter(Boolean) : [];
-  const vals = usedValues[fieldType] || [];
+  const vals = sugList(fieldType, inp ? inp.value : '');     // solo lo que coincide con lo escrito
+  const sel = Math.min(Number(container.dataset.sel) || 0, Math.max(0, vals.length - 1));
   container.innerHTML = '';
 
-  vals.forEach(v => {
+  vals.forEach((v, i) => {
     const chip = document.createElement('button');
-    chip.type = 'button'; chip.className = 'chip';
+    chip.type = 'button'; chip.className = 'chip' + (i === sel ? ' sug-on' : '');
+    chip.dataset.v = v;
     if(isMulti) chip.tabIndex = 0;
     if(isMulti && selected.includes(v)) chip.classList.add('active');
     if(fieldType==='color' && COLOR_HEX[v]) {
@@ -3574,7 +3661,7 @@ function varRenderChips(vid, fieldType) {
       e.preventDefault();
       if(!inp) return;
       if(isMulti) {
-        let sel = inp.value.toUpperCase().split('/').map(s=>s.trim()).filter(Boolean);
+        let sel = sugDropPartial(fieldType, inp.value.toUpperCase().split('/').map(s=>s.trim()).filter(Boolean), v);
         const idx = sel.indexOf(v);
         if(idx >= 0) sel.splice(idx,1); else sel.push(v);
         inp.value = sel.join('/');
