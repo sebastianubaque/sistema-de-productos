@@ -1007,6 +1007,18 @@
       .nav-keys svg { width: 17px; height: 17px; }
       .nav-keys kbd { margin-left: auto; }
 
+      .nav-min { margin-left: auto; width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--border); background: transparent; color: var(--text3); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+      .nav-min:hover { color: var(--text); border-color: rgba(108,99,255,.5); }
+      .nav-min svg { width: 17px; height: 17px; }
+      #app, .bottom-nav { transition: margin-left .28s cubic-bezier(.2,.9,.3,1), width .28s cubic-bezier(.2,.9,.3,1), padding .28s; }
+      html.sb-min #app { margin-left: 74px; }
+      html.sb-min .bottom-nav { width: 74px; padding-left: 11px; padding-right: 11px; }
+      html.sb-min .nav-brand { flex-direction: column; padding: 0 0 18px; gap: 12px; }
+      html.sb-min .nav-brand > div, html.sb-min .nav-item span, html.sb-min .nav-item::after, html.sb-min .nav-keys { display: none; }
+      html.sb-min .nav-min { margin-left: 0; }
+      html.sb-min .nav-min svg { transform: scaleX(-1); }
+      html.sb-min .nav-item { justify-content: center; padding: 12px 0; }
+      html.sb-min .nav-item i, html.sb-min .nav-item svg { width: 21px; height: 21px; }
       #statsGrid { grid-template-columns: repeat(4, 1fr); }
       #statsGrid .stat-card { grid-column: auto !important; }
       #productsContainer { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; align-items: start; }
@@ -1268,6 +1280,51 @@
     .ld-fb b { font-family: 'Space Grotesk', sans-serif; font-size: 19px; color: var(--text); }
     .ld-fb span { font-size: 14px; color: var(--text2); }
     @media (prefers-reduced-motion: reduce) { .loader-card { animation: none; } .ld-spin, .ld-shimmer::after { animation: none; } }
+
+    /* ══════════ FACTURAS EN CUADRÍCULA ══════════ */
+    .ivg-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .ivg-chips { display: flex; gap: 6px; padding: 4px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); }
+    .ivg-chip { padding: 7px 12px; border-radius: 10px; border: none; background: transparent; color: var(--text3); font: 600 12.5px 'Inter', sans-serif; cursor: pointer; white-space: nowrap; }
+    .ivg-chip b { margin-left: 3px; color: var(--text2); }
+    .ivg-chip.on { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; box-shadow: 0 4px 14px rgba(108,99,255,.35); }
+    .ivg-chip.on b { color: #fff; }
+    .ivg-search { flex: 1; min-width: 200px; display: flex; align-items: center; gap: 8px; padding: 0 12px; height: 40px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); }
+    .ivg-search svg { width: 16px; height: 16px; color: var(--text3); }
+    .ivg-search input { flex: 1; min-width: 0; border: none; outline: none; background: transparent; color: var(--text); font: 500 13.5px 'Inter', sans-serif; }
+    .ivg-sum { font-size: 12.5px; color: var(--text3); white-space: nowrap; }
+    .ivg-sum b { color: var(--green); font-family: 'Space Grotesk', sans-serif; font-size: 15px; }
+    .ivg { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+    .ivg-none { padding: 40px 10px; text-align: center; color: var(--text3); font-size: 13.5px; border: 2px dashed var(--border); border-radius: 18px; }
+    .ivc { position: relative; display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 20px; overflow: hidden;
+      background: radial-gradient(120% 90% at 100% 0%, rgba(108,99,255,.10), transparent 55%), linear-gradient(165deg, rgba(255,255,255,.055), rgba(255,255,255,.015));
+      border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,.22); animation: ivcIn .4s cubic-bezier(.2,.9,.3,1) both; animation-delay: var(--d, 0ms);
+      transition: transform .18s, border-color .18s, box-shadow .18s; }
+    .ivc::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: linear-gradient(90deg, #ffb547, #ff8a3d); }
+    .ivc.is-sent::before { background: linear-gradient(90deg, #10d9a0, #0fba8a); }
+    .ivc:hover { transform: translateY(-3px); border-color: rgba(108,99,255,.45); box-shadow: 0 18px 40px rgba(0,0,0,.32); }
+    .ivc.is-active { border-color: rgba(108,99,255,.7); box-shadow: 0 0 0 1px rgba(108,99,255,.45), 0 16px 40px rgba(108,99,255,.22); }
+    @keyframes ivcIn { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: none; } }
+    .ivc-top { display: flex; align-items: center; gap: 8px; }
+    .ivc-num { font: 700 12px 'Space Grotesk', sans-serif; letter-spacing: .06em; padding: 4px 9px; border-radius: 8px; background: rgba(255,255,255,.07); color: var(--text2); }
+    .ivc-active { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #c4bfff; background: rgba(108,99,255,.2); border: 1px solid rgba(108,99,255,.45); }
+    .ivc-active svg { width: 11px; height: 11px; }
+    .ivc-top .invoice-badge { margin-left: auto; }
+    .ivc-main { display: flex; flex-direction: column; gap: 6px; padding: 0; border: none; background: none; color: inherit; text-align: left; cursor: pointer; font: inherit; }
+    .ivc-name { font: 700 19px/1.2 'Space Grotesk', sans-serif; color: var(--text); word-break: break-word; }
+    .ivc-date { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text3); text-transform: capitalize; }
+    .ivc-date svg { width: 13px; height: 13px; }
+    .ivc-stats { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 6px; margin-top: 6px; }
+    .ivc-stats > span { padding: 8px 10px; border-radius: 12px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.05); }
+    .ivc-stats small { display: block; font-size: 10px; letter-spacing: .07em; text-transform: uppercase; color: var(--text3); }
+    .ivc-stats b { font: 700 17px 'Space Grotesk', sans-serif; color: var(--text); }
+    .ivc-stats .tot b { color: var(--green); }
+    .ivc-actions { display: flex; gap: 8px; }
+    .ivc-actions .inv-btn { flex: 1; min-height: 40px; font-size: 12.5px; }
+    .ivc-opts { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr) 40px; gap: 8px; }
+    .ivc-opts .inv-tg, .ivc-opts .inv-btn { min-height: 36px; font-size: 11.5px; }
+    @media (min-width: 1024px) { #page-invoices { max-width: 1400px; } .ivg { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; } }
+    .ivg.noanim .ivc { animation: none; }
+    @media (prefers-reduced-motion: reduce) { .ivc { animation: none; } }
 
     /* ══════════ FACTURAS: botones y detalle ══════════ */
     .inv-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
@@ -2644,7 +2701,7 @@
 
 <!-- ══ BOTTOM NAV ══ -->
 <nav class="bottom-nav">
-  <div class="nav-brand"><img src="/favicon.png" alt=""><div><b>Tienda Jahdiel</b><small>Tienda de ropa</small></div></div>
+  <div class="nav-brand"><img src="/favicon.png" alt=""><div><b>Tienda Jahdiel</b><small>Tienda de ropa</small></div><button type="button" class="nav-min" onclick="toggleSidebar()" title="Esconder / mostrar menú (Ctrl+B)" aria-label="Esconder o mostrar el menú"><i data-lucide="panel-left-close"></i></button></div>
   <button class="nav-item active" data-page="home" data-key="1" onclick="switchPage('home',this)">
     <i data-lucide="home"></i>
     <span>Inicio</span>
@@ -2672,6 +2729,12 @@
 // ══════════════════════════════════════════
 // NAVIGATION
 // ══════════════════════════════════════════
+// Fecha de HOY en la hora del celular/PC (AAAA-MM-DD). toISOString() usa UTC y en Colombia,
+// desde las 7 p. m., ya daba el día siguiente.
+function localISODate(d = new Date()) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
 function switchPage(name, el) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -4673,7 +4736,7 @@ function downloadCSV(){
   });
   const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=`inventario-${new Date().toISOString().split('T')[0]}.csv`;a.click();
+  const a=document.createElement('a');a.href=url;a.download=`inventario-${localISODate()}.csv`;a.click();
   setTimeout(()=>URL.revokeObjectURL(url),100);
   showToast('Descarga lista',`${currentProducts.length} productos exportados.`,'success');
 }
@@ -4940,7 +5003,7 @@ async function downloadPlantillaLlena(withQuantity=true,overlay=null){
     const blob=new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
     const link=document.createElement('a');
     link.href=URL.createObjectURL(blob);
-    link.download=`Inventario_Jahdiel_${new Date().toISOString().slice(0,10)}.xlsx`;
+    link.download=`Inventario_Jahdiel_${localISODate()}.xlsx`;
     link.click();
     URL.revokeObjectURL(link.href);
 
@@ -5941,104 +6004,70 @@ function renderInvoicesMonthly(container){
   lucide.createIcons({ nodes: [container] });
 }
 
+let invFilter = 'all', invQuery = '', invNoAnim = false;
+function setInvFilter(f){ invFilter = f; renderInvoicesList(); }
+function setInvQuery(v){ invQuery = v; invNoAnim = true; renderInvoicesList(); const i = document.getElementById('ivgSearch'); if (i) { i.focus(); i.setSelectionRange(v.length, v.length); } }
+function invRelDate(d){
+  if (!d) return 'Sin fecha';
+  const today = localISODate(), y = new Date(); y.setDate(y.getDate() - 1);
+  if (d === today) return 'Hoy';
+  if (d === localISODate(y)) return 'Ayer';
+  return new Date(d + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+}
 function renderInvoicesList() {
   const empty = document.getElementById('invoiceEmpty');
   const container = document.getElementById('invoicesContainer');
   if (!invoices.length) { empty.style.display='block'; container.innerHTML=''; return; }
   empty.style.display = 'none';
-  container.innerHTML = '';
+  const esc = v => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const money = n => '$' + Math.round(n || 0).toLocaleString('es-CO');
+  // La última creada primero (por fecha de creación; si no hay, por número)
+  const all = [...invoices].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || '') || (b.number || 0) - (a.number || 0));
+  const nPend = all.filter(i => i.status !== 'sent').length, nSent = all.length - nPend;
+  const q = invQuery.trim().toUpperCase();
+  const list = all.filter(i => (invFilter === 'all' || (invFilter === 'sent' ? i.status === 'sent' : i.status !== 'sent'))
+    && (!q || String(i.name || '').toUpperCase().includes(q) || String(i.number).padStart(4, '0').includes(q)));
+  const sumAll = list.reduce((s, i) => s + invoiceCost(i), 0);
+  const chip = (f, label, n) => '<button type="button" class="ivg-chip ' + (invFilter === f ? 'on' : '') + '" onclick="setInvFilter(\'' + f + '\')">' + label + ' <b>' + n + '</b></button>';
 
-  // Agrupar por fecha
-  const groups = {};
-  [...invoices].forEach(inv => {
-    const key = inv.date || 'sin-fecha';
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(inv);
-  });
+  const cards = list.map((inv, idx) => {
+    const total = invoiceCost(inv), uds = inv.items.reduce((s, it) => s + (it.qty || 0), 0), sent = inv.status === 'sent';
+    const active = inv.id === activeInvoiceId;
+    const refs = inv.items.length;
+    return '<article class="ivc ' + (sent ? 'is-sent' : 'is-pend') + (active ? ' is-active' : '') + '" style="--d:' + Math.min(idx, 12) * 35 + 'ms">'
+      + '<div class="ivc-top"><span class="ivc-num">#' + String(inv.number).padStart(4, '0') + '</span>'
+      + (active ? '<span class="ivc-active"><i data-lucide="zap"></i>Activa</span>' : '')
+      + '<span class="invoice-badge ' + (sent ? 'sent' : 'pending') + '">' + (sent ? 'Enviada' : 'Pendiente') + '</span></div>'
+      + '<button type="button" class="ivc-main" onclick="openInvoiceDetail(\'' + inv.id + '\')" title="Ver detalle">'
+      + '<span class="ivc-name">' + esc(inv.name || 'Sin nombre') + '</span>'
+      + '<span class="ivc-date"><i data-lucide="calendar"></i>' + esc(invRelDate(inv.date)) + '</span>'
+      + '<span class="ivc-stats"><span><small>Productos</small><b>' + refs + '</b></span><span><small>Unidades</small><b>' + uds + '</b></span><span class="tot"><small>Total</small><b>' + money(total) + '</b></span></span>'
+      + '</button>'
+      + '<div class="ivc-actions">'
+      + (active ? '' : '<button type="button" class="inv-btn ghost" onclick="setActiveInvoice(\'' + inv.id + '\');renderInvoices();showToast(\'Factura activa\',\'#' + String(inv.number).padStart(4, '0') + '\',\'success\',1800)" title="Usar esta factura para agregar productos"><i data-lucide="zap"></i><span>Activar</span></button>')
+      + '<button type="button" class="inv-btn ghost" onclick="openInvoiceDetail(\'' + inv.id + '\')"><i data-lucide="list"></i><span>Detalle</span></button>'
+      + '<button type="button" class="inv-btn ' + (sent ? 'sent' : 'send') + '" onclick="confirmSendInvoice(\'' + inv.id + '\')"><i data-lucide="' + (sent ? 'refresh-cw' : 'upload-cloud') + '"></i><span>' + (sent ? 'Re-enviar' : 'Enviar') + '</span></button>'
+      + '</div>'
+      + '<div class="ivc-opts">'
+      + '<button class="inv-tg qty ' + (inv.withQty !== false ? 'on' : '') + '" id="btn-qty-' + inv.id + '" onclick="toggleInvoiceQty(\'' + inv.id + '\')" aria-pressed="' + (inv.withQty !== false) + '" title="Enviar con cantidad o con 0"><i data-lucide="package"></i><span class="inv-tg-label">' + (inv.withQty !== false ? 'Con cantidad' : 'Sin cantidad') + '</span></button>'
+      + '<button class="inv-tg shoe ' + (inv.shoeDelivered ? 'on' : '') + '" id="btn-shoe-' + inv.id + '" onclick="toggleShoeStatus(\'' + inv.id + '\')" aria-pressed="' + !!inv.shoeDelivered + '" title="¿Se entregaron los zapatos?"><i data-lucide="footprints"></i><span>Zapatos: <b class="inv-tg-state">' + (inv.shoeDelivered ? 'Sí' : 'No') + '</b></span></button>'
+      + '<button class="inv-btn danger" onclick="deleteInvoice(\'' + inv.id + '\')" aria-label="Eliminar factura" title="Eliminar factura"><i data-lucide="trash-2"></i></button>'
+      + '</div></article>';
+  }).join('');
 
-  // Ordenar días: más reciente primero (sin-fecha al final)
-  const sortedKeys = Object.keys(groups).sort((a, b) => {
-    if (a === 'sin-fecha') return 1;
-    if (b === 'sin-fecha') return -1;
-    return b.localeCompare(a);
-  });
-
-  sortedKeys.forEach(dateKey => {
-    const dayInvoices = groups[dateKey];
-    const dayTotal = dayInvoices.reduce((s, inv) => s + invoiceCost(inv), 0);
-    const dayCount = dayInvoices.length;
-    const labelStr = dateKey === 'sin-fecha' ? 'Sin fecha'
-      : new Date(dateKey + 'T12:00:00').toLocaleDateString('es-ES', {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
-    const today = new Date().toISOString().split('T')[0];
-    const isToday = dateKey === today;
-    if (!_invoiceDayTouched[dateKey]) _invoiceDayCollapsed[dateKey] = !isToday;
-    const isCollapsed = !!_invoiceDayCollapsed[dateKey];
-
-    const group = document.createElement('div');
-    group.className = 'invoice-day-group';
-    group.innerHTML = `
-      <div class="invoice-day-header" onclick="toggleInvoiceDayGroup('${dateKey}')">
-        <span class="invoice-day-label">${labelStr}</span>
-        <div class="invoice-day-meta">
-          <span class="invoice-day-count">${dayCount} factura${dayCount !== 1 ? 's' : ''}</span>
-          <span class="invoice-day-total">$${dayTotal.toLocaleString('es-CO')}</span>
-          <i data-lucide="chevron-down" class="invoice-day-chevron${isCollapsed ? ' collapsed' : ''}" id="inv-day-chevron-${dateKey}"></i>
-        </div>
-      </div>
-      <div class="invoice-day-body${isCollapsed ? ' collapsed' : ''}" id="inv-day-body-${dateKey}"></div>`;
-
-    const body = group.querySelector('.invoice-day-body');
-    dayInvoices.forEach(inv => {
-      const total = invoiceCost(inv);
-      const totalItems = inv.items.reduce((s,it) => s + it.qty, 0);
-      const dateStr = inv.date ? new Date(inv.date+'T12:00:00').toLocaleDateString('es-ES',{day:'2-digit',month:'short',year:'numeric'}) : '—';
-      const card = document.createElement('div');
-      card.className = 'invoice-card';
-      card.innerHTML = `
-        <div class="invoice-card-header">
-          <div style="flex:1;min-width:0;">
-            <div class="invoice-number">Factura #${String(inv.number).padStart(4,'0')}</div>
-            <div class="invoice-name">${inv.name || 'Sin nombre'}</div>
-            <div class="invoice-date"><i data-lucide="calendar" style="width:11px;height:11px;vertical-align:-1px;margin-right:3px;"></i>${dateStr} · ${totalItems} ud${totalItems!==1?'s':''}</div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-            <span class="invoice-badge ${inv.status==='sent'?'sent':'pending'}">${inv.status==='sent'?'Enviada':'Pendiente'}</span>
-            <span style="font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:800;color:var(--green);">$${total.toLocaleString('es-CO')}</span>
-          </div>
-        </div>
-        <div class="inv-actions">
-          <div class="inv-actions-main">
-            <button class="inv-btn ghost" onclick="openInvoiceDetail('${inv.id}')">
-              <i data-lucide="list"></i><span>Ver detalle</span>
-            </button>
-            <button class="inv-btn ${inv.status==='sent' ? 'sent' : 'send'}" onclick="confirmSendInvoice('${inv.id}')">
-              <i data-lucide="${inv.status==='sent' ? 'refresh-cw' : 'upload-cloud'}"></i><span>${inv.status==='sent' ? 'Re-enviar' : 'Enviar'}</span>
-            </button>
-          </div>
-          <div class="inv-actions-opts">
-            <button class="inv-tg qty ${inv.withQty !== false ? 'on' : ''}" id="btn-qty-${inv.id}" onclick="toggleInvoiceQty('${inv.id}')" aria-pressed="${inv.withQty !== false}" title="Enviar con cantidad o con 0">
-              <i data-lucide="package"></i><span class="inv-tg-label">${inv.withQty !== false ? 'Con cantidad' : 'Sin cantidad'}</span>
-            </button>
-            <button class="inv-tg shoe ${inv.shoeDelivered ? 'on' : ''}" id="btn-shoe-${inv.id}" onclick="toggleShoeStatus('${inv.id}')" aria-pressed="${!!inv.shoeDelivered}" title="¿Se entregaron los zapatos?">
-              <i data-lucide="footprints"></i><span>Zapatos: <b class="inv-tg-state">${inv.shoeDelivered ? 'Sí' : 'No'}</b></span>
-            </button>
-            <button class="inv-btn danger" onclick="deleteInvoice('${inv.id}')" aria-label="Eliminar factura" title="Eliminar factura">
-              <i data-lucide="trash-2"></i>
-            </button>
-          </div>
-        </div>`;
-      body.appendChild(card);
-    });
-
-    container.appendChild(group);
-  });
-
+  container.innerHTML = '<div class="ivg-bar">'
+    + '<div class="ivg-chips">' + chip('all', 'Todas', all.length) + chip('pend', 'Pendientes', nPend) + chip('sent', 'Enviadas', nSent) + '</div>'
+    + '<label class="ivg-search"><i data-lucide="search"></i><input id="ivgSearch" placeholder="Buscar por nombre o número" value="' + esc(invQuery) + '" oninput="setInvQuery(this.value)" autocomplete="off"></label>'
+    + '<div class="ivg-sum">' + list.length + ' factura' + (list.length !== 1 ? 's' : '') + ' · <b>' + money(sumAll) + '</b></div>'
+    + '</div>'
+    + (cards ? '<div class="ivg' + (invNoAnim ? ' noanim' : '') + '">' + cards + '</div>' : '<div class="ivg-none">No hay facturas que coincidan.</div>');
+  invNoAnim = false;
   lucide.createIcons({ nodes: [container] });
 }
 
 // ── Crear factura (sheet) ──
 function openNewInvoiceSheet() {
-  const today = new Date().toISOString().split('T')[0];
+  const today = localISODate();
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay'; overlay.style.zIndex = '1500';
   overlay.innerHTML = `
@@ -9873,6 +9902,15 @@ document.getElementById('productForm').addEventListener('submit', () => {
   setTimeout(() => { if(document.getElementById('page-add').classList.contains('active') && !document.querySelector('.modal-overlay')) kbFocusField('marca'); }, 700);
 });
 
+function toggleSidebar(force){
+  const on = typeof force === 'boolean' ? force : !document.documentElement.classList.contains('sb-min');
+  document.documentElement.classList.toggle('sb-min', on);
+  try{ localStorage.setItem('jahdiel_sidebar_min', on ? '1' : '0'); }catch{}
+  if(typeof TK !== 'undefined' && TK.open) tkClose();
+}
+try{ if(localStorage.getItem('jahdiel_sidebar_min') === '1') document.documentElement.classList.add('sb-min'); }catch{}
+document.querySelectorAll('.bottom-nav .nav-item').forEach(b => { if(!b.title) b.title = (b.querySelector('span')?.textContent || '') + (b.dataset.key ? '  (' + b.dataset.key + ')' : ''); });
+
 function kbGo(page){
   const btn = document.querySelector('.nav-item[data-page="' + page + '"]');
   switchPage(page, btn);
@@ -9891,7 +9929,7 @@ function kbShowHelp(){
     + row(['N'], 'Nuevo producto (va a Marca)') + row(['Enter'], 'Pasar a la siguiente casilla') + row(['Enter'], 'En Cantidad: crear el producto')
     + row(['Ctrl', 'Enter'], 'Crear el producto desde cualquier casilla')
     + '<div class="kb-sec">General</div>'
-    + row(['Esc'], 'Cerrar esta ayuda o la Caja / salir de una casilla') + row(['?'], 'Ver esta ayuda')
+    + row(['Ctrl', 'B'], 'Esconder / mostrar el menú lateral') + row(['Esc'], 'Cerrar esta ayuda o la Caja / salir de una casilla') + row(['?'], 'Ver esta ayuda')
     + '</div></div>';
   ov.addEventListener('click', e => { if(e.target === ov) ov.remove(); });
   document.body.appendChild(ov);
@@ -9915,6 +9953,7 @@ document.addEventListener('keydown', e => {
   if(e.altKey && !e.ctrlKey && !e.metaKey && pages[e.key]){       // Alt+número: funciona aunque estés escribiendo
     if(busy) return; e.preventDefault(); help?.remove(); kbGo(pages[e.key]); return;
   }
+  if((e.ctrlKey || e.metaKey) && !e.altKey && (e.key === 'b' || e.key === 'B') && kbIsDesktop()){ e.preventDefault(); toggleSidebar(); return; }
   if(e.ctrlKey || e.metaKey || e.altKey || kbTyping(document.activeElement)) return;
   if(e.key === '?'){ e.preventDefault(); help ? help.remove() : kbShowHelp(); return; }
   if(busy) return;
