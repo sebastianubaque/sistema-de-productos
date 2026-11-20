@@ -1272,6 +1272,10 @@
     .inv-sheet-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; font-size: 11.5px; color: var(--text2); }
     .inv-sheet-meta > span:first-child { display: inline-flex; align-items: center; gap: 4px; margin-right: 2px; }
     .inv-sheet-meta svg { width: 12px; height: 12px; }
+    .inv-date-edit { position: relative; display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; margin-right: 2px; border-radius: 999px; border: 1px dashed rgba(108,99,255,.45); background: rgba(108,99,255,.08); color: var(--text); font-weight: 600; cursor: pointer; }
+    .inv-date-edit:hover { background: rgba(108,99,255,.18); border-style: solid; }
+    .inv-date-edit .inv-date-pen { width: 11px; height: 11px; opacity: .7; }
+    .inv-date-edit input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; border: 0; padding: 0; color-scheme: dark; }
     .inv-flag { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 999px; background: var(--surface2); border: 1px solid var(--border); font-weight: 600; }
     .inv-flag.on { color: var(--green); border-color: rgba(16,217,160,.3); background: rgba(16,217,160,.08); }
     .inv-sheet-body { overflow-y: auto; flex: 1; padding: 12px 16px; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; gap: 10px; }
@@ -6040,11 +6044,13 @@ function openNewInvoiceSheet() {
     };
     invoices.push(inv);
     saveInvoices();
+    setActiveInvoice(inv.id);                 // la nueva queda seleccionada para empezar a cargar productos
     overlay.remove();
     SFX.create();
-    showToast('Factura creada', `#${String(inv.number).padStart(4,'0')} ${name||''}`, 'success');
+    showToast('Factura creada y activa', `#${String(inv.number).padStart(4,'0')} ${name||''} · ya puedes agregar productos`, 'success');
     renderInvoices();
-    openInvoiceDetail(inv.id);
+    switchPage('add', document.querySelector('.nav-item[data-page="add"]'));   // directo a Agregar
+    if (typeof kbFocusField === 'function' && kbIsDesktop()) kbFocusField('marca');
   };
 }
 
@@ -6159,7 +6165,8 @@ function renderInvoiceDetailContent(overlay, inv) {
             <div class="inv-sheet-num">Factura #${String(inv.number).padStart(4,'0')}</div>
             <div class="inv-sheet-name">${esc(inv.name || 'Sin nombre')}</div>
             <div class="inv-sheet-meta">
-              <span><i data-lucide="calendar"></i>${dateStr}</span>
+              <label class="inv-date-edit" title="Cambiar la fecha de la factura"><i data-lucide="calendar"></i><span>${dateStr}</span><i data-lucide="pencil" class="inv-date-pen"></i>
+                <input type="date" value="${inv.date || ''}" aria-label="Fecha de la factura" onclick="try{this.showPicker()}catch(e){}" onchange="changeInvoiceDate('${inv.id}', this.value)"></label>
               <span class="invoice-badge ${sent ? 'sent' : 'pending'}">${sent ? 'Enviada' : 'Pendiente'}</span>
               <span class="inv-flag qty ${inv.withQty !== false ? 'on' : ''}"><i data-lucide="package"></i>${inv.withQty !== false ? 'Con cantidad' : 'Sin cantidad'}</span>
               <span class="inv-flag shoe ${inv.shoeDelivered ? 'on' : ''}"><i data-lucide="footprints"></i>Zapatos: ${inv.shoeDelivered ? 'Sí' : 'No'}</span>
@@ -6186,6 +6193,23 @@ function renderInvoiceDetailContent(overlay, inv) {
       </div>
     </div>`;
   lucide.createIcons({ nodes: [overlay] });
+}
+
+// Cambiar la fecha de una factura ya creada (toca la fecha en el detalle de la factura)
+function changeInvoiceDate(invId, value) {
+  const inv = invoices.find(i => i.id === invId); if (!inv) return;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) { showToast('Fecha no válida', 'Elige una fecha del calendario.', 'warning'); return; }
+  if (value === inv.date) return;
+  const antes = inv.date;
+  inv.date = value;
+  inv.updatedAt = new Date().toISOString();
+  saveInvoices();
+  renderInvoices();
+  refreshAllInvoiceBars && refreshAllInvoiceBars();
+  const overlay = document.getElementById('invoiceDetailOverlay');
+  if (overlay) renderInvoiceDetailContent(overlay, inv);
+  const f = d => d ? new Date(d + 'T12:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) : '—';
+  showToast('Fecha cambiada', f(antes) + ' → ' + f(value) + (inv.status === 'sent' ? ' · Re-envíala a Sheets para actualizarla allá.' : ''), 'success', inv.status === 'sent' ? 6000 : 3000);
 }
 
 function removeInvoiceItem(invId, idx) {
